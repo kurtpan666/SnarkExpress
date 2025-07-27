@@ -117,6 +117,11 @@ We propose PIP$_{\text {FRI }}$, an FRI-based MLPCS that unites the linear prove
 Its distributed version DePIP ${ }_{\text {FRI }}$ delivers the first code-based distributed SNARK for arbitrary circuits over a single polynomial, and further achieves accountability. DePIP ${ }_{\text {FRI }}$ outperforms DeVirgo (CCS'22)---the only prior code-based distributed MLPCS, limited to data-parallel circuits and lacking accountability---by $25 \times$ in prover time and $7 \times$ in communication, with the same number of provers.
 A central insight in both constructions is the shred-to-shine technique. It further yields a group-based MLPCS of independent interest, with $16 \times$ shorter structured reference string and $10 \times$ faster opening time than multilinear KZG (TCC'13).
 
+\section{\cite{cryptoeprint:2025/1364} A Framework for Witness Encryption from Linearly Verifiable {SNARKs} and Applications}
+
+In this work we make progress by designing a modular and extensible framework, which allows us to better understand existing schemes and further enables us to construct new witness encryption schemes. The framework is designed around simple but powerful building blocks that we refer to as "gadgets". Gadgets can be thought of as witness encryption schemes for small targeted relations (induced by linearly verifiable arguments) but they can be composed with each other to build larger, more expressive relations that are useful in applications. To highlight the power of our framework we methodically recover past results, improve upon them and even provide new feasibility results.
+The first application of our framework is a Registered Attribute-Based Encryption Scheme [Hohenberger et al. (Eurocrypt 23)] with linear sized common reference string (CRS). 
+Our second application is a feasibility result for Registered Threshold Encryption (RTE) with succinct ciphertexts. 
 
 
 \bibliographystyle{alpha}
