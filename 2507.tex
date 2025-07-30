@@ -123,6 +123,14 @@ In this work we make progress by designing a modular and extensible framework, w
 The first application of our framework is a Registered Attribute-Based Encryption Scheme [Hohenberger et al. (Eurocrypt 23)] with linear sized common reference string (CRS). 
 Our second application is a feasibility result for Registered Threshold Encryption (RTE) with succinct ciphertexts. 
 
+\section{\cite{cryptoeprint:2025/1366} NOPE: Strengthening domain authentication with succinct proofs}
+
+This paper describes the design, implementation, and experimental evaluation of NOPE, a new mechanism for server authentication that uses succinct proofs (for example, zero-knowledge proofs) to prove that a DNSSEC chain exists that links a public key to a specified domain.
+
+\section{\cite{cryptoeprint:2025/1368} Post-Quantum Readiness in EdDSA Chains}
+
+In this work, we observe that blockchains employing EdDSA with RFC 8032-compliant key derivation (e.g., Sui, Solana, Near, Stellar, Aptos, Cosmos) possess an underexplored structural advantage. Specifically, EdDSA’s hash-based deterministic secret key generation enables post-quantum zero-knowledge proofs of elliptic curve private key ownership, which can help switching to a quantum-safe algorithm proactively without requiring transfer of assets to new addresses.
+We demonstrate how Post-Quantum NIZKs can be constructed to prove knowledge of the "seed" used in EdDSA key derivation, enabling post-quantum-secure transaction authorization without altering addresses or disclosing elliptic curve data. 
 
 \bibliographystyle{alpha}
 \bibliography{kurt}
