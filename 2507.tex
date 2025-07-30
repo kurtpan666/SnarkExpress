@@ -132,6 +132,14 @@ This paper describes the design, implementation, and experimental evaluation of 
 In this work, we observe that blockchains employing EdDSA with RFC 8032-compliant key derivation (e.g., Sui, Solana, Near, Stellar, Aptos, Cosmos) possess an underexplored structural advantage. Specifically, EdDSA’s hash-based deterministic secret key generation enables post-quantum zero-knowledge proofs of elliptic curve private key ownership, which can help switching to a quantum-safe algorithm proactively without requiring transfer of assets to new addresses.
 We demonstrate how Post-Quantum NIZKs can be constructed to prove knowledge of the "seed" used in EdDSA key derivation, enabling post-quantum-secure transaction authorization without altering addresses or disclosing elliptic curve data. 
 
+\section{\cite{cryptoeprint:2025/1373} A Zero-Knowledge Proof for the Syndrome Decoding Problem in the Lee Metric}
+The syndrome decoding problem is one of the NP-complete problems lying at the foundation of code-based cryptography. The variant thereof where the distance between vectors is measured with respect to the Lee metric, rather than the more commonly used Hamming metric, has been analyzed recently in several works due to its potential relevance for building more efficient code-based cryptosystems. The purpose of this article is to present a zero-knowledge proof of knowledge for this variant of the problem.
+
+\section{\cite{cryptoeprint:2025/1374} An Attack to Universally Composable Commitments from Malicious Physically Uncloneable Functions and how to Avoid it}
+In this work, we explore the possibility of unconditionally secure universally composable (UC) commitments, a very relevant cryptographic primitive in the context of secure multi-party computation. To this end, we assume the existence of Physically Uncloneable Functions (PUFs), a hardware security assumption
+that has been proven useful for securely achieving diverse tasks. In prior work [ASIACRYPT 2013, LNCS, vol. 8270, pp. 100–119] it was shown that a protocol for unconditional UC-secure commitments can be constructed even when the PUFs are malicious. Here, we report an attack to this protocol, as well as a few more issues that we identified in its construction. To address them, first we revise some of the previous PUF properties, and introduce new properties and tools that allow us to rigorously develop and present the security proofs. Second, we propose two different ways for making the commitment scheme secure against the attack we found. The first involves considering a new model where the creator of a PUF is notified whenever the PUF is queried
+and the second involves restricting adversaries to only being able to create stateless malicious PUFs. Finally, we analyze the efficiency of our schemes and show that our constructions are advantageous in this respect compared to the original proposal.
+
 \bibliographystyle{alpha}
 \bibliography{kurt}
 
