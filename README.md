@@ -1,1 +1,123 @@
-# serious
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZKExpress - Zero-Knowledge Proof Express</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        .issues {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        .issue {
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #fafbfc;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .issue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+        .issue h3 {
+            margin: 0 0 15px 0;
+            color: #24292e;
+            font-size: 1.3em;
+        }
+        .links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .link {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .pdf-link {
+            background-color: #dc3545;
+            color: white;
+        }
+        .pdf-link:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
+        }
+        .tex-link {
+            background-color: #28a745;
+            color: white;
+        }
+        .tex-link:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #6a737d;
+            border-top: 1px solid #e1e4e8;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ZKExpress</h1>
+        <p>Zero-Knowledge Proof Express</p>
+    </div>
+
+    <div class="issues">
+        <h2>Issues</h2>
+        
+        <div class="issue">
+            <h3>Issue 2507 (July 2025)</h3>
+            <div class="links">
+                <a href="2507.pdf" class="link pdf-link" target="_blank">
+                    📄 PDF Version
+                </a>
+                <a href="2507.tex" class="link tex-link" target="_blank">
+                    📝 TEX Source
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2025 ZKExpress | Visit: <a href="https://express.zkpunk.pro">express.zkpunk.pro</a></p>
+    </div>
+</body>
+</html>
