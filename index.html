@@ -39,13 +39,29 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding: 30px;
         }
+        .issues-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .issues-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .issues-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
         .issue {
             border: 1px solid #e1e4e8;
             border-radius: 8px;
             padding: 20px;
-            margin-bottom: 20px;
             background: #fafbfc;
             transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 0;
         }
         .issue:hover {
             transform: translateY(-2px);
@@ -122,27 +138,29 @@
         
         <h2>Issues</h2>
         
-        <div class="issue">
-            <h3>Issue 0002 (2025-08)</h3>
-            <div class="links">
-                <a href="2508.pdf" class="link pdf-link" target="_blank">
-                    📄 .pdf
-                </a>
-                <a href="2508.tex" class="link tex-link" target="_blank">
-                    📝 .tex
-                </a>
+        <div class="issues-grid">
+            <div class="issue">
+                <h3>002 (2025-08)</h3>
+                <div class="links">
+                    <a href="2508.pdf" class="link pdf-link" target="_blank">
+                        📄 .pdf
+                    </a>
+                    <a href="2508.tex" class="link tex-link" target="_blank">
+                        📝 .tex
+                    </a>
+                </div>
             </div>
-        </div>
-        
-        <div class="issue">
-            <h3>Issue 0001 (2025-07)</h3>
-            <div class="links">
-                <a href="2507.pdf" class="link pdf-link" target="_blank">
-                    📄 .pdf
-                </a>
-                <a href="2507.tex" class="link tex-link" target="_blank">
-                    📝 .tex
-                </a>
+            
+            <div class="issue">
+                <h3>001 (2025-07)</h3>
+                <div class="links">
+                    <a href="2507.pdf" class="link pdf-link" target="_blank">
+                        📄 .pdf
+                    </a>
+                    <a href="2507.tex" class="link tex-link" target="_blank">
+                        📝 .tex
+                    </a>
+                </div>
             </div>
         </div>
     </div>
