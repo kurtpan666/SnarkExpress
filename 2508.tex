@@ -100,6 +100,20 @@ P=NP !) and is concretely efficient.
 \section{\cite{cryptoeprint:2025/1473} Time-Space Trade-Offs for Sumcheck}
 We study time-space tradeoffs for the prover of the sumcheck protocol in the streaming model, and provide upper and lower bounds that tightly characterize the efficiency achievable by the prover.
 
+\section{\cite{cryptoeprint:2025/1489} PQ-STAR: Post-Quantum Stateless Auditable Rekeying} 
+We introduce Post-Quantum Stateless Auditable Rekeying (PQ-STAR), a novel post-quantum secure stateless rekeying scheme with audit support. PQ-STAR is presented in three variants of increasing security guarantees: (i) Plain PQ-STAR lets an authorized auditor decrypt and verify selected ciphertexts; (ii) Commitment-based PQ-STAR with the additional binding guarantee from the commitments, preventing a malicious sender from potentially claiming a random or wrong session key. (iii) Zero-knowledge PQ-STAR equips each session key with a signature-based zero-knowledge proof (ZKP), which proves that the session key was derived honestly, without ever revealing the secret preimage. We formally prove that all variants achieve key-uniqueness, index-hiding, and forward-secrecy, even if a probabilistic polynomial-time (PPT) adversary arbitrarily learns many past session keys.
+
+\section{\cite{cryptoeprint:2025/1535} Tight Bounds on Uniform-Challenge Black-Box Reductions from Sigma Protocols}
+
+In this work, we show that this quadratic loss is inherent for two natural classes of reductions. For interactive protocols, we prove it for uniform-challenge, black-box reductions, which query the adversary using uniformly sampled challenges. For non-interactive protocols (i.e., in the random-oracle model), we prove it for weakly programmable, black-box reductions, which answer the adversary’s oracle queries with uniformly sampled outputs. Applying our bounds to the reductions from Schnorr identification and signatures to discrete logarithm yields lower bounds that match known positive results—namely, the classical worst-case reduction of Pointcheval and Stern (Journal of Cryptology, 2000) and the higher-moment reduction of Rotem and Segev (Journal of Cryptology, 2024).
+Our approach reduces the analysis of such reductions to the values of simple hitting games—combinatorial games that we introduce. Bounding these games is our main technical contribution, and we believe these bounds can enable more modular proofs of related results.
+
+
+\section{\cite{cryptoeprint:2025/1536} Inner-Product Commitments Over Integers With Applications to Succinct Arguments}
+
+Due to the significant applicability of inner-product arguments (IPA) in constructing succinct proof systems, in this work, we extend them to work natively in the integer setting. We introduce and construct inner-product commitment schemes over integers that allow a prover to open two committed integer vectors to a claimed inner product. The commitment size is constant and the verification proof size is logarithmic in the vector length. The construction significantly improves the slackness parameter of witness extraction, surpassing the existing state-of-the-art approach. Our construction is based on the folding techniques for Pedersen commitments defined originally over $\mathbb{Z}_p$.
+Building upon our IPAs, we first present a novel batchable argument of knowledge of nonnegativity of exponents that can be used to further reduce the proof size of Dew-PCS (Arun et al., PKC 2023). Second, we present a construction for range proofs that allows for extremely efficient batch verification of a large number of range proofs over much larger intervals. We also provide a succinct zero-knowledge argument of knowledge with a logarithmic-size proof for more general arithmetic circuit satisfiability over integers.
+
 \bibliographystyle{alpha}
 \bibliography{kurt}
 
