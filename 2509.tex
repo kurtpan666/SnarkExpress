@@ -1,0 +1,65 @@
+\documentclass[11pt]{article}
+
+\usepackage[colorlinks=true, linkcolor=magenta, citecolor=magenta, urlcolor=magenta, backref=page]{hyperref}
+\renewcommand*{\backrefalt}[4]{
+    \ifcase #1 
+        No citation in the text.
+    \or
+        (In page #2).
+    \else
+        (In pages #2).
+    \fi}
+        
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{dutchcal}
+\usepackage{mathbbol}
+\usepackage[keys,
+advantage,
+operators ,
+sets,
+adversary,
+landau,
+probability,
+notions,
+logic,
+ff ,
+mm,
+primitives,
+events,
+complexity,
+asymptotics,
+keys]{cryptocode}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\theoremstyle{plain}
+\newtheorem{proposition}{Proposition}[section]
+
+
+\begin{document}
+\title{ZKExpress (2025.09)}
+\author{Kurt Pan @ \href{https://zkpunk.pro}{ZKPunk}}
+\date{\today}
+\maketitle
+\tableofcontents
+
+\section{\cite{cryptoeprint:2025/1546} Incrementally Verifiable Computation for NP from Standard Assumptions}
+In this work, we observe that the Gentry-Wichs barrier can be overcome for IVC for NP. We show the following two results: - Assuming subexponential $i\mathcal{O}$ and LWE (or bilinear maps), we construct IVC for all $\mathsf{NP}$ with proof size $\mathsf{poly}(|x_i|,\log T)$. - Assuming subexponential $i\mathcal{O}$ and injective PRGs, we construct IVC for trapdoor IVC languages where the proof-size is $\mathsf{poly}(\log T)$. Informally, an IVC language has a trapdoor if there exists a (not necessarily easy to find) polynomial-sized circuit that determines if a configuration $x_i$ is reachable from $x_0$ in $i$ steps.
+
+\section{\cite{cryptoeprint:2025/1547} Silent Threshold Cryptography from Pairings: Expressive Policies in the Plain Model}
+ In this work, we introduce a new pairing-based approach for constructing threshold signatures and encryption schemes with silent setup. On the one hand, our techniques directly allow us to support expressive policies like monotone Boolean formulas in addition to thresholds. On the other hand, we only rely on basic algebraic tools (i.e., a simple cross-term cancellation strategy), which yields constructions with shorter signatures and ciphertexts compared to previous pairing-based constructions. As an added bonus, we can also prove (static) security under $q$-type assumptions in the plain model. Concretely, the signature size in our distributed threshold signature scheme is 3 group elements and the ciphertext size in our distributed threshold encryption scheme is 4 group elements (together with a short tag).
+ \section{\cite{cryptoeprint:2025/1548} Pairing-Based Aggregate Signatures without Random Oracles}
+ In this work, we focus on simple aggregate signatures in the plain model. We construct a pairing-based aggregate signature scheme that supports aggregating an a priori bounded number of signatures $N$. The size of the aggregate signature is just two group elements. Security relies on the (bilateral) computational Diffie-Hellman (CDH) problem in a pairing group. To our knowledge, this is the first group-based aggregate signature in the plain model where (1) there is no restriction on what type of signatures can be aggregated; (2) the aggregated signature contains a constant number of group elements; and (3) security is based on static falsifiable assumptions in the plain model. The limitation of our scheme is that our scheme relies on a set of public parameters (whose size scales with $N$) and individual signatures (before aggregation) also have size that scale with $N$. Essentially, individual signatures contain some additional hints to enable aggregation. Our starting point is a new notion of slotted aggregate signatures. Here, each signature is associated with a "slot" and we only support aggregating signatures associated with distinct slots. We then show how to generically lift a slotted aggregate signature scheme into a standard aggregate signature scheme at the cost of increasing the size of the original signatures.
+\section{\cite{cryptoeprint:2025/1554} UniCross: A Universal Cross-Chain Payment Protocol with On-demand Privacy and High Scalability}
+This paper proposes a universal cross-chain payment framework. This framework enables payments across a wide range of blockchains since it is independent of any specific blockchain features. Moreover, this framework provides on-demand privacy and high scalability. To instantiate the framework, we introduce $\mathsf{UniCross}$, a novel universal cross-chain payment protocol. Concretely, we utilize the ring learning with errors (RLWE)-based encryption scheme and propose a new non-interactive zero-knowledge (NIZK) protocol, named $\mathsf{HybridProof}$, to construct $\mathsf{UniCross}$. We formally define the security of the universal cross-chain payment framework and prove the universal composability (UC) security of $\mathsf{UniCross}$. The proof-of-concept implementation and evaluation demonstrate that (1) $\mathsf{UniCross}$ consumes up to 78\% and 94\% less communication and computation cost than the state-of-the-art work; (2) $\mathsf{UniCross}$ achieves a throughput ($\sim$360 tps) 36$\times$ that of the state-of-the-art work ($\sim$10 tps).
+\section{\cite{cryptoeprint:2025/1558} Lower Bounding Update Frequency in Short Accumulators and Vector Commitments}
+We study the inherent limitations of additive accumulators and updatable vector commitments (VCs) with constant-size digest (i.e., independent of the number of committed elements). Specifically, we prove two lower bounds on the expected number of membership proofs that must be updated when a \emph{single} element is added (or updated) in such data structures. Our results imply that when the digest bit length approaches the concrete security level, then the expected number of proofs invalidated due to an append operation for a digest committing to $n$ elements is nearly maximal: $n-\mathsf{negl}(\lambda)$ in the case of exponential-size universes, and $n-o(n)$ for super-polynomial universes. Our results have significant implications for stateless blockchain designs relying on constant-size VCs, suggesting that the overhead of frequent proof updates may offset the benefits of reducing global state storage.
+\section{\cite{cryptoeprint:2025/1566} Lattice-based Threshold Blind Signatures}
+We present the first construction of a threshold blind signature secure in the post-quantum setting, based on lattices. We prove its security under an interactive variant of the SIS assumption introduced in [Agrawal et al., CCS’22]. Our construction has a reasonable overhead of a factor of roughly 1.4 X to 2.5 X in signature size over comparable non-threshold blind signatures over lattices under heuristic but natural assumptions.
+\section{\cite{cryptoeprint:2025/1569} How Hard Can It Be to Formalize a Proof? Lessons from Formalizing CryptoBox Three Times in EasyCrypt}
+We present a new security proof for the generic construction of a PKAE scheme from a NIKE and AE scheme, written in a code-based, game-playing style à la Bellare and Rogaway, and compare it to the same proof written in the style of state-separating proofs, a methodology for developing modular game-playing security proofs. Additionally, we explore a third “blended” style designed to avoid anticipated difficulties with the formalization. Our findings suggest that the choice of definition style impacts proof complexity—including, we argue, in detailed pen-and-paper proofs—with trade-offs depending on the proof writer’s goals.
+\bibliographystyle{alpha}
+\bibliography{kurt}
+
+\end{document}
