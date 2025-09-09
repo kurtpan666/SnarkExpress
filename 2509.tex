@@ -1,14 +1,55 @@
 \documentclass[11pt]{article}
 
-\usepackage[colorlinks=true, linkcolor=magenta, citecolor=magenta, urlcolor=magenta, backref=page]{hyperref}
-\renewcommand*{\backrefalt}[4]{
-    \ifcase #1 
-        No citation in the text.
-    \or
-        (In page #2).
-    \else
-        (In pages #2).
-    \fi}
+\usepackage[colorlinks=true, linkcolor=magenta, citecolor=magenta, urlcolor=magenta]{hyperref}
+
+\usepackage[style=alphabetic,backend=biber,backref=true,url=false,doi=false]{biblatex}
+% 自動將有URL的條目標題設為鏈接
+\newbibmacro{string+url}[1]{%
+  \iffieldundef{url}{#1}{\href{\thefield{url}}{#1}}}
+
+\DeclareFieldFormat{title}{\usebibmacro{string+url}{\mkbibemph{#1}}}
+\DeclareFieldFormat[article]{title}{\usebibmacro{string+url}{\mkbibquote{#1}}}
+
+\ExecuteBibliographyOptions{maxalphanames=4,minalphanames=4}
+\ExecuteBibliographyOptions{maxnames=99,minnames=99}
+
+% 自定义标签格式
+\DeclareLabelalphaTemplate{
+  \labelelement{
+    \field[final]{shorthand}
+    \field{label}
+    \field[strwidth=3,strside=left,ifnames=1]{labelname}
+    \field[strwidth=1,strside=left]{labelname}
+  }
+  \labelelement{
+    \field[strwidth=2,strside=right]{year}
+  }
+}
+
+% 控制作者名称处理
+\DeclareNameFormat{labelname}{%
+  \ifcase\value{uniquename}%
+    \usebibmacro{name:family}
+      {\namepartfamily}
+      {\namepartgiven}
+      {\namepartprefix}
+      {\namepartsuffix}%
+  \or
+    \ifuseprefix
+      {\usebibmacro{name:given-family}
+        {\namepartfamily}
+        {\namepartgiveni}
+        {\namepartprefix}
+        {\namepartsuffixi}}
+      {\usebibmacro{name:given-family}
+        {\namepartfamily}
+        {\namepartgiveni}
+        {\namepartprefix}
+        {\namepartsuffixi}}%
+  \fi}
+
+\addbibresource{kurt.bib}
+
         
 \usepackage{amsmath,amssymb,amsfonts,amsthm}
 \usepackage{dutchcal}
@@ -37,6 +78,9 @@ keys]{cryptocode}
 \newtheorem{proposition}{Proposition}[section]
 
 
+
+
+
 \begin{document}
 \title{ZKExpress (2025.09)}
 \author{Kurt Pan @ \href{https://zkpunk.pro}{ZKPunk}}
@@ -63,9 +107,17 @@ We present a new security proof for the generic construction of a PKAE scheme fr
 A method to replace large public keys in GPV-style signatures with smaller, private verification keys. This significantly reduces verifier storage and runtime while preserving security. Applied to the conservative, short-signature schemes Wave and Squirrels.
 \section{\cite{cryptoeprint:2025/1580} IronDict: Transparent Dictionaries from Polynomial Commitments}
 We present IronDict, a transparent dictionary construction based on polynomial commitment schemes. Transparent dictionaries enable an untrusted server to maintain a mutable dictionary and provably serve clients lookup queries.  Our construction makes black-box use of a generic multilinear polynomial commitment scheme and inherits its security notions, i.e. binding and zero-knowledge. We implement our construction with the recent KZH scheme and find that a dictionary with $1$ billion entries can be verified on a consumer-grade laptop in $35$ ms, a $300\times$ improvement over the state of the art, while also achieving $150{,}000\times$ smaller proofs ($8$ KB). In addition, our construction ensures perfect privacy with concretely efficient costs for both the client and the server. We also show fast-forwarding techniques based on incremental verifiable computation (IVC) and checkpoints to enable even faster client auditing.
+\section{\cite{cryptoeprint:2025/1588} Query-Optimal IOPPs for Linear-TIme Encodable Codes}
+We present the first IOPP for a linear-time encodable code that achieves linear prover time and $O(\lambda)$ query complexity, for a broad range of security parameters $\lambda$. No prior work is able to simultaneously achieve this efficiency: it either supports linear-time encodable codes but with worse query complexity [FICS; ePrint 2025], or achieves $O(\lambda)$ query complexity but only for quasilinear-time encodable codes [Minzer, Zheng; FOCS 2025]. Furthermore, we prove a matching lower bound that shows that the query complexity of our IOPP is asymptotically optimal (up to additive factors) for codes with constant rate. We obtain our result by tackling a ubiquitous subproblem in IOPP constructions: checking that a batch of claims hold. Our novel solution to this subproblem is twofold. First, we observe that it is often sufficient to ensure that, with all but negligible probability, most of the claims hold. Next, we devise a new `lossy batching' technique which convinces a verifier of the foregoing promise with lower query complexity than that required to convince it that all the claims hold. This method differs significantly from the line-versus-point test used to achieve query-optimal IOPPs (for quasilinear-time encodable codes) in prior work [Minzer, Zheng; FOCS 2025], and may be of independent interest. Our IOPP can handle all codes that support efficient codeswitching [Ron-Zewi, Rothblum; JACM 2024], including several linear-time encodable codes. Via standard techniques, our IOPP can be used to construct the first (to the best of our knowledge) IOP for NP with $O(n)$ prover time and $O(\lambda)$ query complexity. We additionally show that our IOPP (and by extension the foregoing IOP) is round-by-round tree-extractable and hence can be used to construct a SNARK in the random oracle model with $O(n)$ prover time and $O(\lambda \log n)$ proof size.
 
+\section{\cite{cryptoeprint:2024/1731} Arc: Accumulation for Reed--Solomon Codes}
 
-\bibliographystyle{alpha}
-\bibliography{kurt}
+homomorphic vector commitments
+
+\cite{cryptoeprint:2024/474} 
+
+%\bibliographystyle{alpha}
+%\bibliography{kurt}
+\printbibliography
 
 \end{document}

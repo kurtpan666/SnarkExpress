@@ -1,14 +1,54 @@
 \documentclass[11pt]{article}
 
-\usepackage[colorlinks=true, linkcolor=magenta, citecolor=magenta, urlcolor=magenta, backref=page]{hyperref}
-\renewcommand*{\backrefalt}[4]{
-    \ifcase #1 
-        No citation in the text.
-    \or
-        (In page #2).
-    \else
-        (In pages #2).
-    \fi}
+\usepackage[colorlinks=true, linkcolor=magenta, citecolor=magenta, urlcolor=magenta]{hyperref}
+
+\usepackage[style=alphabetic,backend=biber,backref=true,url=false,doi=false]{biblatex}
+% 自動將有URL的條目標題設為鏈接
+\newbibmacro{string+url}[1]{%
+  \iffieldundef{url}{#1}{\href{\thefield{url}}{#1}}}
+
+\DeclareFieldFormat{title}{\usebibmacro{string+url}{\mkbibemph{#1}}}
+\DeclareFieldFormat[article]{title}{\usebibmacro{string+url}{\mkbibquote{#1}}}
+
+\ExecuteBibliographyOptions{maxalphanames=4,minalphanames=4}
+\ExecuteBibliographyOptions{maxnames=99,minnames=99}
+
+% 自定义标签格式
+\DeclareLabelalphaTemplate{
+  \labelelement{
+    \field[final]{shorthand}
+    \field{label}
+    \field[strwidth=3,strside=left,ifnames=1]{labelname}
+    \field[strwidth=1,strside=left]{labelname}
+  }
+  \labelelement{
+    \field[strwidth=2,strside=right]{year}
+  }
+}
+
+% 控制作者名称处理
+\DeclareNameFormat{labelname}{%
+  \ifcase\value{uniquename}%
+    \usebibmacro{name:family}
+      {\namepartfamily}
+      {\namepartgiven}
+      {\namepartprefix}
+      {\namepartsuffix}%
+  \or
+    \ifuseprefix
+      {\usebibmacro{name:given-family}
+        {\namepartfamily}
+        {\namepartgiveni}
+        {\namepartprefix}
+        {\namepartsuffixi}}
+      {\usebibmacro{name:given-family}
+        {\namepartfamily}
+        {\namepartgiveni}
+        {\namepartprefix}
+        {\namepartsuffixi}}%
+  \fi}
+
+\addbibresource{kurt.bib}
         
 \usepackage{amsmath,amssymb,amsfonts,amsthm}
 \usepackage{dutchcal}
@@ -114,7 +154,6 @@ Our approach reduces the analysis of such reductions to the values of simple hit
 Due to the significant applicability of inner-product arguments (IPA) in constructing succinct proof systems, in this work, we extend them to work natively in the integer setting. We introduce and construct inner-product commitment schemes over integers that allow a prover to open two committed integer vectors to a claimed inner product. The commitment size is constant and the verification proof size is logarithmic in the vector length. The construction significantly improves the slackness parameter of witness extraction, surpassing the existing state-of-the-art approach. Our construction is based on the folding techniques for Pedersen commitments defined originally over $\mathbb{Z}_p$.
 Building upon our IPAs, we first present a novel batchable argument of knowledge of nonnegativity of exponents that can be used to further reduce the proof size of Dew-PCS (Arun et al., PKC 2023). Second, we present a construction for range proofs that allows for extremely efficient batch verification of a large number of range proofs over much larger intervals. We also provide a succinct zero-knowledge argument of knowledge with a logarithmic-size proof for more general arithmetic circuit satisfiability over integers.
 
-\bibliographystyle{alpha}
-\bibliography{kurt}
+\printbibliography
 
 \end{document}
