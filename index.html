@@ -56,6 +56,11 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+        .issue-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
         .issue {
             border: 1px solid rgba(94, 114, 228, 0.2);
             border-radius: 8px;
@@ -64,7 +69,7 @@
             transition: transform 0.2s, box-shadow 0.2s;
             margin-bottom: 0;
         }
-        .issue:hover {
+        .issue-link:hover .issue {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(94, 114, 228, 0.25);
         }
@@ -127,54 +132,27 @@
     </div>
 
     <div class="issues">
-        <h2>Bibliography</h2>
-        
-        <div class="issue">
-            <div class="links">
-                <a href="kurt.bib" class="link bib-link" target="_blank">
-                    📚 kurt.bib
-                </a>
-            </div>
-        </div>
-        
+                
         <h2>Issues</h2>
         
         <div class="issues-grid">
-            <div class="issue">
-                <h3>2025-09</h3>
-                <div class="links">
-                    <a href="2509.pdf" class="link pdf-link" target="_blank">
-                        📄 .pdf
-                    </a>
-                    <a href="2509.tex" class="link tex-link" target="_blank">
-                        📝 .tex
-                    </a>
+            <a href="2509.pdf" class="issue-link" target="_blank">
+                <div class="issue">
+                    <h3>2025-09</h3>
                 </div>
-            </div>
+            </a>
             
-            <div class="issue">
-                <h3>2025-08</h3>
-                <div class="links">
-                    <a href="2508.pdf" class="link pdf-link" target="_blank">
-                        📄 .pdf
-                    </a>
-                    <a href="2508.tex" class="link tex-link" target="_blank">
-                        📝 .tex
-                    </a>
+            <a href="2508.pdf" class="issue-link" target="_blank">
+                <div class="issue">
+                    <h3>2025-08</h3>
                 </div>
-            </div>
+            </a>
             
-            <div class="issue">
-                <h3>2025-07</h3>
-                <div class="links">
-                    <a href="2507.pdf" class="link pdf-link" target="_blank">
-                        📄 .pdf
-                    </a>
-                    <a href="2507.tex" class="link tex-link" target="_blank">
-                        📝 .tex
-                    </a>
+            <a href="2507.pdf" class="issue-link" target="_blank">
+                <div class="issue">
+                    <h3>2025-07</h3>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
