@@ -1,0 +1,193 @@
+\documentclass[11pt]{article}
+
+\usepackage[colorlinks=true, linkcolor=magenta, citecolor=magenta, urlcolor=magenta]{hyperref}
+
+\usepackage[style=alphabetic,backend=biber,backref=true,url=false,doi=false]{biblatex}
+% 自動將有URL的條目標題設為鏈接
+\newbibmacro{string+url}[1]{%
+  \iffieldundef{url}{#1}{\href{\thefield{url}}{#1}}}
+
+\DeclareFieldFormat{title}{\usebibmacro{string+url}{\mkbibemph{#1}}}
+\DeclareFieldFormat[article,inproceedings,incollection]{title}{\usebibmacro{string+url}{\mkbibquote{#1}}}
+
+\ExecuteBibliographyOptions{maxalphanames=4,minalphanames=4}
+\ExecuteBibliographyOptions{maxnames=99,minnames=99}
+
+% 自定义标签格式
+\DeclareLabelalphaTemplate{
+  \labelelement{
+    \field[final]{shorthand}
+    \field{label}
+    \field[strwidth=3,strside=left,ifnames=1]{labelname}
+    \field[strwidth=1,strside=left]{labelname}
+  }
+  \labelelement{
+    \field[strwidth=2,strside=right]{year}
+  }
+}
+
+% 控制作者名称处理
+\DeclareNameFormat{labelname}{%
+  \ifcase\value{uniquename}%
+    \usebibmacro{name:family}
+      {\namepartfamily}
+      {\namepartgiven}
+      {\namepartprefix}
+      {\namepartsuffix}%
+  \or
+    \ifuseprefix
+      {\usebibmacro{name:given-family}
+        {\namepartfamily}
+        {\namepartgiveni}
+        {\namepartprefix}
+        {\namepartsuffixi}}
+      {\usebibmacro{name:given-family}
+        {\namepartfamily}
+        {\namepartgiveni}
+        {\namepartprefix}
+        {\namepartsuffixi}}%
+  \fi}
+
+\addbibresource{kurt.bib}
+
+        
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{dutchcal}
+\usepackage{mathbbol}
+\usepackage[keys,
+advantage,
+operators ,
+sets,
+adversary,
+landau,
+probability,
+notions,
+logic,
+ff ,
+mm,
+primitives,
+events,
+complexity,
+asymptotics,
+keys]{cryptocode}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\theoremstyle{plain}
+\newtheorem{proposition}{Proposition}[section]
+
+
+
+
+
+\begin{document}
+\title{Selected Areas in Cryptography 2025 \\ \small{August 11–15, 2025}}
+\author{Kurt Pan @ \href{https://zkpunk.pro}{ZKPunk}}
+\date{\today}
+\maketitle
+\tableofcontents
+
+\section{A tutorial on Post-Quantum cryptography}
+\begin{center}
+\href{https://sacworkshop.org/SAC25/slides/stinson.pdf}{Slides}
+\end{center}
+
+\begin{quote}
+\textbf{Doug Stinson}, University of Waterloo, Canada
+\end{quote}
+
+We begin with a short introduction to quantum computing and its potential impact on current cryptographic algorithms and we summarize the ongoing NIST standardization process for post-quantum cryptography. We briefly review some important cryptographic tools that are used in the design of post-quantum cryptography, including pseudorandom generators and functions, the random oracle model and key encapsulation mechanisms. Then we discuss the main approaches to post-quantum cryptography, emphasizing the underlying mathematical techniques. These include: - hash-based signature schemes - code-based cryptography (e.g., McEliece, Niederreiter, BIKE, HQC) - lattice-based cryptography (e.g., NTRU, Regev, Kyber, Dilithium) - multivariate cryptography (e.g., Oil and Vinegar) We assume a basic background in cryptography, algebra and number theory.
+
+\section{A Guided Tour through the Jungle of Arithmetization-Oriented Primitives}
+\begin{center}
+\href{https://sacworkshop.org/SAC25/slides/bouvier1.pdf}{Slides} $\|$ \href{https://sacworkshop.org/SAC25/slides/bouvier2.pdf}{Slides}
+\end{center}
+
+\begin{quote}
+\textbf{Clémence Bouvier}, Inria Nancy, France
+\end{quote}
+
+In the last few years, a large number of symmetric primitives have been introduced following the emergence of advanced protocols such as multi-party computation (MPC), in combination with a fully homomorphic encryption (FHE) or in various systems of zero-knowledge proofs (ZKP). These primitives, also known as Arithmetization-Oriented Primitives (AOPs), are based on a specific arithmetic and an unusual environment in symmetric cryptography. In this lecture, we will present the context that led to the emergence of AOPs and propose different ways of classifying them. We will also discuss the latest advances in design and security analysis.
+
+\section{AI to the Rescue: Where AI Meets Cryptography}
+\begin{center}
+\href{https://sacworkshop.org/SAC25/slides/Picek1.pdf}{Slides}
+\end{center}
+
+\begin{quote}
+\textbf{Stjepan Picek}, University of Zagreb, Croatia and Radboud University, Nijmegen, The Netherlands
+\end{quote}
+
+In recent years, artificial intelligence (AI) has become an emerging technology to assess security and privacy. Despite difficult beginnings, today, AI is also used in cryptography, allowing faster (and sometimes) better results than other techniques. AI is successfully applied in a range of cryptographic contexts, including profiled side-channel attacks using neural networks, modeling and attacking physically unclonable functions, detection and classification of hardware Trojans, and even assisting differential cryptanalysis. However, this convergence of AI and cryptography brings a unique set of challenges. The black-box nature of many AI models, the difficulty of ensuring reproducibility, and concerns around adversarial manipulation all pose significant obstacles. In the first part of the talk, we will highlight success stories where AI improved state-of-the-art in cryptography. In the second part of the talk, we will examine what cryptography can do for the security of machine learning. We will cover examples like differential cryptanalysis used for model stealing, indistinguishable backdoors, and cryptography enabling privacy for neural networks. Finally, we will conclude the talk by discussing diverse challenges and future research directions.
+
+\section{Reducing the Number of Qubits in Quantum Factoring}
+\begin{center}
+\href{https://sacworkshop.org/SAC25/slides/fouque.pdf}{Slides}
+\end{center}
+
+\begin{quote}
+\textbf{Pierre-Alain Fouque}, University of Rennes and Institut Universitaire de France, France
+\end{quote}
+
+In this talk, I will recall Shor's quantum algorithm, then its version by Ekera-Hastad through the computation of short discrete-log, before describing our improvement via May-Schlieper hashing technique.
+
+\section{Deep Neural Cryptography}
+\begin{center}
+\href{https://sacworkshop.org/SAC25/slides/Shamir.pdf}{Slides}
+\end{center}
+
+\begin{quote}
+\textbf{Adi Shamir}, Weizmann Institute of Science, Israel
+\end{quote}
+
+The wide adoption of deep neural networks (DNNs) raises the question of how can we equip them with a desired cryptographic functionality (e.g., to decrypt an encrypted input, to verify that this input is authorized, or to hide a secure watermark in the output). The problem is that cryptographic primitives are typically designed to run on digital computers that use Boolean gates to map sequences of bits to sequences of bits, whereas DNNs are a special type of analog computer that uses linear mappings and ReLUs to map vectors of real numbers to vectors of real numbers. In this talk I will describe a new theory of security when digital cryptographic primitives are implemented as ReLU-based DNNs, show that natural implementation techniques are highly insecure, and finally develop a new and completely practical method for implementing any desired cryptographic functionality as a standard ReLU-based DNN in a provably secure and correct way.
+
+
+
+
+\section{Air-FRI: Acceleration of the FRI Protocol on the GPU for zkSNARK Applications}
+
+\begin{center}
+	\href{https://sacworkshop.org/SAC25/preproceedings/sac2025-1-paper8.pdf}{Paper} $\|$ \href{https://sacworkshop.org/SAC25/slides/Jandhyala.pdf}{Slides}
+\end{center}
+
+
+This
+paper presents Air-FRI, a novel GPU-enabled software implementation
+of the Fast Reed-Solomon Interactive Oracle Proof of Proximity (FRI)
+protocol, which is a core component in post-quantum zkSNARKs that
+reduces computational complexity in systems with substantial mathematical instances. Existing schemes that implement the FRI protocol
+entail significant computational times due to large proof sizes. Our optimized solution includes a parallelized computation of Reed-Solomon
+codewords, the pre-computation of time-intensive finite field operations,
+non-interactiveness, and the application of a unified Merkle tree commitment to authenticate the entire proof. Together, the implemented optimizations yield a solution that significantly reduces prover and verifier
+times while minimizing proof size, addressing both scalability and performance challenges in zkSNARK-based algorithms. Performance evaluations conducted by us across two security levels confirm the implementation’s high throughput, establishing it as a promising solution for
+practicable privacy-preservation. Our results show a 93.3\% improvement
+on an average in the speed of the protocol on the GPU as compared to a
+non-GPU solution for the same parameters, which includes the execution
+time of all of its sub-phases: the commit phase, the query phase, and the
+round consistency checks to ensure correctness of the proof. 
+
+\section{Accelerating Post-quantum Secure zkSNARKs by
+Optimizing Additive FFT}
+\begin{center}
+\href{https://sacworkshop.org/SAC25/preproceedings/sac2025-2-paper17.pdf}{Paper} $\|$ \href{https://sacworkshop.org/SAC25/slides/Badakhshan.pdf}{Slides}
+\end{center}
+
+In this paper, we propose
+leveraging the Cantor special basis in post-quantum secure zkSNARKs
+operating over binary extension fields. This approach enables the optimization of the additive Fast Fourier Transform (FFT) algorithm in
+Aurora, a post-quantum secure zkSNARK, by replacing the previously
+used Gao–Mateer FFT with the Cantor and LCH FFTs. Our implementation demonstrates a significant reduction in computation time for
+Aurora, with the potential to accelerate other zkSNARKs utilizing additive FFTs. Additionally, we present a detailed theoretical analysis of
+the computational costs of the Cantor FFT algorithm, providing exact
+counts of additions, multiplications, and precomputation overhead. Furthermore, we analyze the FFT call complexity within the encoding of
+the Rank-1 Constraint System in the Aurora zkSNARK.
+
+
+
+%\bibliographystyle{alpha}
+%\bibliography{kurt}
+\printbibliography
+
+\end{document}
