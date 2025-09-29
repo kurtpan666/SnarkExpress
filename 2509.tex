@@ -110,9 +110,6 @@ We present IronDict, a transparent dictionary construction based on polynomial c
 \section{\cite{cryptoeprint:2025/1588} Query-Optimal IOPPs for Linear-TIme Encodable Codes}
 We present the first IOPP for a linear-time encodable code that achieves linear prover time and $O(\lambda)$ query complexity, for a broad range of security parameters $\lambda$. No prior work is able to simultaneously achieve this efficiency: it either supports linear-time encodable codes but with worse query complexity [FICS; ePrint 2025], or achieves $O(\lambda)$ query complexity but only for quasilinear-time encodable codes [Minzer, Zheng; FOCS 2025]. Furthermore, we prove a matching lower bound that shows that the query complexity of our IOPP is asymptotically optimal (up to additive factors) for codes with constant rate. We obtain our result by tackling a ubiquitous subproblem in IOPP constructions: checking that a batch of claims hold. Our novel solution to this subproblem is twofold. First, we observe that it is often sufficient to ensure that, with all but negligible probability, most of the claims hold. Next, we devise a new `lossy batching' technique which convinces a verifier of the foregoing promise with lower query complexity than that required to convince it that all the claims hold. This method differs significantly from the line-versus-point test used to achieve query-optimal IOPPs (for quasilinear-time encodable codes) in prior work [Minzer, Zheng; FOCS 2025], and may be of independent interest. Our IOPP can handle all codes that support efficient codeswitching [Ron-Zewi, Rothblum; JACM 2024], including several linear-time encodable codes. Via standard techniques, our IOPP can be used to construct the first (to the best of our knowledge) IOP for NP with $O(n)$ prover time and $O(\lambda)$ query complexity. We additionally show that our IOPP (and by extension the foregoing IOP) is round-by-round tree-extractable and hence can be used to construct a SNARK in the random oracle model with $O(n)$ prover time and $O(\lambda \log n)$ proof size.
 
-\section{\cite{cryptoeprint:2024/1731} Arc: Accumulation for Reed--Solomon Codes}
-
-homomorphic vector commitments
 
 \cite{cryptoeprint:2024/474} 
 
@@ -157,6 +154,10 @@ In this work, we present ZIP, an efficient and precise commit and prove zero-kno
 
 \section{\cite{cryptoeprint:2025/1741} Full L1 On-Chain ZK-STARK+PQC Verification on Solana: A Measurement Study}
 This work investigates whether a fully on-chain pipeline that verifies both a ZK-STARK and a post-quantum signature can operate within Solana L1's compute and memory constraints. Our prototype adapts Winterfell 0.12 with a dedicated SHA-256 hashv syscall path to reduce hashing overhead, suppresses inlining in FRI hotspots to respect SBF (Solana BPF) stack limits, and uses a custom bump allocator synchronized with requested heap frames. 
+
+\section{\cite{cryptoeprint:2025/1759} Plonk is Simulation Extractable in ROM Under Falsifiable Assumptions}
+Solving a long-standing open problem, Faonio, Fiore, and Russo proved that the widely used Plonk zk-SNARK is simulation extractable. However, their proof assumes both the random oracle model (ROM) and the algebraic group model. We prove that the same holds in the ROM under falsifiable assumptions. We combine the template of Faust et al., who proved that simulation extractability follows from knowledge soundness, (weak) unique response, and trapdoorless zero-knowledge, with the recent result of Lipmaa, Parisella, and Siim (Crypto 2025), who proved that Plonk has knowledge soundness in the ROM under falsifiable assumptions. For this, we prove that Plonk satisfies new variants of the weak unique response and trapdoorless zero-knowledge properties. We prove that several commonly used gadgets, like the linearization trick, are not trapdoorless zero-knowledge when considered as independent commit-and-prove zk-SNARKs.
+
 
 %\bibliographystyle{alpha}
 %\bibliography{kurt}
