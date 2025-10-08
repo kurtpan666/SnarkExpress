@@ -1,0 +1,209 @@
+\documentclass[11pt,oneside]{book}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{microtype}
+
+\usepackage[colorlinks=true, linkcolor=magenta, citecolor=magenta, urlcolor=magenta]{hyperref}
+
+\usepackage[style=alphabetic,backend=biber,backref=true,url=false,doi=false]{biblatex}
+% 自動將有URL的條目標題設為鏈接
+\newbibmacro{string+url}[1]{%
+  \iffieldundef{url}{#1}{\href{\thefield{url}}{#1}}}
+
+\DeclareFieldFormat{title}{\usebibmacro{string+url}{\mkbibemph{#1}}}
+\DeclareFieldFormat[article,inproceedings,incollection]{title}{\usebibmacro{string+url}{\mkbibquote{#1}}}
+
+\ExecuteBibliographyOptions{maxalphanames=4,minalphanames=4}
+\ExecuteBibliographyOptions{maxnames=99,minnames=99}
+\setlength{\bibitemsep}{0.8em}
+\setlength{\bibhang}{2em}
+
+% 自定义标签格式
+\DeclareLabelalphaTemplate{
+  \labelelement{
+    \field[final]{shorthand}
+    \field{label}
+    \field[strwidth=3,strside=left,ifnames=1]{labelname}
+    \field[strwidth=1,strside=left]{labelname}
+  }
+  \labelelement{
+    \field[strwidth=2,strside=right]{year}
+  }
+}
+
+% 控制作者名称处理
+\DeclareNameFormat{labelname}{%
+  \ifcase\value{uniquename}%
+    \usebibmacro{name:family}
+      {\namepartfamily}
+      {\namepartgiven}
+      {\namepartprefix}
+      {\namepartsuffix}%
+  \or
+    \ifuseprefix
+      {\usebibmacro{name:given-family}
+        {\namepartfamily}
+        {\namepartgiveni}
+        {\namepartprefix}
+        {\namepartsuffixi}}
+      {\usebibmacro{name:given-family}
+        {\namepartfamily}
+        {\namepartgiveni}
+        {\namepartprefix}
+        {\namepartsuffixi}}%
+  \fi}
+
+\addbibresource{kurt.bib}
+
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{dutchcal}
+\usepackage{mathbbol}
+\usepackage[keys,
+advantage,
+operators ,
+sets,
+adversary,
+landau,
+probability,
+notions,
+logic,
+ff ,
+mm,
+primitives,
+events,
+complexity,
+asymptotics,
+keys]{cryptocode}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\theoremstyle{plain}
+\newtheorem{proposition}{Proposition}[section]
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.8em}
+\linespread{1.1}
+
+\usepackage{shadowtext}
+\usepackage{contour}
+
+\begin{document}
+\thispagestyle{empty}
+\shadowcolor{magenta!50}
+\begin{center}
+\vfill
+{\Huge \texttt{ZKExpress} }\\[0.8em]
+{\LARGE\texttt{(2025 Q4)}}\\[2em]
+{Edited by \shadowtext{$\mathfrak{Kurt Pan}$} @ \href{https://zkpunk.pro}{ZKPunk}}\\[1em]
+{\large\today}
+\vfill
+\end{center}
+\newpage
+
+\tableofcontents
+\newpage
+
+\chapter{2025.10}
+\addtocontents{toc}{\protect\vspace{0.5em}}
+
+\section{\href{https://cic.iacr.org/i/2/3}{Communications in Cryptology Volume 2, Issue 3}}
+\section{\cite{cryptoeprint:2025/1762} Threshold Signatures from One-Way Functions}
+In this work, we show how to construct threshold signatures for any $t$ and $n$ from one way functions, thus establishing the latter as a necessary and sufficient computational assumption. Our protocol makes non-black box use of one-way functions, and can be generalized to other access structures, such as monotone policies.
+
+\section{\cite{cryptoeprint:2025/1764} Keccacheck: towards a SNARK friendly Keccak}
+This paper introduces a new method, termed keccacheck, which builds upon sum-check with influence from GKR to create circuits that can batch-verify Keccak permutations with fewer than 4000 constraints per instance. Keccacheck achieves this by exploiting the logarithmic scaling of recursive verification of the sum-check protocol, reducing the computational cost of verifying large enough batches to be only slightly higher than evaluating the multilinear extension of the input and output states. Its performance becomes competitive for a batch containing 16 permutations and offers more than a 10x cost reduction for batches of 512 or more permutations. This approach enables new levels of efficiency for the ZK ecosystem, providing the performant storage proofs that are essential to light clients, cross-chain bridges, privacy-focused protocols, and roll-ups.
+\section{\cite{cryptoeprint:2025/1767} Polylogarithmic Polynomial Commitment Scheme over Galois Rings
+}
+
+This paper introduces the first multilinear polynomial commitment scheme (PCS) over Galois rings achieving $\bigO{\log^2 n}$ verification cost. It achieves $\bigO{n\log n}$ committing time and $\bigO{n}$ evaluation opening prover time. This PCS can be used to construct zero-knowledge proofs for arithmetic circuits over Galois rings, facilitating verifiable computation in applications requiring proofs of polynomial ring operations (e.g., verifiable fully homomorphic encryption). First we construct random foldable linear codes over Galois rings with sufficient code distance and present a distance preservation theorem over Galois rings. Second we extend the $\textsf{Basefold}$ commitment (Zeilberger et al., Crypto 2024) to multilinear polynomials over Galois rings. Our approach reduces proof size and verifier time from $\bigO{\sqrt{n}}$ to $\bigO{\log^2 n}$ compared to Wei et al., PKC 2025. Furthermore, we give a batched multipoint openning protocol for evaluation phase that collapses the proof size and verifier time of $N$ polynomials at $M$ points from $\bigO{NM \log^2 n}$ to $\bigO{\log^2 n}$, prover time from $\bigO{NMn}$ to $\bigO{n}$, further enhancing efficiency.
+
+\section{\cite{cryptoeprint:2025/1768} DualMatrix: Conquering zkSNARK for Large Matrix Multiplication}
+
+We present DualMatrix, a zkSNARK solution for large-scale matrix multiplication. Classical zkSNARK protocols typically underperform in data analytic contexts, hampered by the large size of datasets and the superlinear nature of matrix multiplication. DualMatrix excels in its scalability. The prover time of DualMatrix scales linearly with respect to the number of non-zero elements in the input matrices. For $n \times n$ matrix multiplication with $N$ non-zero elements across three input matrices, DualMatrix employs a structured reference string (SRS) of size $O(n)$, and achieves RAM usage of $O(N+n)$, transcript size of $O(\log n)$, prover time of $O(N+n)$, and verifier time of $O(\log n)$. The prover time, notably at $O(N+n)$ and surpassing all existing protocols, includes $O(N+n)$ field multiplications and $O(n)$ exponentiations and pairings within bilinear groups. These efficiencies make DualMatrix effective for linear algebra on large matrices common in real-world applications. We evaluated DualMatrix with $2^{15} \times 2^{15}$ input matrices each containing $1G$ non-zero integers, which necessitate $32T$ integer multiplications in naive matrix multiplication. DualMatrix recorded prover and verifier times of $150.84$s and $0.56$s, respectively. When applied to $1M \times 1M$ sparse matrices each containing $1G$ non-zero integers, it demonstrated prover and verifier times of $1,384.45$s and $0.67$s. Our approach outperforms current zkSNARK solutions by successfully handling the large matrix multiplication task in experiment. We extend matrix operations from field matrices to group matrices, formalizing group matrix algebra. This mathematical advancement brings notable symmetries beneficial for high-dimensional elliptic curve cryptography. By leveraging the bilinear properties of our group matrix algebra in the context of the two-tier commitment scheme, DualMatrix achieves efficiency gains over previous matrix multiplication arguments. To accomplish this, we extend and enhance Bulletproofs to construct an inner product argument featuring a transparent setup and logarithmic verifier time.
+
+\section{\cite{cryptoeprint:2025/1771} Batched \& Non-interactive Blind Signatures from Lattices}
+
+We introduce a new generalization called non-interactive batched blind signatures (NIBBS). Our goal is to reduce the computation and communication costs for signers and receivers, by batching multiple blind signature queries. More precisely, we define the property of 'succinct communication' which requires that the communication cost from signer to receiver be independent of the batch size. NIBBS is very suitable for large-scale deployments requiring only minimal signer-side effort. We design a NIBBS scheme and prove its security based on the hardness of lattice assumptions (in the random oracle model). When instantiated with the low-depth PRF candidate "Crypto Dark Matter" (TCC '18) and the succinct lattice-based proof system for rank-1 constraint systems (Crypto '23), our final signature size is 308 KB with <1 KB communication.
+
+\section{\cite{cryptoeprint:2025/1773} Impossibility of VDFs in the ROM: The Complete Picture}
+This paper is concerned with the question whether Verifiable Delay Functions (VDFs), as introduced by Boneh et al. [CRYPTO 2018], can be constructed in the plain Random Oracle Model (ROM) without any computational assumptions. A first partial answer to this question is due to Mahmoody, Smith, and Wu [ICALP 2020], and rules out the existence of perfectly unique VDFs in the ROM. Building on this result, Guan, Riazanov, and Yuan [CRYPTO 2025] very recently demonstrated that even VDFs with computational uniqueness are impossible under a public-coin setup. However, the case of computationally unique VDFs with private-coin setup remained open. We close this gap by showing that even computationally expensive private-coin setup will not allow to construct VDFs in the ROM.
+
+\section{\cite{cryptoeprint:2025/1782} On Verifiable Delay Functions from Time-Lock Puzzles}
+ In this paper, we study the relationship between these two timed primitives. Our main result is a construction of ``one-time'' VDF from TLP using indistinguishability obfuscation (iO) and one-way functions (OWFs), where by ``one-time'' we mean that sequentiality of the VDF holds only against parallel adversaries that do not preprocess public parameters. Our VDF satisfies several desirable properties. For instance, we achieve perfectly sound and short proofs of $O(\lambda)$ bits, where $\lambda$ is the security parameter. Moreover, our construction is a trapdoor (one-time) VDF that can be easily extended to achieve interesting extra properties (defined in our paper) such as trapdoor-homomorphic and trapdoor-constrained evaluation. Finally, when combined with the results of Bitansky et al., [ITCS 2016], this yields one-time VDFs from any worst-case non-parallelizing language, iO and OWF. To the best of our knowledge, this is the first such construction that only relies on polynomial security.
+ 
+ \section{\cite{cryptoeprint:2025/1787} Four-round Statistical Non-malleable Zero-knowledge}
+ We present a 4-round statistical non-malleable zero-knowledge (NMZK) argument in the plain model under standard hardness assumptions. Our construction can be based on any collision-resistant hash function and injective one-way function, and it guarantees simulation extractability in the delayed-input one-many setting. Before this work, 4-round constructions were known for computational NMZK but not for statistical NMZK.
+ 
+ \section{\cite{cryptoeprint:2025/1789} Olingo: Threshold Lattice Signatures with DKG and Identifiable Abort}
+ We present Olingo, a framework for threshold lattice signatures that is the first to offer all desired properties for real-world implementations of quantum-secure threshold signatures: small keys and signatures, low communication and round complexity, non-interactive online signing, distributed key generation (DKG), and identifiable abort. Our starting point is the framework of Gur, Katz, and Silde (PQCrypto 2024). We change the underlying signature scheme to Raccoon (Katsumata et al., Crypto 2024), remove the trapdoor commitments, and apply numerous improvements and optimizations to achieve all the above properties. We provide detailed proofs of security for our new framework and present concrete parameters and benchmarks. At the $128$-bit security level, for up to $1024$ parties and supporting $2^{60}$ signatures, our scheme has $2.6$ KB public keys and $9.7$ KB signatures; while signing requires communication of $953$ KB per party. Using the LaBRADOR proof system (Beullens and Seiler, Crypto 2023), this can be further reduced to $596$ KB. An optimistic non-interactive version of our scheme requires only $83$ KB communication per party.
+ 
+\section{\cite{cryptoeprint:2025/1793} A note on the soundness of an optimized $\mathsf{gemini}$ variant}
+We give a formal analysis of the optimized variant of the $\mathsf{gemini}$ polynomial commitment scheme [BCHO22] used by the $\href{https://github.com/AztecProtocol/aztec-packages}{\text{Aztec Network}}$. Our work is motivated by an attack on a previous implementation [GL25].
+
+\section{\cite{cryptoeprint:2025/1798} Threshold Blind Signatures from CDH}
+Threshold blind signature schemes (TBS) enhance blind signatures with a signing procedure distributed among up to n signers to reduce the risk attached to the compromise of the secret key. Blind signatures and TBS in pairing-free groups often rely on strong assumptions, e.g., the algebraic group model (AGM) or interactive assumptions. A recent line of work initiated by Chairattana-apirom, Tessaro and Zhu (Crypto'24), hereafter CTZ, manages to construct blind signatures in pairing-free groups in the random oracle model (ROM) without resorting to the AGM. While CTZ gives a construction from CDH, the scheme suffers from large signatures. Recent works have improved the efficiency, however at the cost of relying on a decisional assumption, namely DDH. In this work, we close this gap by giving an efficient blind signature in pairing-free groups proven secure under CDH in the ROM. Our signatures are of size 320 Byte which is an 32× improvement over CTZ’s CDH-based construction. Further, we give the first TBS in pairing-free groups that does not rely on the AGM by thresholdizing our blind signature. Likewise, our TBS is proven secure under CDH in the ROM. To achieve this, our starting point is the efficient scheme introduced by Klooß, Reichle and Wagner (Asiacrypt'24). We manage to avoid the DDH assumption in the security argument by carefully hiding critical information from the user during the signing phase. At the cost of only 3 additional Zp elements in signature size, this allows us to prove security under CDH.
+
+\section{\cite{cryptoeprint:2025/1802} Zyga: Optimized Zero-Knowledge Proofs with Dynamic Public Inputs}
+We present Zyga, a pairing-based zero-knowledge proof system optimized for privacy-preserving DeFi applications. Our main contribution is an enhancement of existing zkSNARK constructions that enables dynamic public input substitution during verification while maintaining privacy of witness components through one-sided encoding. The one-sided encoding aspect favors practical deployment constraints on Solana where G2 scalar multiplications are computationally expensive. Zyga separates private values (blinded through trusted setup) from public values (instantiated on-chain), enabling applications like private trading against current market rates without reproofing. We provide rigorous security analysis under discrete logarithm and q-Strong Diffie-Hellman assumptions, demonstrating computational soundness, zero-knowledge, and completeness. Performance analysis shows verification requires only 3 pairings with constant proof size, making it practical for blockchain deployment where transaction costs are critical.
+
+\section{\cite{cryptoeprint:2025/1807} Traceable Ring Signatures Revisited: Extended Definitions, $O(1)$ Tracing, and Efficient Log-Size Constructions}
+We revisit the syntax and security notions of TRS, and close this gap by defining extended linkability and extended exculpability. Building on these, we design a new framework of TRS from PseudoRandom Functions (PRF) and Zero-Knowledge Proofs of Knowledge (ZKPoK) that supports $O(1)$ tracing, provided that both two signatures are valid. This constitutes a substantial improvement over existing approaches---all of which require $O(n)$ tracing with $n$ the size of the ring---and elevates TRS to a level of practicality and efficiency comparable to Linkable Ring Signatures (LRS), which have already achieved widespread deployment in practice. Finally, we instantiate our generic framework from the DDH assumption and leverage the Bulletproofs [S\&P'18] to construct a TRS scheme with log-size signatures. The proposed scheme achieves highly optimized signature sizes in practice and remains compatible with most existing DLog-based systems. On Curve25519, the signature size is $(128 \cdot \log n + 736)$ bytes, which to our best knowledge is the shortest LRS scheme for a ring $n \ge 19$.
+
+\section{\cite{cryptoeprint:2025/1811} Anchored Merkle Range Proof for Pedersen Commitments}
+We present a simple range-proof mechanism for Pedersen commitments that avoids pertransaction heavy ZK verification and pairings. The idea is to commit once to a Merkleized range table of points $\{(U, a X \cdot G)\}_{X \in\left\{1, \ldots, 2^n\right\}}$ for a secret $a \in \mathbb{Z}_q$ and a public anchor $U=a \cdot B$. At transaction time, a prover shows set membership of the leaf ( $U, a x \cdot G$ ), proves via a Chaum-Pedersen DLEQ that $\log _B U=\log _C C^{\prime}$ where $C^{\prime}=a \cdot C$ and $C$ is the Pedersen commitment, and finally proves (Schnorr) that $C^{\prime}-(a x \cdot G)$ lies in the $H$-direction. These three checks enforce $x$ to be the in-range value indexed by the Merkle leaf while preserving privacy. Verification costs a single Merkle proof plus a DLEQ and a Schnorr discrete-log proof over an elliptic curve group.
+
+\section{\cite{cryptoeprint:2025/1813} Two-party ECDSA Signing at Constant Communication Overhead}
+In this work, we investigate whether the cost of two-party ECDSA signing can be brought within the realm of plain ECDSA signing. We answer the question in the affirmative for the case of communication complexity, by means of a new signing protocol. Our protocol consumes bandwidth linear in the security parameter, and hence the size of an ECDSA signature. Our scheme makes only blackbox use of generic tools---Oblivious Transfer during key generation, and any Pseudorandom Function when signing. While computation complexity is not asymptotically optimal, benchmarks of our protocol confirm that concrete costs are the lowest known for ECDSA signing. Our protocol is therefore the most concretely efficient in the literature on all fronts: bandwidth, computation, and rounds. On a technical level, our protocol is enabled by a novel Pseudorandom Correlation Function (PCF) for the Vector Oblivious Linear Evaluation correlation over a large ring. The PCF relies on one-way functions alone, and may be of independent interest. Our scheme supports standard extensions, such as pre-signing, and including backup servers for key shares in a $(2,n)$ configuration.
+
+\section{\cite{cryptoeprint:2025/1819} New Straight-Line Extractable NIZKPs for Cryptographic Group Actions}
+This work introduces the GAO (Group Action Oriented) transform, a new generic compiler that produces straight-line extractable NIZKPs from Sigma protocols while significantly simplifying the analysis of the fixed-weight framework. The GAO transform is then optimized in two different ways, defining a collision predicate (yielding the Coll-GAO transform) and adopting a technique (Stretch-and-Compress) that can be applied to improve both GAO and Coll-GAO (yielding the SC-GAO and SC-Coll-GAO transforms). The practical advantages of the SC-Coll-GAO transform are theoretically motivated and concretely tested on the LESS digital signature, a code-based candidate that recently advanced to the second round of the NIST standardization process specifically purposed for post-quantum signatures. Remarkably, when compared to the Fiat-Shamir LESS baseline, SC-Coll-GAO incurs a computational cost increase by 50-60\%, while signature sizes grow by only 10-20\%.
+
+\section{\cite{cryptoeprint:2025/1824} Coppercloud: Blind Server-Supported RSA Signatures}
+ In this work, we introduce Coppercloud, a blind server-supported RSA signature scheme designed to enhance privacy in digital identity systems. Coppercloud enables a user to obtain a signature on a message, without revealing its content to the supporting server, while distributing the signing key between the user's device and the supporting server. We formalize the security requirements for blind server-supported signing by defining an ideal functionality, and prove that Coppercloud securely realizes this functionality in the Universal Composability (UC) model.
+ 
+ \section{\cite{cryptoeprint:2025/1826} Proofs of No Intrusion}
+ We introduce Proofs of No Intrusion, which enable a classical client to remotely test whether a quantum server has been hacked and the client's data stolen. Crucially, the test does not destroy the data being tested, avoiding the need to store a backup elsewhere. We define and construct proofs of no intrusion for ciphertexts assuming fully homomorphic encryption. Additionally, we show how to equip several constructions of unclonable primitives with proofs of non-intrusion, such as unclonable decryption keys and signature tokens. Conceptually, proofs of non-intrusion can be defined for essentially any unclonable primitive. At the heart of our techniques is a new method for non-destructively testing coset states with classical communication. It can be viewed as a non-destructive proof of knowledge of a measurement result of the coset state.
+ 
+ \section{\cite{cryptoeprint:2025/1827} Blind ECDSA from the ECDSA Assumption}
+ We design a protocol that ensures both unforgeability and blindness without introducing new computational assumptions and ensuring concurrent security. It involves zero-knowledge proofs based on the MPC-in-the-head paradigm for complex statements combining relations on encrypted elliptic curve points, their coordinates, and discrete logarithms.
+ 
+ \section{\cite{cryptoeprint:2025/1828} Block-Accumulate Codes: Accelerated Linear Codes for PCGs and ZK}
+ We propose a generalized paradigm for building LPN-friendly codes with provable minimum distance. Roughly speaking, these codes are based on the idea of randomized turbo codes such as repeat accumulate codes. To prove their minimum distance, we present a generalized enumeration technique, which allows us to precisely compute the minimum distance for a broad class of codes. Although we do not prove their asymptotic behavior, the concrete parameters essentially give a linear-time encoder. Armed with these new techniques, we construct several novel codes, the most promising of which we call Block-Accumulate codes. Our original design goal was to construct codes that run efficiently on GPUs. Surprisingly, we find that our newly constructed codes are the fastest on both GPUs and CPUs, while at the same time achieve a better minimum distance. If we restrict our attention to codes with proofs, our code is $8\times$ faster than state of the art on a CPU and $50\times$ faster on a GPU. Even if we use aggressive parameters, our code is $3$ and $20\times$ faster, respectively. Under these parameters, this yields overall PCG speedups of $2.5\times$ on the CPU and $15\times$ on the GPU, achieving about 200 million OTs or binary Beaver triples per second on the GPU (excluding the one-time 10 ms GGM seed expansion). We expect similar improvements when applied to the ZK space.
+ 
+ \section{\cite{cryptoeprint:2025/1833} Public-Key Encryption from the MinRank Problem}
+ We construct a public-key encryption scheme from the hardness of the (planted) MinRank problem over uniformly random instances. This corresponds to the hardness of decoding random linear rank-metric codes. Existing constructions of public-key encryption from such problems require hardness for structured instances arising from the masking of efficiently decodable codes. Central to our construction is the development of a new notion of duality for rank-metric codes.
+ 
+ \section{\cite{cryptoeprint:2025/1835} Who Verifies the Verifiers? Lessons Learned From Formally Verified Line-Point Zero-Knowledge}
+ In this paper, we ask the question of how reliable are these machine-checked proofs by analyzing a formally verified implementation of the Line-Point Zero-Knowledge (LPZK) protocol (Dittmer, Eldefrawy, Graham-Lengrand, Lu, Ostrovsky and Pereira, CCS 2023). The implementation was developed in EasyCrypt and compiled into OCaml code that was claimed to be high-assurance, i.e., that offers the formal guarantees of guarantees of completeness, soundness, and zero knowledge.
+We show that despite these formal claims, the EasyCrypt model was flawed, and the implementation (supposed to be high-assurance) had critical security vulnerabilities. Concretely, we demonstrate that: 1) the EasyCrypt soundness proof was incorrectly done, allowing an attack on the scheme that leads honest verifiers into accepting false statements; and 2) the EasyCrypt formalization inherited a deficient model of zero knowledge for a class of non-interactive zero knowledge protocols that also allows the verifier to recover the witness. In addition, we demonstrate 3) a gap in the proof of the perfect zero knowledge property of the LPZK variant of Dittmer, Ishai, Lu and Ostrovsky (CCS 2022) that the EasyCrypt proof is based, which, depending on the interpretation of the protocol and security claim, could allow a malicious verifier to learn the witness.
+Our findings highlight the importance of scrutinizing machine-checked proofs, including their models and assumptions. We offer lessons learned for both users and reviewers of tools like EasyCrypt, aimed at improving the transparency, rigor, and accessibility of machine-checked proofs. By sharing our methodology and challenges, we hope to foster a culture of deeper engagement with formal verification in the cryptographic community.
+
+\section{\cite{cryptoeprint:2025/1837} Proofs of quantum memory}
+In this paper, we introduce a new concept, proofs of quantum memory (PoQM). A PoQM is an interactive protocol between a classical probabilistic polynomial-time (PPT) verifier and a quantum polynomial-time (QPT) prover over a classical channel where the verifier can verify that the prover has possessed a quantum memory with a certain number of qubits during a specified period of time. PoQM generalize the notion of proofs of quantumness (PoQ) [Brakerski, Christiano, Mahadev, Vazirani, and Vidick, JACM 2021]. Our main contributions are a formal definition of PoQM and its constructions based on hardness of LWE. Specifically, we give two constructions of PoQM. The first is of a four-round and has negligible soundness error under subexponential-hardness of LWE. The second is of a polynomial-round and has inverse-polynomial soundness error under polynomial-hardness of LWE.  As a lowerbound of PoQM, we also show that PoQM imply one-way puzzles. Moreover, a certain restricted version of PoQM implies quantum computation classical communication (QCCC) key exchange.
+
+\section{\cite{cryptoeprint:2025/1839} Lattice-Based zk-SNARKs with Hybrid Verification Technique}
+In this work, we propose a new notion of a hybrid verification mechanism. Here, the prover generates a proof that can be verified by a designated verifier. For this proof, the designated verifier can generate auxiliary information with its secret key. The combination of this proof and the auxiliary information allows any public verifier to verify the proof without any other information. We also introduce necessary security notions and mechanisms to identify a cheating designated verifier or the prover. Our hybrid verification zkSNARK construction is based on module lattices and adapts the zkSNARK construction by Ishai et al. (CCS 2021). In this construction, the designated verifier is required only once after proof generation to create the publicly verifiable proof. Our construction achieves a small constant-size proof and fast verification time, which is linear in the statement size.
+
+\section{\cite{cryptoeprint:2025/1840} Quantum Cryptography and Hardness of Non-Collapsing Measurements}
+ In this paper, we base OWPuzzs on hardness of non-collapsing measurements. To that end, we introduce a new complexity class, $\mathbf{SampPDQP}$, which is a sampling version of the decision class $\mathbf{PDQP}$ introduced in [Aaronson, Bouland, Fitzsimons, and Lee, ITCS 2016]. We show that if $\mathbf{SampPDQP}$ is hard on average for quantum polynomial time, then OWPuzzs exist. We also show that if $\mathbf{SampPDQP}\not\subseteq\mathbf{SampBQP}$, then auxiliary-input OWPuzzs exist. $\mathbf{SampPDQP}$ is the class of sampling problems that can be solved by a classical polynomial-time deterministic algorithm that can make a single query to a non-collapsing measurement oracle, which is a ''magical'' oracle that can sample measurement results on quantum states without collapsing the states. Such non-collapsing measurements are highly unphysical operations that should be hard to realize in quantum polynomial-time, and therefore our assumptions on which OWPuzzs are based seem extremely plausible. Moreover, our assumptions do not seem to imply OWFs, because the possibility of inverting classical functions would not be helpful to realize quantum non-collapsing measurements. We also study upperbounds of the hardness of $\mathbf{SampPDQP}$. We introduce a new primitive, distributional collision-resistant puzzles (dCRPuzzs), which are a natural quantum analogue of distributional collision-resistant hashing [Dubrov and Ishai, STOC 2006]. We show that dCRPuzzs imply average-case hardness of $\mathbf{SampPDQP}$ (and therefore OWPuzzs as well). We also show that two-message honest-statistically-hiding commitments with classical communication and one-shot message authentication codes (MACs), which are a privately-verifiable version of one-shot signatures [Amos, Georgiou, Kiayias, Zhandry, STOC 2020], imply dCRPuzzs.
+ 
+ \section{\cite{cryptoeprint:2025/1841} Pegasus and PegaRing: Efficient (Ring) Signatures from Sigma-Protocols for Power Residue PRFs with (Q)ROM Security}
+In this work, we present a novel commit-and-open $\Sigma$-protocol based on the Legendre and power residue PRFs. Our construction leverages the oblivious linear evaluation (OLE) correlations inherent in PRF evaluations and requires only black-box access to a tree-PRG-based vector commitment. By applying the standard Fiat-Shamir transform, we obtain a post-quantum signature scheme, Pegasus, which achieves short signature sizes (6025 to 7878 bytes) with efficient signing (3.910 to 19.438 ms) and verification times (3.942 to 18.999 ms). Furthermore, by pre-computing the commitment phase, the online response time can be reduced to as little as 0.047 to 0.721 ms. We prove the security of Pegasus in both the classical random oracle model (ROM) and the quantum random oracle model (QROM), filling a gap left by prior PRF-based signature schemes. We further develop a ring signature scheme, PegaRing, that preserves the three-move commit-and-open structure of Pegasus. Compared to previous PRF-based ring signature called DualRing-PRF (ACISP 2024), PegaRing reduces the constant communication overhead by more than half and achieves significantly faster signing and verification. For a ring size of 1024, PegaRing yields signatures of 29 to 32 KB, with signing times of 8 to 44 ms, and verification times of 6 to 31 ms, depending on the parameters. Finally, we prove the security of PegaRing in both the ROM and the QROM, which is, to the best of our knowledge, the first symmetric-key primitives-based ring signature with practical performances and provable QROM security.
+
+\section{\cite{cryptoeprint:2025/1844} Bird of Prey: Practical Signature Combiners Preserving Strong Unforgeability}
+This work introduces three practical combiners that preserve strong unforgeability and all BUFF (beyond unforgeability features) properties. Each combiner is tailored to a specific class of classical signature schemes capturing all broadly used schemes that are strongly unforgeable. Remarkably, all combiners can be instantiated with any post-quantum signature scheme in a black-box way making deployment practical and significantly less error prone. The proposed solutions are further highly efficient and have signatures that are at most the size of the (insecure) concatenation combiner. For instance, our most efficient combiner enables the combination of EdDSA with ML-DSA, yielding a signature size that is smaller than the sum of an individual EdDSA signature and an individual ML-DSA signature. Additionally, we identify a novel signature property that we call random-message validity and show that it can be used to replace the BUFF transform with the more efficient Pornin-Stern transform. The notion may be of independent interest.
+
+\section{\cite{cryptoeprint:2025/1846} The Order of Hashing in Fiat-Shamir Schemes}
+Our work investigates whether there are advisable or imprudent input orders for hashing in Fiat-Shamir signatures. We examine Fiat-Shamir signatures with plain and nested hashing using Merkle-Damgård or sponge-based hash functions. We analyze these constructions in both classical and quantum settings. As part of our investigations, we introduce new security properties following the idea of quantum-annoyance of Eaton and Stebila (PQCrypto 2021), called annoyance for user exposure and signature forgeries. These properties ensure that an adversary against the hash function cannot gain a significant advantage when attempting to extend a successful attack on a single signature forgery to multiple users or to multiple forgeries of a single user. Instead, the adversary must create extra forgeries from scratch. Based on our analysis, we derive a simple rule: When using Fiat-Shamir signatures, one should hash the commitment before the message; all other inputs may be ordered arbitrarily.
+
+\section{\cite{cryptoeprint:2025/1848} Revisiting Lattice-based Non-interactive Blind Signature}
+Later, Zhang et al. introduced another lattice-based construction in ProvSec 2024, and proved its security under the standard module short integer solution (MSIS) assumption. We analyse the security of the latter scheme. In the random oracle model, we show that it fails to achieve both nonce blindness and receiver blindness. We present explicit attacks where an adversary breaks both properties with probability~1. Our attack is based on a crucial observation that uncovers a flaw in the design. Specifically, this flaw allows an attacker to link a message-signature pair with its presignature-nonce pair. In addition, we also identify a flaw in the unforgeability proof. Finally, we suggest a modification to address the issue, which is similar to Baldimtsi et al. construction, and its security relies again on the non-standard rOM-ISIS assumption. This work again raises the question of the feasibility of achieving NIBS from standard assumptions.
+
+%\bibliographystyle{alpha}
+%\bibliography{kurt}
+\printbibliography
+
+\end{document}
