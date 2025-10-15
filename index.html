@@ -216,6 +216,97 @@
             z-index: 1;
         }
 
+        /* Subscribe Section */
+        .subscribe-section {
+            margin-top: 4rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .subscribe-cta {
+            position: relative;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .subscribe-cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg,
+                rgba(129, 140, 248, 0.1) 0%,
+                rgba(192, 132, 252, 0.1) 50%,
+                rgba(244, 114, 182, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: -1;
+        }
+
+        .subscribe-cta:hover {
+            transform: translateY(-8px);
+            border-color: rgba(129, 140, 248, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .subscribe-cta:hover::before {
+            opacity: 1;
+        }
+
+        .subscribe-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .subscribe-cta h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #fafafa;
+            margin-bottom: 1rem;
+        }
+
+        .subscribe-cta > p {
+            color: #a1a1aa;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .subscribe-button {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .subscribe-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(129, 140, 248, 0.4);
+        }
+
         footer {
             text-align: center;
             padding: 4rem 0 2rem;
@@ -274,6 +365,18 @@
             .issue-card {
                 padding: 1.5rem;
             }
+
+            .subscribe-cta {
+                padding: 2rem;
+            }
+
+            .subscribe-cta h2 {
+                font-size: 1.5rem;
+            }
+
+            .subscribe-icon {
+                font-size: 3rem;
+            }
         }
 
         /* Loading animation for cards */
@@ -321,6 +424,15 @@
                     <div class="issue-title">SAC 25</div>
                     <div class="issue-date">Conference Edition</div>
                 </a>
+            </div>
+        </section>
+
+        <section class="subscribe-section">
+            <div class="subscribe-cta">
+                <div class="subscribe-icon">📬</div>
+                <h2>Never Miss an Update</h2>
+                <p>Subscribe to get the latest zkSNARKs research delivered to your inbox</p>
+                <a href="https://paragraph.com/@zkinsights/subscribe" class="subscribe-button" target="_blank">Subscribe</a>
             </div>
         </section>
 
