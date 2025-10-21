@@ -312,6 +312,12 @@ Our scheme, FaFROST, builds on the FROST framework preserving its two-round sign
 By avoiding binding commitments to partial public keys, FaFROST circumvents the recent impossibility results from CRYPTO’25 and requires no reliance on the newly introduced, tailor-made LDVR assumption.
 This establishes that round-optimal, adaptively secure Schnorr threshold signatures are achievable under well-established algebraic assumptions.
 
+\section{\cite{cryptoeprint:2025/1953} Adaptively Secure Partially Non-Interactive Threshold Schnorr Signatures in the AGM}
+In this paper, we present ms-FROST. Our scheme is partially non-interactive and supports any t - 1 < n adaptive corruptions, where n is the number of signers and t is the signing threshold. Its security relies on the algebraic one-more discrete logarithm (AOMDL) assumption, the algebraic group model (AGM), and the random oracle model (ROM). Further, it achieves the strongest security notion (TS-UF-4) in the security hierarchy of Bellare et al. (CRYPTO 2022). To justify our use of the algebraic group model, we show an impossibility result: We rule out any black-box algebraic security reduction in the ROM from AOMDL to the adaptive TS-UF-0 security of ms-FROST.
+
+\section{\cite{cryptoeprint:2025/1955} Aggregate Signatures Tightly Secure under Adaptive Corruptions}
+We propose the first aggregate signature scheme tightly secure under adaptive corruptions using pairings. An aggregate signature includes two source group elements of bilinear groups plus a bit vector whose length is equal to the number of single-signer signatures being aggregated. To construct a scheme, we employ a technique from quasi-adaptive non-interactive zero-knowledge arguments. Our construction can be seen as modularization and tightness improvement of Libert et al.'s threshold signature scheme supporting signature aggregation (Theoretical Computer Science 645) in a non-threshold setting.
+
 
 
 \chapter{ESORICS 2025}
