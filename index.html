@@ -28,8 +28,12 @@
 
         header {
             text-align: center;
-            padding: 4rem 0 3rem;
+            padding: 5rem 0 4rem;
             position: relative;
+            animation: fadeInDown 0.8s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .github-link {
@@ -71,90 +75,81 @@
         }
 
         h1 {
-            font-size: clamp(3rem, 8vw, 5rem);
-            font-weight: 700;
-            background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #f472b6 100%);
+            font-size: clamp(3.5rem, 10vw, 6rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #5d76e5 0%, #ab5dbb 50%, #5d76e5 100%);
+            background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 1rem;
-            letter-spacing: -0.02em;
-            animation: fadeInDown 0.8s ease-out;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+            animation: fadeInDown 0.8s ease-out, gradient-text 3s ease infinite;
             cursor: default;
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.3s ease, filter 0.3s ease;
             position: relative;
             display: inline-block;
         }
 
-        h1::before {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 50%;
-            width: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #818cf8, #c084fc, #f472b6);
-            transform: translateX(-50%);
-            transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        @keyframes gradient-text {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         h1:hover {
-            transform: translateY(-5px) rotateX(5deg);
-            filter: drop-shadow(0 8px 20px rgba(129, 140, 248, 0.5));
-        }
-
-        h1:hover::before {
-            width: 100%;
+            transform: translateY(-3px);
+            filter: drop-shadow(0 10px 25px rgba(93, 118, 229, 0.6));
         }
 
         .subtitle {
-            font-size: clamp(0.875rem, 1.5vw, 1.1rem);
-            color: #a1a1aa;
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            background: linear-gradient(135deg, #5d76e5 0%, #ab5dbb 50%, #5d76e5 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-weight: 400;
-            animation: fadeInUp 0.8s ease-out 0.2s both;
+            animation: fadeInUp 0.8s ease-out 0.3s both, gradient-text 3s ease infinite;
             cursor: default;
             line-height: 1.8;
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
-        }
-
-        .subtitle span {
-            display: inline-block;
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
             position: relative;
+            display: block;
+            text-align: center;
         }
 
-        .subtitle span::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #818cf8, #c084fc);
-            transform: translateX(-50%);
-            transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .subtitle span:hover {
-            color: #fafafa;
-            transform: translateY(-3px) rotateX(10deg);
-            filter: drop-shadow(0 5px 15px rgba(129, 140, 248, 0.4));
-        }
-
-        .subtitle span:hover::before {
-            width: 100%;
+        .subtitle:hover {
+            transform: translateY(-2px);
+            filter: drop-shadow(0 5px 15px rgba(93, 118, 229, 0.4));
+            letter-spacing: 0.08em;
         }
 
         .issues-section {
-            margin-top: 4rem;
+            margin-top: 6rem;
+            animation: slide-up 0.8s ease-out 0.5s both;
+        }
+
+        @keyframes slide-up {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .section-title {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             color: #fafafa;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
             font-weight: 600;
+            text-align: center;
+            letter-spacing: -0.01em;
             position: relative;
             display: inline-block;
         }
@@ -166,28 +161,28 @@
             left: 0;
             width: 100%;
             height: 3px;
-            background: linear-gradient(90deg, #818cf8, transparent);
+            background: linear-gradient(90deg, #5d76e5, #ab5dbb, transparent);
             border-radius: 2px;
         }
 
         .issues-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
             margin-top: 2rem;
         }
 
         .issue-card {
             position: relative;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 2rem 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(93, 118, 229, 0.15);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
             text-decoration: none;
             color: inherit;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             overflow: hidden;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
         }
 
         .issue-card::before {
@@ -198,12 +193,12 @@
             right: 0;
             bottom: 0;
             background: linear-gradient(135deg,
-                rgba(129, 140, 248, 0.1) 0%,
-                rgba(192, 132, 252, 0.1) 50%,
-                rgba(244, 114, 182, 0.1) 100%);
+                rgba(93, 118, 229, 0.1) 0%,
+                rgba(171, 93, 187, 0.1) 50%,
+                rgba(93, 118, 229, 0.1) 100%);
             opacity: 0;
             transition: opacity 0.4s ease;
-            z-index: -1;
+            z-index: 0;
         }
 
         .issue-card::after {
@@ -213,19 +208,19 @@
             left: 50%;
             width: 0;
             height: 0;
-            background: radial-gradient(circle, rgba(129, 140, 248, 0.3) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(93, 118, 229, 0.3) 0%, transparent 70%);
             transform: translate(-50%, -50%);
             transition: width 0.6s ease, height 0.6s ease;
-            z-index: -1;
+            z-index: 0;
             border-radius: 50%;
         }
 
         .issue-card:hover {
             transform: translateY(-8px) scale(1.02);
-            border-color: rgba(129, 140, 248, 0.3);
+            border-color: rgba(93, 118, 229, 0.4);
             box-shadow:
                 0 20px 40px rgba(0, 0, 0, 0.4),
-                0 0 60px rgba(129, 140, 248, 0.15),
+                0 0 60px rgba(93, 118, 229, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
@@ -239,39 +234,42 @@
         }
 
         .issue-title {
-            font-size: 1.5rem;
-            font-weight: 600;
+            font-size: 1.75rem;
+            font-weight: 700;
             color: #fafafa;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             position: relative;
             z-index: 1;
+            letter-spacing: -0.01em;
         }
 
         .issue-date {
-            font-size: 0.875rem;
-            color: #a1a1aa;
+            font-size: 0.95rem;
+            color: #9393a8;
             position: relative;
             z-index: 1;
+            font-weight: 300;
         }
 
         /* Subscribe Section */
         .subscribe-section {
-            margin-top: 4rem;
+            margin-top: 6rem;
             display: flex;
             justify-content: center;
+            animation: slide-up 0.8s ease-out 0.7s both;
         }
 
         .subscribe-cta {
             position: relative;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 3rem;
-            max-width: 600px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(93, 118, 229, 0.2);
+            border-radius: 24px;
+            padding: 4rem 3rem;
+            max-width: 650px;
             width: 100%;
             text-align: center;
-            backdrop-filter: blur(10px);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
             overflow: hidden;
         }
 
@@ -283,18 +281,17 @@
             right: 0;
             bottom: 0;
             background: linear-gradient(135deg,
-                rgba(129, 140, 248, 0.1) 0%,
-                rgba(192, 132, 252, 0.1) 50%,
-                rgba(244, 114, 182, 0.1) 100%);
+                rgba(93, 118, 229, 0.1) 0%,
+                rgba(171, 93, 187, 0.1) 100%);
             opacity: 0;
-            transition: opacity 0.4s ease;
-            z-index: -1;
+            transition: opacity 0.3s ease;
+            z-index: 0;
         }
 
         .subscribe-cta:hover {
-            transform: translateY(-8px);
-            border-color: rgba(129, 140, 248, 0.3);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            transform: translateY(-5px);
+            border-color: rgba(93, 118, 229, 0.4);
+            box-shadow: 0 20px 50px rgba(93, 118, 229, 0.25);
         }
 
         .subscribe-cta:hover::before {
@@ -302,66 +299,80 @@
         }
 
         .subscribe-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
+            font-size: 4.5rem;
+            margin-bottom: 1.5rem;
             animation: float 3s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
         }
 
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-15px); }
         }
 
         .subscribe-cta h2 {
-            font-size: 2rem;
-            font-weight: 600;
+            font-size: 2.25rem;
+            font-weight: 700;
             color: #fafafa;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
         }
 
         .subscribe-cta > p {
-            color: #a1a1aa;
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-            line-height: 1.6;
+            color: #b8b8c0;
+            font-size: 1.15rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
         }
 
         .subscribe-button {
             display: inline-block;
-            padding: 1rem 2.5rem;
-            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+            padding: 1.1rem 3rem;
+            background: linear-gradient(135deg, #5d76e5 0%, #ab5dbb 100%);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 1.05rem;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            letter-spacing: 0.01em;
         }
 
         .subscribe-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(129, 140, 248, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(93, 118, 229, 0.4);
+            filter: brightness(1.1);
         }
 
         footer {
             text-align: center;
-            padding: 4rem 0 2rem;
-            margin-top: 4rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            color: #71717a;
-            font-size: 0.875rem;
+            padding: 5rem 0 3rem;
+            margin-top: 6rem;
+            border-top: 1px solid rgba(93, 118, 229, 0.1);
+            color: #7a7a8a;
+            font-size: 0.9rem;
+            font-weight: 300;
         }
 
         footer a {
-            color: #a78bfa;
+            color: #5d76e5;
             text-decoration: none;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            font-weight: 400;
         }
 
         footer a:hover {
-            color: #c4b5fd;
+            color: #ab5dbb;
         }
 
         @keyframes fadeInDown {
@@ -431,15 +442,15 @@
 
         /* Loading animation for cards */
         .issue-card {
-            animation: fadeInUp 0.6s ease-out backwards;
+            animation: fadeInUp 0.5s ease-out backwards;
         }
 
-        .issue-card:nth-child(1) { animation-delay: 0.1s; }
-        .issue-card:nth-child(2) { animation-delay: 0.2s; }
-        .issue-card:nth-child(3) { animation-delay: 0.3s; }
-        .issue-card:nth-child(4) { animation-delay: 0.4s; }
-        .issue-card:nth-child(5) { animation-delay: 0.5s; }
-        .issue-card:nth-child(6) { animation-delay: 0.6s; }
+        .issue-card:nth-child(1) { animation-delay: 0.6s; }
+        .issue-card:nth-child(2) { animation-delay: 0.7s; }
+        .issue-card:nth-child(3) { animation-delay: 0.8s; }
+        .issue-card:nth-child(4) { animation-delay: 0.9s; }
+        .issue-card:nth-child(5) { animation-delay: 1s; }
+        .issue-card:nth-child(6) { animation-delay: 1.1s; }
     </style>
 </head>
 <body>
@@ -452,9 +463,7 @@
     <div class="container">
         <header>
             <h1>SnarkExpress</h1>
-            <p class="subtitle">
-                <span>The State-of-the-Art zkSNARKs Research</span>
-            </p>
+            <p class="subtitle">State-of-the-Art zkSNARKs Research</p>
         </header>
 
         <section class="issues-section">
@@ -486,8 +495,8 @@
         <section class="subscribe-section">
             <div class="subscribe-cta">
                 <div class="subscribe-icon">📬</div>
-                <h2>Never Miss an Update</h2>
-                <p>Subscribe to get the latest zkSNARKs research delivered to your inbox</p>
+                <h2>Stay Updated</h2>
+                <p>Get the latest zkSNARKs research delivered to your inbox</p>
                 <a href="https://paragraph.com/@zkinsights/subscribe" class="subscribe-button" target="_blank">Subscribe</a>
             </div>
         </section>
