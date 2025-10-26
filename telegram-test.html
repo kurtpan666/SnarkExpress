@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns#">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram OG Test</title>
+
+    <meta property="og:site_name" content="SnarkExpress">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://snark.express/telegram-test.html">
+    <meta property="og:title" content="SnarkExpress Test">
+    <meta property="og:description" content="Testing Telegram preview functionality">
+    <meta property="og:image" content="https://snark.express/og-image.png">
+    <meta property="og:image:secure_url" content="https://snark.express/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
+
+    <style>
+        body {
+            font-family: -apple-system, system-ui, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 { color: #5d76e5; }
+        .info { background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        code { background: #e0e0e0; padding: 2px 6px; border-radius: 3px; }
+        .check { color: green; font-weight: bold; }
+        .test { margin: 10px 0; padding: 10px; border-left: 3px solid #5d76e5; }
+    </style>
+</head>
+<body>
+    <h1>📦 Telegram Preview Test Page</h1>
+
+    <div class="info">
+        <h2>Open Graph Tags Status</h2>
+        <div class="test"><span class="check">✓</span> og:title: SnarkExpress Test</div>
+        <div class="test"><span class="check">✓</span> og:description: Testing Telegram preview functionality</div>
+        <div class="test"><span class="check">✓</span> og:image: https://snark.express/og-image.png</div>
+        <div class="test"><span class="check">✓</span> og:image:width: 1200</div>
+        <div class="test"><span class="check">✓</span> og:image:height: 630</div>
+        <div class="test"><span class="check">✓</span> og:type: website</div>
+    </div>
+
+    <h2>Test Instructions</h2>
+    <ol>
+        <li>Copy this URL: <code>https://snark.express/telegram-test.html</code></li>
+        <li>Paste it in Telegram (try in Saved Messages)</li>
+        <li>Wait 3-5 seconds for preview to load</li>
+        <li>If preview appears, the issue is with the main page</li>
+        <li>If no preview, there's a deeper Telegram issue</li>
+    </ol>
+
+    <h2>Telegram Debugging Tips</h2>
+    <ul>
+        <li>Use <code>@WebpageBot</code> in Telegram to force refresh cache</li>
+        <li>Try: Send URL to @WebpageBot, it will show you what Telegram sees</li>
+        <li>Clear preview: Delete and resend the link</li>
+        <li>Telegram caches for ~24 hours, be patient</li>
+    </ul>
+
+    <h2>Common Telegram Issues</h2>
+    <ul>
+        <li>Image must be accessible (no 404)</li>
+        <li>Image must be > 200x200px</li>
+        <li>Description shouldn't be too long (keep under 200 chars)</li>
+        <li>HTTPS required (HTTP won't work)</li>
+        <li>No redirects on image URL</li>
+    </ul>
+</body>
+</html>
