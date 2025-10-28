@@ -7,7 +7,7 @@
 
 \usepackage[colorlinks=true, linkcolor=magenta, citecolor=magenta, urlcolor=magenta]{hyperref}
 
-\usepackage[style=alphabetic,backend=biber,backref=true,url=false,doi=false]{biblatex}
+\usepackage[style=alphabetic,backend=biber,backref=true,url=false,doi=true]{biblatex}
 % 自動將有URL的條目標題設為鏈接
 \newbibmacro{string+url}[1]{%
   \iffieldundef{url}{#1}{\href{\thefield{url}}{#1}}}
