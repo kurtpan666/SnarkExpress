@@ -1,11 +1,15 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
 import authRoutes from './routes/auth';
 import papersRoutes from './routes/papers';
 import adminRoutes from './routes/admin';
 
-dotenv.config();
+// Load .env from the backend directory
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+console.log('Loading .env from:', path.resolve(__dirname, '../.env'));
+console.log('ADMIN_KEY loaded:', process.env.ADMIN_KEY ? `${process.env.ADMIN_KEY.substring(0, 10)}...` : 'NOT FOUND');
 
 const app = express();
 const PORT = process.env.PORT || 3001;

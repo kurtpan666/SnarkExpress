@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Paper } from '../types';
 import { papers as papersApi } from '../api';
 import { useAuth } from '../AuthContext';
@@ -39,13 +39,28 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
   const formatDate = (date: string) => {
     const now = new Date();
     const created = new Date(date);
-    const diffInHours = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60));
+    const diffInMs = now.getTime() - created.getTime();
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
 
-    if (diffInHours < 1) return 'just now';
-    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    if (diffInHours < 1) {
+      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+      if (diffInMinutes < 1) return 'just now';
+      return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'} ago`;
+    }
+    if (diffInHours < 24) return `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays === 1) return '1 day ago';
-    return `${diffInDays} days ago`;
+    if (diffInDays < 7) return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
+    if (diffInDays < 30) {
+      const weeks = Math.floor(diffInDays / 7);
+      return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+    }
+
+    // For dates older than 30 days, show the actual date
+    return created.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   const copyBibTeX = async () => {
@@ -88,36 +103,36 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
               ({getHostname(paper.url)})
             </span>
           </div>
-          <div className="text-xs text-gray-600 mt-1 space-x-2">
-            <span>by {paper.submitter_username}</span>
-            <span>|</span>
-            <span>{formatDate(paper.created_at)}</span>
+          <div className="text-xs text-gray-600 mt-1">
+            <div className="space-x-2">
+              <span>by {paper.submitter_username}</span>
+              <span>|</span>
+              <span>{formatDate(paper.created_at)}</span>
+              {(paper.abstract || paper.bib_entry) && (
+                <>
+                  <span>|</span>
+                  <button
+                    onClick={() => setShowDetails(!showDetails)}
+                    className="text-blue-600 hover:underline"
+                  >
+                    {showDetails ? 'hide' : 'show'} details
+                  </button>
+                </>
+              )}
+            </div>
             {paper.authors && (
-              <>
-                <span>|</span>
-                <span className="italic">{paper.authors}</span>
-              </>
+              <div className="mt-1 italic">
+                <span className="font-semibold not-italic">Authors:</span> {paper.authors}
+              </div>
             )}
             {paper.tags.length > 0 && (
-              <>
-                <span>|</span>
+              <div className="mt-1 flex flex-wrap gap-1">
                 {paper.tags.map((tag, index) => (
-                  <span key={index} className="bg-gray-200 px-2 py-0.5 rounded text-xs">
+                  <span key={index} className="bg-gray-200 px-2 py-0.5 rounded">
                     {tag}
                   </span>
                 ))}
-              </>
-            )}
-            {(paper.abstract || paper.bib_entry) && (
-              <>
-                <span>|</span>
-                <button
-                  onClick={() => setShowDetails(!showDetails)}
-                  className="text-blue-600 hover:underline"
-                >
-                  {showDetails ? 'hide' : 'show'} details
-                </button>
-              </>
+              </div>
             )}
           </div>
           {showDetails && (

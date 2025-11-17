@@ -30,7 +30,7 @@ admin_mode() {
     fi
 
     # Get admin key from .env
-    ADMIN_KEY=$(grep ADMIN_KEY .env | cut -d '=' -f2)
+    ADMIN_KEY=$(grep ADMIN_KEY .env | cut -d '=' -f2-)
 
     while true; do
         show_admin_menu

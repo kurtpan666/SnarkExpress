@@ -11,7 +11,7 @@ export function PaperList() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const selectedTag = searchParams.get('tag') || undefined;
-  const sortBy = searchParams.get('sort') || 'hot';
+  const sortBy = searchParams.get('sort') || 'new';
 
   useEffect(() => {
     loadPapers();
@@ -47,13 +47,6 @@ export function PaperList() {
     ));
   };
 
-  const handleSortChange = (sort: string) => {
-    setSearchParams(params => {
-      params.set('sort', sort);
-      return params;
-    });
-  };
-
   const handleTagFilter = (tag: string | null) => {
     setSearchParams(params => {
       if (tag) {
@@ -71,36 +64,6 @@ export function PaperList() {
         {/* Sidebar */}
         <div className="w-48 flex-shrink-0">
           <div className="bg-white rounded border border-gray-300 p-3">
-            <h3 className="font-bold text-sm mb-2">Sort by:</h3>
-            <div className="space-y-1 text-sm">
-              <button
-                onClick={() => handleSortChange('hot')}
-                className={`block w-full text-left px-2 py-1 rounded ${
-                  sortBy === 'hot' ? 'bg-orange-100 font-semibold' : 'hover:bg-gray-100'
-                }`}
-              >
-                Hot
-              </button>
-              <button
-                onClick={() => handleSortChange('top')}
-                className={`block w-full text-left px-2 py-1 rounded ${
-                  sortBy === 'top' ? 'bg-orange-100 font-semibold' : 'hover:bg-gray-100'
-                }`}
-              >
-                Top
-              </button>
-              <button
-                onClick={() => handleSortChange('new')}
-                className={`block w-full text-left px-2 py-1 rounded ${
-                  sortBy === 'new' ? 'bg-orange-100 font-semibold' : 'hover:bg-gray-100'
-                }`}
-              >
-                New
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-white rounded border border-gray-300 p-3 mt-4">
             <h3 className="font-bold text-sm mb-2">Filter by tag:</h3>
             <div className="space-y-1 text-sm">
               <button

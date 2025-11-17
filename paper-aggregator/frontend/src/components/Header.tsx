@@ -14,7 +14,7 @@ export function Header() {
           </Link>
           <nav className="flex space-x-4 text-sm">
             <Link to="/" className="hover:underline">new</Link>
-            <Link to="/?sort=top" className="hover:underline">top</Link>
+            <Link to="/?sort=hot" className="hover:underline">hot</Link>
             {isAuthenticated && (
               <Link to="/submit" className="hover:underline">submit</Link>
             )}

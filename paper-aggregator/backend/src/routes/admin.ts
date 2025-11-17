@@ -5,11 +5,14 @@ import path from 'path';
 
 const router = express.Router();
 
-const ADMIN_KEY = process.env.ADMIN_KEY || 'admin-secret-key-change-in-production';
-
 // Middleware to check admin authentication
 function authenticateAdmin(req: Request, res: Response, next: express.NextFunction) {
+  const ADMIN_KEY = process.env.ADMIN_KEY || 'admin-secret-key-change-in-production';
   const adminKey = req.headers['x-admin-key'];
+
+  console.log('Received admin key:', adminKey);
+  console.log('Expected admin key:', ADMIN_KEY);
+  console.log('Keys match:', adminKey === ADMIN_KEY);
 
   if (!adminKey || adminKey !== ADMIN_KEY) {
     return res.status(403).json({ error: 'Unauthorized. Invalid admin key.' });

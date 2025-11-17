@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../logo.png" alt="Snark Express Logo" width="200"/>
+</p>
+
 # Snark Express
 
 A cryptography paper aggregation platform inspired by Hacker News and zksecurity.xyz. Optimized for ePrint IACR papers with automatic metadata extraction, BibTeX generation, and LaTeX math rendering.
