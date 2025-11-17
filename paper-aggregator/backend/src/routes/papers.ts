@@ -80,6 +80,13 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
     // Extract metadata
     console.log('Extracting metadata from:', url);
     const metadata = await extractPaperMetadata(url);
+    console.log('Extracted metadata:', {
+      title: metadata.title,
+      hasAbstract: !!metadata.abstract,
+      abstractLength: metadata.abstract?.length || 0,
+      hasBibEntry: !!metadata.bib_entry,
+      authors: metadata.authors
+    });
 
     // Insert paper
     const result = db.prepare(`
