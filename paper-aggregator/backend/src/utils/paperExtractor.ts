@@ -63,10 +63,28 @@ async function extractEprintMetadata(url: string): Promise<PaperMetadata> {
     .get()
     .join(' and ');
 
-  // Extract abstract
-  const abstract = $('meta[name="citation_abstract"]').attr('content') ||
-                   $('#abstract').text().trim() ||
-                   $('blockquote').first().text().trim();
+  // Extract abstract - try multiple selectors for ePrint IACR
+  let abstract = $('meta[name="citation_abstract"]').attr('content');
+
+  if (!abstract) {
+    // Try to find abstract in definition list
+    $('dt').each((_, el) => {
+      const dt = $(el);
+      if (dt.text().toLowerCase().includes('abstract')) {
+        const dd = dt.next('dd');
+        if (dd.length) {
+          abstract = dd.text().trim();
+        }
+      }
+    });
+  }
+
+  // Fallback to other common selectors
+  if (!abstract) {
+    abstract = $('#abstract').text().trim() ||
+               $('blockquote').first().text().trim() ||
+               $('.abstract').text().trim();
+  }
 
   // Extract publication date
   const dateStr = $('meta[name="citation_publication_date"]').attr('content') ||

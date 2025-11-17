@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Paper } from '../types';
 import { papers as papersApi } from '../api';
 import { useAuth } from '../AuthContext';
+import { MathText } from './MathText';
 
 interface PaperItemProps {
   paper: Paper;
@@ -124,7 +125,7 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
               {paper.abstract && (
                 <div className="mb-3">
                   <h4 className="font-semibold mb-1">Abstract:</h4>
-                  <p className="text-gray-700">{paper.abstract}</p>
+                  <MathText text={paper.abstract} className="text-gray-700 leading-relaxed" />
                 </div>
               )}
               {paper.bib_entry && (
