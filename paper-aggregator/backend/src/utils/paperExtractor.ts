@@ -4,6 +4,11 @@ import { PaperMetadata } from '../types';
 
 export async function extractPaperMetadata(url: string): Promise<PaperMetadata> {
   try {
+    // Check if it's an ePrint IACR paper
+    if (url.includes('eprint.iacr.org')) {
+      return await extractEprintMetadata(url);
+    }
+
     // Check if it's an arXiv paper
     if (url.includes('arxiv.org')) {
       return await extractArxivMetadata(url);
@@ -26,6 +31,87 @@ export async function extractPaperMetadata(url: string): Promise<PaperMetadata> 
       published_date: undefined
     };
   }
+}
+
+async function extractEprintMetadata(url: string): Promise<PaperMetadata> {
+  // Extract paper ID from URL (e.g., 2025/2097)
+  const eprintIdMatch = url.match(/eprint\.iacr\.org\/(\d{4}\/\d+)/);
+  if (!eprintIdMatch) {
+    throw new Error('Invalid ePrint IACR URL');
+  }
+
+  const eprintId = eprintIdMatch[1];
+  const paperUrl = `https://eprint.iacr.org/${eprintId}`;
+
+  const response = await axios.get(paperUrl, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    }
+  });
+
+  const $ = cheerio.load(response.data);
+
+  // Extract title
+  const title = $('meta[name="citation_title"]').attr('content') ||
+                $('h1').first().text().trim() ||
+                'Unknown Title';
+
+  // Extract authors
+  const authorElements = $('meta[name="citation_author"]');
+  const authors = authorElements
+    .map((_, el) => $(el).attr('content'))
+    .get()
+    .join(' and ');
+
+  // Extract abstract
+  const abstract = $('meta[name="citation_abstract"]').attr('content') ||
+                   $('#abstract').text().trim() ||
+                   $('blockquote').first().text().trim();
+
+  // Extract publication date
+  const dateStr = $('meta[name="citation_publication_date"]').attr('content') ||
+                  $('meta[name="citation_online_date"]').attr('content');
+  const published_date = dateStr || eprintId.split('/')[0]; // Use year from ID as fallback
+
+  // Extract BibTeX - look for BibTeX section
+  let bib_entry = '';
+
+  // Try to find BibTeX in the page
+  $('dt').each((_, el) => {
+    const dt = $(el);
+    if (dt.text().includes('BibTeX')) {
+      const dd = dt.next('dd');
+      if (dd.length) {
+        const preContent = dd.find('pre').text().trim();
+        if (preContent) {
+          bib_entry = preContent;
+        }
+      }
+    }
+  });
+
+  // If BibTeX not found in page, generate it
+  if (!bib_entry) {
+    const year = eprintId.split('/')[0];
+    const firstAuthorLastName = authors ? authors.split(' and ')[0].split(' ').pop() : 'unknown';
+    const bibKey = `cryptoeprint:${eprintId.replace('/', ':')}`;
+
+    bib_entry = `@misc{${bibKey},
+      author = {${authors || 'Unknown'}},
+      title = {${title}},
+      howpublished = {Cryptology {ePrint} Archive, Paper ${eprintId}},
+      year = {${year}},
+      url = {https://eprint.iacr.org/${eprintId}}
+}`;
+  }
+
+  return {
+    title,
+    abstract: abstract || undefined,
+    bib_entry,
+    authors: authors || undefined,
+    published_date
+  };
 }
 
 async function extractArxivMetadata(url: string): Promise<PaperMetadata> {

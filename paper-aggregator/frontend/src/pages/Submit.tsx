@@ -54,12 +54,12 @@ export function Submit() {
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://arxiv.org/abs/2101.12345 or https://doi.org/..."
+              placeholder="https://eprint.iacr.org/2025/2097"
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
               required
             />
             <p className="text-xs text-gray-500 mt-1">
-              Supports arXiv, DOI, and other paper URLs. We'll automatically extract the title, abstract, and BibTeX entry.
+              Best optimized for <strong>eprint.iacr.org</strong> papers. Also supports arXiv and DOI links. We'll automatically extract the title, abstract, and BibTeX entry.
             </p>
           </div>
           <div className="mb-4">

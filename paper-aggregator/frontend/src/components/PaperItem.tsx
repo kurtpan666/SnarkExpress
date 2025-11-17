@@ -11,6 +11,7 @@ interface PaperItemProps {
 export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
   const { isAuthenticated } = useAuth();
   const [showDetails, setShowDetails] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleVote = async (vote: number) => {
     if (!isAuthenticated) {
@@ -44,6 +45,19 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
     const diffInDays = Math.floor(diffInHours / 24);
     if (diffInDays === 1) return '1 day ago';
     return `${diffInDays} days ago`;
+  };
+
+  const copyBibTeX = async () => {
+    if (!paper.bib_entry) return;
+
+    try {
+      await navigator.clipboard.writeText(paper.bib_entry);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy BibTeX:', error);
+      alert('Failed to copy to clipboard');
+    }
   };
 
   return (
@@ -115,7 +129,15 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
               )}
               {paper.bib_entry && (
                 <div>
-                  <h4 className="font-semibold mb-1">BibTeX:</h4>
+                  <div className="flex items-center justify-between mb-1">
+                    <h4 className="font-semibold">BibTeX:</h4>
+                    <button
+                      onClick={copyBibTeX}
+                      className="px-3 py-1 bg-orange-500 text-white text-xs rounded hover:bg-orange-600 transition-colors"
+                    >
+                      {copied ? '✓ Copied!' : 'Copy BibTeX'}
+                    </button>
+                  </div>
                   <pre className="bg-white p-2 rounded border border-gray-300 overflow-x-auto text-xs">
                     {paper.bib_entry}
                   </pre>

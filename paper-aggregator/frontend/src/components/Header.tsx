@@ -10,7 +10,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-6">
           <Link to="/" className="text-xl font-bold hover:underline">
-            Paper Aggregator
+            Snark Express
           </Link>
           <nav className="flex space-x-4 text-sm">
             <Link to="/" className="hover:underline">new</Link>
