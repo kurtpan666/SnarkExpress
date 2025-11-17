@@ -51,16 +51,19 @@ async function extractEprintMetadata(url: string): Promise<PaperMetadata> {
 
   const $ = cheerio.load(response.data);
 
-  // Debug: log page structure
+  // Debug: log response and page structure
   console.log('=== ePrint Page Debug ===');
+  console.log('Response status:', response.status);
+  console.log('Response data length:', response.data.length);
+  console.log('HTML snippet:', response.data.substring(0, 500));
   console.log('B elements:', $('b').length);
-  $('b').each((i, el) => {
-    const text = $(el).text().trim();
-    console.log(`B ${i}:`, text);
-    if (text === 'Abstract') {
-      console.log('  -> Found Abstract tag!');
-      console.log('  -> Parent:', $(el).parent().prop('tagName'));
-      console.log('  -> Parent text length:', $(el).parent().text().length);
+  console.log('All text elements with "abstract":', $('*:contains("Abstract")').length);
+
+  // Try to find any element containing "Abstract"
+  $('*').each((i, el) => {
+    const text = $(el).text();
+    if (text.includes('Abstract') && text.length < 500) {
+      console.log('Element with Abstract:', $(el).prop('tagName'), '-', text.substring(0, 100));
     }
   });
 
