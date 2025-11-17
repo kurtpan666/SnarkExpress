@@ -38,12 +38,14 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
     // Sorting algorithm
     if (sort === 'hot') {
       // Hacker News ranking: score / (age + 2)^gravity
-      query += `, (COALESCE(SUM(CASE WHEN v.vote_type = 1 THEN 1 WHEN v.vote_type = -1 THEN -1 ELSE 0 END), 0) + 1) /
+      query += ` ORDER BY (COALESCE(SUM(CASE WHEN v.vote_type = 1 THEN 1 WHEN v.vote_type = -1 THEN -1 ELSE 0 END), 0) + 1) /
                 POWER((JULIANDAY('now') - JULIANDAY(p.created_at)) * 24 + 2, 1.8) DESC`;
     } else if (sort === 'top') {
-      query += `, vote_count DESC, p.created_at DESC`;
+      // Sort by votes first, then by submission time for papers with same votes
+      query += ` ORDER BY vote_count DESC, p.created_at DESC`;
     } else if (sort === 'new') {
-      query += `, p.created_at DESC`;
+      // Sort by submission time, then by votes for papers submitted at same time
+      query += ` ORDER BY p.created_at DESC, vote_count DESC`;
     }
 
     query += ` LIMIT 50`;
