@@ -51,6 +51,17 @@ async function extractEprintMetadata(url: string): Promise<PaperMetadata> {
 
   const $ = cheerio.load(response.data);
 
+  // Debug: log page structure
+  console.log('=== ePrint Page Debug ===');
+  console.log('DL elements:', $('dl').length);
+  console.log('DT elements:', $('dt').length);
+  console.log('DD elements:', $('dd').length);
+
+  // Log all dt text
+  $('dt').each((i, el) => {
+    console.log(`DT ${i}:`, $(el).text().trim());
+  });
+
   // Extract title
   const title = $('meta[name="citation_title"]').attr('content') ||
                 $('h1').first().text().trim() ||
