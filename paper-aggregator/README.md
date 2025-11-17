@@ -5,9 +5,10 @@ A cryptography paper aggregation platform inspired by Hacker News and zksecurity
 ## Features
 
 - **User Authentication**: Register and login with JWT-based authentication
+- **Email Whitelist**: Optional email/domain whitelist for invitation-only registration
 - **Paper Submission**: Submit papers by URL (optimized for eprint.iacr.org, also supports arXiv and DOI)
-- **Automatic Metadata Extraction**: Automatically extracts title, abstract, authors, and BibTeX entries
-- **Math Formula Rendering**: KaTeX-powered LaTeX math rendering in abstracts
+- **Automatic Metadata Extraction**: Automatically extracts title, abstract, authors, and BibTeX entries (10-30 seconds)
+- **Math Formula Rendering**: KaTeX-powered LaTeX math rendering in abstracts (supports inline and display math)
 - **Copy BibTeX**: One-click BibTeX copying to clipboard
 - **Voting System**: Upvote papers you find interesting
 - **Smart Ranking**: Papers ranked using a Hacker News-style algorithm (score/age)
@@ -222,7 +223,35 @@ Create `backend/.env` file:
 PORT=3001
 JWT_SECRET=your-secret-key-change-in-production
 ADMIN_KEY=your-admin-key-change-in-production
+
+# Email whitelist configuration (optional)
+# Leave empty to allow all emails (open registration)
+# Use comma-separated list for specific emails: user1@example.com,user2@example.com
+# Use domains with @ prefix for domain whitelist: @university.edu,@company.com
+ALLOWED_EMAILS=
 ```
+
+### Email Whitelist
+
+By default, registration is open to all users. To restrict registration to specific emails or domains:
+
+**Allow specific emails:**
+```env
+ALLOWED_EMAILS=alice@example.com,bob@example.com,charlie@example.com
+```
+
+**Allow entire domains:**
+```env
+ALLOWED_EMAILS=@university.edu,@company.com
+```
+
+**Mixed (emails + domains):**
+```env
+ALLOWED_EMAILS=alice@example.com,@university.edu,@company.com
+```
+
+When the whitelist is enabled, users with non-whitelisted emails will see:
+> "This email is not authorized to register. Please contact the administrator for an invitation."
 
 ## Development
 
