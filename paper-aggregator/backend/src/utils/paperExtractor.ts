@@ -53,13 +53,15 @@ async function extractEprintMetadata(url: string): Promise<PaperMetadata> {
 
   // Debug: log page structure
   console.log('=== ePrint Page Debug ===');
-  console.log('DL elements:', $('dl').length);
-  console.log('DT elements:', $('dt').length);
-  console.log('DD elements:', $('dd').length);
-
-  // Log all dt text
-  $('dt').each((i, el) => {
-    console.log(`DT ${i}:`, $(el).text().trim());
+  console.log('B elements:', $('b').length);
+  $('b').each((i, el) => {
+    const text = $(el).text().trim();
+    console.log(`B ${i}:`, text);
+    if (text === 'Abstract') {
+      console.log('  -> Found Abstract tag!');
+      console.log('  -> Parent:', $(el).parent().prop('tagName'));
+      console.log('  -> Parent text length:', $(el).parent().text().length);
+    }
   });
 
   // Extract title
@@ -97,27 +99,23 @@ async function extractEprintMetadata(url: string): Promise<PaperMetadata> {
     });
   }
 
-  // Try b/strong tags followed by text
+  // Try b/strong tags followed by text - ePrint IACR uses <b>Abstract</b>
   if (!abstract) {
     $('b, strong').each((_, el) => {
-      const label = $(el).text().toLowerCase().trim();
-      if (label === 'abstract' || label === 'abstract:') {
-        let nextText = '';
-        let current = $(el).parent();
+      const label = $(el).text().trim(); // Don't lowercase - ePrint uses "Abstract" exactly
+      if (label === 'Abstract' || label === 'Abstract:') {
+        const parent = $(el).parent();
+        // Get full parent text and remove the label
+        let fullText = parent.text();
+        let extractedText = fullText.replace(label, '').trim();
 
-        // Get text from parent or next sibling
-        const parentText = current.text().replace($(el).text(), '').trim();
-        if (parentText && parentText.length > 50) {
-          nextText = parentText;
-        } else {
-          const nextSibling = current.next();
-          if (nextSibling.length) {
-            nextText = nextSibling.text().trim();
-          }
-        }
+        console.log('DEBUG: Found Abstract tag');
+        console.log('DEBUG: Parent text length:', fullText.length);
+        console.log('DEBUG: Extracted text length:', extractedText.length);
+        console.log('DEBUG: First 100 chars:', extractedText.substring(0, 100));
 
-        if (nextText && nextText.length > 50) {
-          abstract = nextText;
+        if (extractedText && extractedText.length > 50) {
+          abstract = extractedText;
         }
       }
     });
