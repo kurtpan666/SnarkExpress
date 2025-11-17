@@ -67,13 +67,46 @@ async function extractEprintMetadata(url: string): Promise<PaperMetadata> {
   let abstract = $('meta[name="citation_abstract"]').attr('content');
 
   if (!abstract) {
-    // Try to find abstract in definition list
-    $('dt').each((_, el) => {
-      const dt = $(el);
-      if (dt.text().toLowerCase().includes('abstract')) {
-        const dd = dt.next('dd');
-        if (dd.length) {
-          abstract = dd.text().trim();
+    // Try to find abstract in definition list (dl/dt/dd structure)
+    $('dl').each((_, dlEl) => {
+      const dl = $(dlEl);
+      dl.find('dt').each((_, dtEl) => {
+        const dt = $(dtEl);
+        const dtText = dt.text().toLowerCase().trim();
+        if (dtText === 'abstract' || dtText === 'abstract:') {
+          const dd = dt.next('dd');
+          if (dd.length) {
+            const text = dd.text().trim();
+            if (text && text.length > 50) { // Ensure it's not empty
+              abstract = text;
+            }
+          }
+        }
+      });
+    });
+  }
+
+  // Try b/strong tags followed by text
+  if (!abstract) {
+    $('b, strong').each((_, el) => {
+      const label = $(el).text().toLowerCase().trim();
+      if (label === 'abstract' || label === 'abstract:') {
+        let nextText = '';
+        let current = $(el).parent();
+
+        // Get text from parent or next sibling
+        const parentText = current.text().replace($(el).text(), '').trim();
+        if (parentText && parentText.length > 50) {
+          nextText = parentText;
+        } else {
+          const nextSibling = current.next();
+          if (nextSibling.length) {
+            nextText = nextSibling.text().trim();
+          }
+        }
+
+        if (nextText && nextText.length > 50) {
+          abstract = nextText;
         }
       }
     });
@@ -81,9 +114,20 @@ async function extractEprintMetadata(url: string): Promise<PaperMetadata> {
 
   // Fallback to other common selectors
   if (!abstract) {
-    abstract = $('#abstract').text().trim() ||
-               $('blockquote').first().text().trim() ||
-               $('.abstract').text().trim();
+    const candidates = [
+      $('#abstract').text().trim(),
+      $('blockquote').first().text().trim(),
+      $('.abstract').text().trim(),
+      $('[id*="abstract"]').text().trim(),
+      $('[class*="abstract"]').text().trim()
+    ];
+
+    for (const candidate of candidates) {
+      if (candidate && candidate.length > 50) {
+        abstract = candidate;
+        break;
+      }
+    }
   }
 
   // Extract publication date
