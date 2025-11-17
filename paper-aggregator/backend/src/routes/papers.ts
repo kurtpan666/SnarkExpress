@@ -77,6 +77,30 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'URL is required' });
     }
 
+    // Normalize URL for duplicate checking
+    // Remove trailing slashes and standardize
+    const normalizedUrl = url.trim().replace(/\/+$/, '');
+
+    // Check if URL already exists
+    const existingPaper = db.prepare(`
+      SELECT id, title, url
+      FROM papers
+      WHERE REPLACE(url, '/', '') = REPLACE(?, '/', '')
+         OR url = ?
+         OR REPLACE(REPLACE(url, 'http://', ''), 'https://', '') = REPLACE(REPLACE(?, 'http://', ''), 'https://', '')
+    `).get(normalizedUrl, normalizedUrl, normalizedUrl) as { id: number; title: string; url: string } | undefined;
+
+    if (existingPaper) {
+      return res.status(409).json({
+        error: 'This paper has already been submitted',
+        existingPaper: {
+          id: existingPaper.id,
+          title: existingPaper.title,
+          url: existingPaper.url
+        }
+      });
+    }
+
     // Extract metadata
     console.log('Extracting metadata from:', url);
     const metadata = await extractPaperMetadata(url);

@@ -3,10 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { papers } from '../api';
 import { useAuth } from '../AuthContext';
 
+interface ExistingPaper {
+  id: number;
+  title: string;
+  url: string;
+}
+
 export function Submit() {
   const [url, setUrl] = useState('');
   const [tags, setTags] = useState('');
   const [error, setError] = useState('');
+  const [existingPaper, setExistingPaper] = useState<ExistingPaper | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -19,6 +26,7 @@ export function Submit() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setExistingPaper(null);
     setLoading(true);
 
     try {
@@ -30,7 +38,13 @@ export function Submit() {
       await papers.submit(url, tagArray);
       navigate('/');
     } catch (error: any) {
-      setError(error.response?.data?.error || 'Failed to submit paper');
+      // Check if it's a duplicate paper error (409 Conflict)
+      if (error.response?.status === 409 && error.response?.data?.existingPaper) {
+        setError(error.response.data.error);
+        setExistingPaper(error.response.data.existingPaper);
+      } else {
+        setError(error.response?.data?.error || 'Failed to submit paper');
+      }
     } finally {
       setLoading(false);
     }
@@ -42,7 +56,21 @@ export function Submit() {
         <h2 className="text-2xl font-bold mb-4">Submit a Paper</h2>
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+            <div className="font-semibold">{error}</div>
+            {existingPaper && (
+              <div className="mt-2 text-sm">
+                <div className="mb-1">
+                  <span className="font-medium">Paper: </span>
+                  <span>{existingPaper.title}</span>
+                </div>
+                <button
+                  onClick={() => navigate('/')}
+                  className="text-red-900 underline hover:text-red-800"
+                >
+                  View the existing submission on the homepage
+                </button>
+              </div>
+            )}
           </div>
         )}
         {loading && (
