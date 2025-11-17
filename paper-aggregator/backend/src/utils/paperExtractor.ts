@@ -79,67 +79,48 @@ async function extractEprintMetadata(url: string): Promise<PaperMetadata> {
     .get()
     .join(' and ');
 
-  // Extract abstract - try multiple selectors for ePrint IACR
+  // Extract abstract - ePrint IACR uses <h5>Abstract</h5> followed by content
   let abstract = $('meta[name="citation_abstract"]').attr('content');
 
   if (!abstract) {
-    // Try to find abstract in definition list (dl/dt/dd structure)
-    $('dl').each((_, dlEl) => {
-      const dl = $(dlEl);
-      dl.find('dt').each((_, dtEl) => {
-        const dt = $(dtEl);
-        const dtText = dt.text().toLowerCase().trim();
-        if (dtText === 'abstract' || dtText === 'abstract:') {
-          const dd = dt.next('dd');
-          if (dd.length) {
-            const text = dd.text().trim();
-            if (text && text.length > 50) { // Ensure it's not empty
+    // ePrint IACR uses heading tags (h5, h4, h3) for "Abstract"
+    $('h5, h4, h3, h2').each((_, el) => {
+      const heading = $(el);
+      const headingText = heading.text().trim();
+
+      if (headingText === 'Abstract' || headingText === 'Abstract:') {
+        console.log('DEBUG: Found Abstract heading:', heading.prop('tagName'));
+
+        // Get the next sibling element (usually a <p>)
+        let nextElem = heading.next();
+        if (nextElem.length) {
+          const text = nextElem.text().trim();
+          console.log('DEBUG: Next element:', nextElem.prop('tagName'), 'length:', text.length);
+
+          if (text && text.length > 50) {
+            abstract = text;
+            console.log('DEBUG: Extracted from next sibling');
+          }
+        }
+
+        // If next sibling doesn't work, try parent's next sibling
+        if (!abstract || abstract.length < 50) {
+          const parentNext = heading.parent().next();
+          if (parentNext.length) {
+            const text = parentNext.text().trim();
+            if (text && text.length > 50) {
               abstract = text;
+              console.log('DEBUG: Extracted from parent next sibling');
             }
           }
         }
-      });
-    });
-  }
-
-  // Try b/strong tags followed by text - ePrint IACR uses <b>Abstract</b>
-  if (!abstract) {
-    $('b, strong').each((_, el) => {
-      const label = $(el).text().trim(); // Don't lowercase - ePrint uses "Abstract" exactly
-      if (label === 'Abstract' || label === 'Abstract:') {
-        const parent = $(el).parent();
-        // Get full parent text and remove the label
-        let fullText = parent.text();
-        let extractedText = fullText.replace(label, '').trim();
-
-        console.log('DEBUG: Found Abstract tag');
-        console.log('DEBUG: Parent text length:', fullText.length);
-        console.log('DEBUG: Extracted text length:', extractedText.length);
-        console.log('DEBUG: First 100 chars:', extractedText.substring(0, 100));
-
-        if (extractedText && extractedText.length > 50) {
-          abstract = extractedText;
-        }
       }
     });
   }
 
-  // Fallback to other common selectors
-  if (!abstract) {
-    const candidates = [
-      $('#abstract').text().trim(),
-      $('blockquote').first().text().trim(),
-      $('.abstract').text().trim(),
-      $('[id*="abstract"]').text().trim(),
-      $('[class*="abstract"]').text().trim()
-    ];
-
-    for (const candidate of candidates) {
-      if (candidate && candidate.length > 50) {
-        abstract = candidate;
-        break;
-      }
-    }
+  // Clean up abstract - remove extra whitespace
+  if (abstract) {
+    abstract = abstract.replace(/\s+/g, ' ').trim();
   }
 
   // Extract publication date
