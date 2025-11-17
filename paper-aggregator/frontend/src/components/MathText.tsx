@@ -22,38 +22,94 @@ export function MathText({ text, className = '' }: MathTextProps) {
   }, [text]);
 
   const renderMath = (inputText: string): string => {
-    // Replace inline math: $...$ or \(...\)
-    let result = inputText.replace(/\$([^$]+)\$/g, (match, math) => {
+    // Escape HTML to prevent XSS
+    let result = inputText
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+      .replace(/\n/g, '<br>');
+
+    // Replace display math first ($$...$$ and \[...\]) to avoid conflicts with inline
+    // Use non-greedy matching and handle multiline
+    result = result.replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
       try {
-        return katex.renderToString(math, { displayMode: false, throwOnError: false });
+        // Unescape the math content
+        const unescapedMath = math
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#039;/g, "'")
+          .replace(/<br>/g, '\n');
+        return katex.renderToString(unescapedMath, {
+          displayMode: true,
+          throwOnError: false,
+          strict: false
+        });
       } catch (e) {
+        console.error('KaTeX render error for display math:', e);
         return match;
       }
     });
 
-    // Replace inline math with \(...\)
-    result = result.replace(/\\\(([^)]+)\\\)/g, (match, math) => {
+    result = result.replace(/\\\[([\s\S]*?)\\\]/g, (match, math) => {
       try {
-        return katex.renderToString(math, { displayMode: false, throwOnError: false });
+        const unescapedMath = math
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#039;/g, "'")
+          .replace(/<br>/g, '\n');
+        return katex.renderToString(unescapedMath, {
+          displayMode: true,
+          throwOnError: false,
+          strict: false
+        });
       } catch (e) {
+        console.error('KaTeX render error for display math:', e);
         return match;
       }
     });
 
-    // Replace display math: $$...$$ or \[...\]
-    result = result.replace(/\$\$([^$]+)\$\$/g, (match, math) => {
+    // Replace inline math ($...$ and \(...\))
+    // Use more specific regex to avoid matching display math
+    result = result.replace(/\$([^\s$][^$]*?[^\s$]|\S)\$/g, (match, math) => {
       try {
-        return katex.renderToString(math, { displayMode: true, throwOnError: false });
+        const unescapedMath = math
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#039;/g, "'");
+        return katex.renderToString(unescapedMath, {
+          displayMode: false,
+          throwOnError: false,
+          strict: false
+        });
       } catch (e) {
+        console.error('KaTeX render error for inline math:', e);
         return match;
       }
     });
 
-    // Replace display math with \[...\]
-    result = result.replace(/\\\[([^\]]+)\\\]/g, (match, math) => {
+    result = result.replace(/\\\((.*?)\\\)/g, (match, math) => {
       try {
-        return katex.renderToString(math, { displayMode: true, throwOnError: false });
+        const unescapedMath = math
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#039;/g, "'");
+        return katex.renderToString(unescapedMath, {
+          displayMode: false,
+          throwOnError: false,
+          strict: false
+        });
       } catch (e) {
+        console.error('KaTeX render error for inline math:', e);
         return match;
       }
     });

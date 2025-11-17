@@ -6,6 +6,41 @@ import { User } from '../types';
 
 const router = express.Router();
 
+// Email whitelist checker
+function isEmailAllowed(email: string): boolean {
+  const allowedEmails = process.env.ALLOWED_EMAILS?.trim();
+
+  // If no whitelist configured, allow all emails
+  if (!allowedEmails) {
+    return true;
+  }
+
+  const whitelist = allowedEmails.split(',').map(e => e.trim()).filter(e => e.length > 0);
+
+  // If empty after splitting, allow all
+  if (whitelist.length === 0) {
+    return true;
+  }
+
+  const emailLower = email.toLowerCase();
+
+  for (const entry of whitelist) {
+    // Domain whitelist (starts with @)
+    if (entry.startsWith('@')) {
+      const domain = entry.toLowerCase();
+      if (emailLower.endsWith(domain)) {
+        return true;
+      }
+    }
+    // Exact email match
+    else if (entry.toLowerCase() === emailLower) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 // Register
 router.post('/register', async (req: Request, res: Response) => {
   try {
@@ -17,6 +52,13 @@ router.post('/register', async (req: Request, res: Response) => {
 
     if (password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    // Check email whitelist
+    if (!isEmailAllowed(email)) {
+      return res.status(403).json({
+        error: 'This email is not authorized to register. Please contact the administrator for an invitation.'
+      });
     }
 
     // Check if user already exists
