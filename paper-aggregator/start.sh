@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "========================================="
-echo "Paper Aggregator - Setup & Start"
+echo "Snark Express - Setup & Start"
 echo "========================================="
 echo ""
 

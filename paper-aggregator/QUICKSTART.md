@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-This guide will help you get the Paper Aggregator platform up and running in minutes.
+This guide will help you get Snark Express up and running in minutes.
 
 ## Method 1: Using the Start Script (Recommended)
 

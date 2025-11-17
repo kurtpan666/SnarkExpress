@@ -1,16 +1,19 @@
-# Paper Aggregator
+# Snark Express
 
-A paper aggregation platform inspired by Hacker News and zksecurity.xyz. Submit research papers, vote on them, and discover trending papers in your field.
+A cryptography paper aggregation platform inspired by Hacker News and zksecurity.xyz. Optimized for ePrint IACR papers with automatic metadata extraction, BibTeX generation, and LaTeX math rendering.
 
 ## Features
 
 - **User Authentication**: Register and login with JWT-based authentication
-- **Paper Submission**: Submit papers by URL (supports arXiv, DOI, and other academic sources)
+- **Paper Submission**: Submit papers by URL (optimized for eprint.iacr.org, also supports arXiv and DOI)
 - **Automatic Metadata Extraction**: Automatically extracts title, abstract, authors, and BibTeX entries
+- **Math Formula Rendering**: KaTeX-powered LaTeX math rendering in abstracts
+- **Copy BibTeX**: One-click BibTeX copying to clipboard
 - **Voting System**: Upvote papers you find interesting
 - **Smart Ranking**: Papers ranked using a Hacker News-style algorithm (score/age)
 - **Tag System**: Categorize papers with tags and filter by topic
 - **Multiple Sort Options**: Sort by hot, top, or new
+- **Admin API**: Database management and statistics endpoints
 
 ## Tech Stack
 
@@ -28,6 +31,7 @@ A paper aggregation platform inspired by Hacker News and zksecurity.xyz. Submit 
 - Vite
 - Tailwind CSS
 - React Router
+- KaTeX for math rendering
 - Axios
 
 ## Project Structure
@@ -37,54 +41,69 @@ paper-aggregator/
 ├── backend/
 │   ├── src/
 │   │   ├── database/
-│   │   │   ├── db.ts
-│   │   │   └── init.ts
+│   │   │   ├── db.ts              # Database connection
+│   │   │   └── init.ts            # Database initialization
 │   │   ├── middleware/
-│   │   │   └── auth.ts
+│   │   │   └── auth.ts            # JWT authentication
 │   │   ├── routes/
-│   │   │   ├── auth.ts
-│   │   │   └── papers.ts
+│   │   │   ├── auth.ts            # Auth endpoints
+│   │   │   ├── papers.ts          # Paper endpoints
+│   │   │   └── admin.ts           # Admin endpoints
 │   │   ├── types/
-│   │   │   └── index.ts
+│   │   │   └── index.ts           # TypeScript types
 │   │   ├── utils/
-│   │   │   └── paperExtractor.ts
-│   │   └── server.ts
+│   │   │   └── paperExtractor.ts  # Metadata extraction
+│   │   └── server.ts              # Express server
+│   ├── data/                      # SQLite database (auto-created)
 │   ├── package.json
-│   └── tsconfig.json
-└── frontend/
-    ├── src/
-    │   ├── components/
-    │   │   ├── Header.tsx
-    │   │   ├── PaperItem.tsx
-    │   │   └── PaperList.tsx
-    │   ├── pages/
-    │   │   ├── Login.tsx
-    │   │   ├── Register.tsx
-    │   │   └── Submit.tsx
-    │   ├── App.tsx
-    │   ├── AuthContext.tsx
-    │   ├── api.ts
-    │   ├── types.ts
-    │   └── main.tsx
-    ├── package.json
-    └── vite.config.ts
+│   ├── tsconfig.json
+│   └── .env                       # Environment variables
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Header.tsx         # Site header
+│   │   │   ├── PaperItem.tsx      # Paper display with math
+│   │   │   ├── PaperList.tsx      # Paper list with filters
+│   │   │   └── MathText.tsx       # KaTeX math renderer
+│   │   ├── pages/
+│   │   │   ├── Login.tsx          # Login page
+│   │   │   ├── Register.tsx       # Registration page
+│   │   │   └── Submit.tsx         # Paper submission
+│   │   ├── App.tsx                # Main app component
+│   │   ├── AuthContext.tsx        # Auth state management
+│   │   ├── api.ts                 # API client
+│   │   ├── types.ts               # TypeScript types
+│   │   └── main.tsx               # Entry point
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── tailwind.config.js
+├── start.sh                       # Quick start script
+├── README.md                      # This file
+├── QUICKSTART.md                  # Quick start guide
+├── ADMIN_API.md                   # Admin API documentation
+└── MATH_RENDERING.md              # Math rendering documentation
 ```
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js (v18 or higher)
-- npm or yarn
-
-### Installation
-
-1. **Clone the repository** (or navigate to the project folder)
-
-2. **Set up the backend**:
+### Quick Start (Recommended)
 
 ```bash
-cd backend
+cd paper-aggregator
+./start.sh
+```
+
+This will automatically:
+- Install all dependencies
+- Initialize the database
+- Start both backend and frontend servers
+
+### Manual Setup
+
+#### 1. Set up the backend
+
+```bash
+cd paper-aggregator/backend
 npm install
 
 # Create .env file
@@ -99,10 +118,10 @@ npm run dev
 
 The backend will run on `http://localhost:3001`
 
-3. **Set up the frontend** (in a new terminal):
+#### 2. Set up the frontend
 
 ```bash
-cd frontend
+cd paper-aggregator/frontend
 npm install
 
 # Start the frontend development server
@@ -113,11 +132,56 @@ The frontend will run on `http://localhost:3000`
 
 ## Usage
 
-1. **Register an account**: Click "register" in the header
-2. **Submit a paper**: Click "submit" and paste a paper URL (arXiv or DOI)
-3. **Vote on papers**: Click the upvote arrow on papers you like
-4. **Filter by tags**: Use the sidebar to filter papers by topic
-5. **Sort papers**: Choose between hot, top, or new sorting
+1. **Open your browser** and navigate to `http://localhost:3000`
+
+2. **Register an account**:
+   - Click "register" in the header
+   - Create a username, email, and password
+   - You'll be automatically logged in
+
+3. **Submit a paper**:
+   - Click "submit" in the header
+   - Paste a paper URL (best: `https://eprint.iacr.org/2025/2097`)
+   - Add tags (e.g., "zero-knowledge, cryptography")
+   - Click submit
+
+4. **Explore features**:
+   - Vote on papers using the upvote arrow
+   - Click "show details" to see abstract and BibTeX
+   - Use "Copy BibTeX" button to copy to clipboard
+   - Filter by tags in the sidebar
+   - Sort by hot, top, or new
+
+## Supported Paper Sources
+
+### ePrint IACR (Primary)
+- URL format: `https://eprint.iacr.org/2025/2097`
+- Extracts: Title, authors, abstract, BibTeX, publication date
+- BibTeX format matches ePrint standard
+
+### arXiv
+- URL format: `https://arxiv.org/abs/2203.11932`
+- Uses arXiv API for metadata
+- Auto-generates BibTeX
+
+### DOI
+- URL format: `https://doi.org/10.1145/3548606.3560593`
+- Uses CrossRef API for metadata
+- Auto-generates BibTeX
+
+## Math Formula Support
+
+Abstracts support LaTeX math formulas rendered with KaTeX:
+
+- **Inline math**: `$O(n^2)$` or `\(x^2 + y^2\)`
+- **Display math**: `$$E = mc^2$$` or `\[...\]`
+
+Example:
+```
+The prover computes $\pi = g^{r_1} \cdot h^{r_2} \mod p$ in $\mathbb{G}$.
+```
+
+See [MATH_RENDERING.md](./MATH_RENDERING.md) for details.
 
 ## API Endpoints
 
@@ -131,6 +195,12 @@ The frontend will run on `http://localhost:3000`
 - `POST /api/papers/:id/vote` - Vote on a paper (requires authentication)
 - `GET /api/papers/tags` - Get all tags
 
+### Admin (requires admin key)
+- `POST /api/admin/reset-database` - Reset database
+- `GET /api/admin/stats` - Get database statistics
+
+See [ADMIN_API.md](./ADMIN_API.md) for admin API details.
+
 ## Ranking Algorithm
 
 Papers are ranked using a Hacker News-style algorithm:
@@ -139,16 +209,20 @@ Papers are ranked using a Hacker News-style algorithm:
 score = (votes + 1) / (age_in_hours + 2)^1.8
 ```
 
-This ensures that:
+This ensures:
 - Recent papers with votes appear higher
 - Papers gradually decay over time
-- A balance between quality (votes) and recency
+- Balance between quality (votes) and recency
 
-## Supported Paper Sources
+## Environment Variables
 
-- **arXiv**: Automatically extracts metadata from arXiv API
-- **DOI**: Uses CrossRef API for DOI-based papers
-- **Generic URLs**: Attempts to extract metadata from meta tags
+Create `backend/.env` file:
+
+```env
+PORT=3001
+JWT_SECRET=your-secret-key-change-in-production
+ADMIN_KEY=your-admin-key-change-in-production
+```
 
 ## Development
 
@@ -182,26 +256,91 @@ npm run build
 npm run preview
 ```
 
-## Environment Variables
+## Database Management
 
-Create a `.env` file in the backend directory:
+### Reset Database
 
+Using curl:
+```bash
+curl -X POST http://localhost:3001/api/admin/reset-database \
+  -H "X-Admin-Key: snark-express-admin-key-2025"
 ```
-PORT=3001
-JWT_SECRET=your-secret-key-change-in-production
+
+### View Statistics
+
+```bash
+curl http://localhost:3001/api/admin/stats \
+  -H "X-Admin-Key: snark-express-admin-key-2025"
 ```
 
-## Future Enhancements
+## Documentation
 
-- Comment system
-- User profiles
-- Email notifications
-- RSS feeds
-- Advanced search
-- Paper recommendations
-- Save/bookmark papers
-- Admin moderation tools
+- [QUICKSTART.md](./QUICKSTART.md) - Quick start guide
+- [ADMIN_API.md](./ADMIN_API.md) - Admin API documentation
+- [MATH_RENDERING.md](./MATH_RENDERING.md) - Math rendering guide
+- [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md) - Detailed project summary
+
+## Example Papers to Try
+
+Test the platform with these papers:
+- `https://eprint.iacr.org/2025/2097` - Hash-Based Blind Signatures
+- `https://eprint.iacr.org/2024/1000` - Various cryptography papers
+- `https://arxiv.org/abs/2203.11932` - arXiv example
+- `https://doi.org/10.1145/3548606.3560593` - DOI example
+
+## Troubleshooting
+
+### Port Already in Use
+
+```bash
+# Kill process on port 3001 (backend)
+lsof -ti:3001 | xargs kill -9
+
+# Kill process on port 3000 (frontend)
+lsof -ti:3000 | xargs kill -9
+```
+
+### Database Errors
+
+```bash
+cd backend
+rm -rf data/
+npm run init-db
+```
+
+### Missing Dependencies
+
+```bash
+# Backend
+cd backend
+rm -rf node_modules package-lock.json
+npm install
+
+# Frontend
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+```
+
+## Features Roadmap
+
+- [x] User authentication
+- [x] Paper submission and voting
+- [x] ePrint IACR optimization
+- [x] BibTeX extraction and copying
+- [x] Math formula rendering
+- [x] Admin API
+- [ ] Comment system
+- [ ] User profiles
+- [ ] Email notifications
+- [ ] RSS feeds
+- [ ] Advanced search
+- [ ] Paper recommendations
 
 ## License
 
 MIT
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
