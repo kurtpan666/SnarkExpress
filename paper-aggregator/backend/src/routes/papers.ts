@@ -9,8 +9,10 @@ const router = express.Router();
 // Get papers with ranking algorithm (Hacker News style)
 router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const { tag, sort = 'hot' } = req.query;
+    const { tag, sort = 'hot', limit = '30', offset = '0' } = req.query;
     const userId = req.userId;
+    const limitNum = parseInt(limit as string, 10);
+    const offsetNum = parseInt(offset as string, 10);
 
     let query = `
       SELECT
@@ -49,9 +51,23 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
       query += ` ORDER BY p.created_at DESC, vote_count DESC`;
     }
 
-    query += ` LIMIT 50`;
+    query += ` LIMIT ? OFFSET ?`;
+    params.push(limitNum, offsetNum);
 
     const papers = db.prepare(query).all(...params) as any[];
+
+    // Get total count for pagination
+    let countQuery = `SELECT COUNT(DISTINCT p.id) as total FROM papers p`;
+    const countParams: any[] = [];
+
+    if (tag) {
+      countQuery += ` LEFT JOIN paper_tags pt ON p.id = pt.paper_id
+                      LEFT JOIN tags t ON pt.tag_id = t.id
+                      WHERE t.name = ?`;
+      countParams.push(tag);
+    }
+
+    const { total } = db.prepare(countQuery).get(...countParams) as { total: number };
 
     // Process tags
     const processedPapers = papers.map(paper => ({
@@ -61,7 +77,15 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
       user_vote: paper.user_vote || null
     }));
 
-    res.json(processedPapers);
+    res.json({
+      papers: processedPapers,
+      pagination: {
+        total,
+        limit: limitNum,
+        offset: offsetNum,
+        hasMore: offsetNum + limitNum < total
+      }
+    });
   } catch (error) {
     console.error('Error fetching papers:', error);
     res.status(500).json({ error: 'Internal server error' });

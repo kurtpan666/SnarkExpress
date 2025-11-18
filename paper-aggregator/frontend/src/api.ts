@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AuthResponse, Paper, Comment, UserProfile, Vote, PaperNetwork } from './types';
+import { AuthResponse, Paper, Comment, UserProfile, Vote, PaperNetwork, PaginatedResponse } from './types';
 
 const API_URL = '/api';
 
@@ -25,8 +25,8 @@ export const auth = {
 };
 
 export const papers = {
-  getAll: (tag?: string, sort?: string) =>
-    api.get<Paper[]>('/papers', { params: { tag, sort } }),
+  getAll: (params?: { tag?: string; sort?: string; limit?: number; offset?: number }) =>
+    api.get<PaginatedResponse<Paper>>('/papers', { params }),
 
   submit: (url: string, tags: string[], title?: string, authors?: string) =>
     api.post<Paper>('/papers', { url, tags, title, authors }),
@@ -82,7 +82,7 @@ export const search = {
     sort?: string;
     limit?: number;
     offset?: number;
-  }) => api.get<Paper[]>('/search', { params }),
+  }) => api.get<PaginatedResponse<Paper>>('/search', { params }),
 
   suggestions: (q: string) =>
     api.get<{ titles: string[]; authors: string[]; tags: string[] }>('/search/suggestions', {

@@ -93,3 +93,15 @@ export interface PaperNetwork {
   nodes: NetworkNode[];
   edges: NetworkEdge[];
 }
+
+export interface PaginationInfo {
+  total: number;
+  limit: number;
+  offset: number;
+  hasMore: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  papers: T[];
+  pagination: PaginationInfo;
+}
