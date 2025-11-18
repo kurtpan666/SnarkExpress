@@ -23,7 +23,7 @@ export function PaperList() {
   const selectedTag = searchParams.get('tag') || undefined;
   const sortBy = searchParams.get('sort') || 'new';
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
-  const itemsPerPage = 30;
+  const itemsPerPage = 8;
 
   useEffect(() => {
     loadPapers();
