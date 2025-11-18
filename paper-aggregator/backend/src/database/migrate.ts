@@ -16,15 +16,18 @@ const db = new Database(dbPath);
 console.log('Starting database migration...');
 
 try {
-  // Begin transaction
-  db.exec('BEGIN TRANSACTION');
-
   // Check if public_key column already exists
   const columns = db.pragma("table_info('users')") as Array<{ name: string }>;
   const hasPublicKey = columns.some((col) => col.name === 'public_key');
 
   if (!hasPublicKey) {
     console.log('Adding public_key column to users table...');
+
+    // Disable foreign key constraints temporarily
+    db.pragma('foreign_keys = OFF');
+
+    // Begin transaction
+    db.exec('BEGIN TRANSACTION');
 
     // SQLite doesn't support ALTER TABLE to modify constraints
     // So we need to recreate the table
@@ -55,13 +58,16 @@ try {
     // 4. Rename new table
     db.exec('ALTER TABLE users_new RENAME TO users');
 
+    // Commit transaction
+    db.exec('COMMIT');
+
+    // Re-enable foreign key constraints
+    db.pragma('foreign_keys = ON');
+
     console.log('Migration completed successfully!');
   } else {
     console.log('Database is already up to date.');
   }
-
-  // Commit transaction
-  db.exec('COMMIT');
 
 } catch (error) {
   // Rollback on error
