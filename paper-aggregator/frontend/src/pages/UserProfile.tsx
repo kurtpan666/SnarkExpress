@@ -155,6 +155,10 @@ export function UserProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   useEffect(() => {
     if (!username) return;
 
@@ -208,6 +212,7 @@ export function UserProfile() {
     };
 
     fetchTabData();
+    setCurrentPage(1); // Reset to first page when switching tabs
   }, [username, activeTab]);
 
   const formatDate = (dateString: string) => {
@@ -226,6 +231,44 @@ export function UserProfile() {
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     return `${diffDays}d ago`;
+  };
+
+  // Pagination helpers
+  const getCurrentPageItems = <T,>(items: T[]): T[] => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return items.slice(startIndex, endIndex);
+  };
+
+  const getTotalPages = (totalItems: number): number => {
+    return Math.ceil(totalItems / itemsPerPage);
+  };
+
+  const PaginationControls = ({ totalItems }: { totalItems: number }) => {
+    const totalPages = getTotalPages(totalItems);
+    if (totalPages <= 1) return null;
+
+    return (
+      <div className="flex justify-center items-center gap-2 mt-6 pb-2">
+        <button
+          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+          disabled={currentPage === 1}
+          className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-gray-100"
+        >
+          Previous
+        </button>
+        <span className="text-sm text-gray-600 dark:text-gray-400">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+          disabled={currentPage === totalPages}
+          className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-gray-100"
+        >
+          Next
+        </button>
+      </div>
+    );
   };
 
   if (loading) {
@@ -254,17 +297,40 @@ export function UserProfile() {
       <div className="max-w-6xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {/* Profile Header */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 mb-4 sm:mb-6">
-          <div className="mb-4">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white break-words">
-              {profile.user.username}
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
-              Joined {formatDate(profile.user.created_at)}
-            </p>
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
+            {/* User Info */}
+            <div className="flex-shrink-0">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white break-words">
+                {profile.user.username}
+              </h1>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
+                Joined {formatDate(profile.user.created_at)}
+              </p>
+            </div>
+
+            {/* Badges */}
+            {profile.badges.length > 0 && (
+              <div className="flex flex-wrap gap-2 sm:gap-2 items-start">
+                {profile.badges.map((badge, index) => (
+                  <div
+                    key={index}
+                    className="bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-900 dark:to-orange-950 border border-orange-200 dark:border-orange-700 rounded-lg px-2 py-1 flex items-center space-x-1"
+                    title={badge.description}
+                  >
+                    <span className="text-lg">{badge.icon}</span>
+                    <div className="hidden sm:block">
+                      <div className="font-semibold text-gray-900 dark:text-orange-200 text-xs truncate">
+                        {badge.name}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
             <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 sm:p-4">
               <div className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
                 {profile.stats.submission_count}
@@ -290,32 +356,6 @@ export function UserProfile() {
               <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Votes Received</div>
             </div>
           </div>
-
-          {/* Badges */}
-          {profile.badges.length > 0 && (
-            <div>
-              <h2 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 text-gray-900 dark:text-white">Badges</h2>
-              <div className="flex flex-wrap gap-2 sm:gap-3">
-                {profile.badges.map((badge, index) => (
-                  <div
-                    key={index}
-                    className="bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-900 dark:to-orange-950 border border-orange-200 dark:border-orange-700 rounded-lg px-2 sm:px-4 py-1.5 sm:py-2 flex items-center space-x-1.5 sm:space-x-2"
-                    title={badge.description}
-                  >
-                    <span className="text-xl sm:text-2xl">{badge.icon}</span>
-                    <div className="min-w-0">
-                      <div className="font-semibold text-gray-900 dark:text-orange-200 text-xs sm:text-sm truncate">
-                        {badge.name}
-                      </div>
-                      <div className="text-[10px] sm:text-xs text-gray-600 dark:text-orange-300 hidden sm:block">
-                        {badge.description}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Tabs */}
@@ -360,101 +400,110 @@ export function UserProfile() {
           {/* Tab Content */}
           <div className="p-3 sm:p-6">
             {activeTab === 'submissions' && (
-              <div className="space-y-3 sm:space-y-4">
-                {submissions.length === 0 ? (
-                  <p className="text-gray-500 dark:text-gray-400 text-center py-8 text-sm">No submissions yet</p>
-                ) : (
-                  submissions.map((paper) => (
-                    <div key={paper.id} className="border-b border-gray-200 dark:border-gray-700 pb-3 sm:pb-4 last:border-b-0">
-                      <div className="flex items-start space-x-2">
-                        <div className="text-gray-600 dark:text-gray-400 font-semibold min-w-[2.5rem] sm:min-w-[3rem] text-center flex-shrink-0">
-                          <div className="text-orange-600 dark:text-orange-400 text-sm sm:text-base">{paper.vote_count}</div>
-                          <div className="text-[10px] sm:text-xs">points</div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base">
-                            <a
-                              href={paper.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:text-orange-600 dark:hover:text-orange-400 break-words"
-                            >
-                              {paper.title}
-                            </a>
-                          </h3>
-                          <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 flex flex-wrap gap-1">
-                            {paper.tags.map((tag) => (
-                              <Link
-                                key={tag}
-                                to={`/?tag=${tag}`}
-                                className="inline-block bg-gray-100 dark:bg-gray-700 px-1.5 sm:px-2 py-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
+              <>
+                <div className="space-y-3 sm:space-y-4">
+                  {submissions.length === 0 ? (
+                    <p className="text-gray-500 dark:text-gray-400 text-center py-8 text-sm">No submissions yet</p>
+                  ) : (
+                    getCurrentPageItems(submissions).map((paper) => (
+                      <div key={paper.id} className="border-b border-gray-200 dark:border-gray-700 pb-3 sm:pb-4 last:border-b-0">
+                        <div className="flex items-start space-x-2">
+                          <div className="text-gray-600 dark:text-gray-400 font-semibold min-w-[2.5rem] sm:min-w-[3rem] text-center flex-shrink-0">
+                            <div className="text-orange-600 dark:text-orange-400 text-sm sm:text-base">{paper.vote_count}</div>
+                            <div className="text-[10px] sm:text-xs">points</div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base">
+                              <a
+                                href={paper.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-orange-600 dark:hover:text-orange-400 break-words"
                               >
-                                {tag}
-                              </Link>
-                            ))}
-                            <span className="text-gray-400 dark:text-gray-500">•</span>
-                            <span>{formatRelativeTime(paper.created_at)}</span>
+                                {paper.title}
+                              </a>
+                            </h3>
+                            <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 flex flex-wrap gap-1">
+                              {paper.tags.map((tag) => (
+                                <Link
+                                  key={tag}
+                                  to={`/?tag=${tag}`}
+                                  className="inline-block bg-gray-100 dark:bg-gray-700 px-1.5 sm:px-2 py-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
+                                >
+                                  {tag}
+                                </Link>
+                              ))}
+                              <span className="text-gray-400 dark:text-gray-500">•</span>
+                              <span>{formatRelativeTime(paper.created_at)}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))
-                )}
-              </div>
+                    ))
+                  )}
+                </div>
+                <PaginationControls totalItems={submissions.length} />
+              </>
             )}
 
             {activeTab === 'comments' && (
-              <div className="space-y-3 sm:space-y-4">
-                {comments.length === 0 ? (
-                  <p className="text-gray-500 dark:text-gray-400 text-center py-8 text-sm">No comments yet</p>
-                ) : (
-                  comments.map((comment) => (
-                    <UserCommentItem
-                      key={comment.id}
-                      comment={comment}
-                      currentUsername={profile.user.username}
-                      onUpdate={loadComments}
-                    />
-                  ))
-                )}
-              </div>
+              <>
+                <div className="space-y-3 sm:space-y-4">
+                  {comments.length === 0 ? (
+                    <p className="text-gray-500 dark:text-gray-400 text-center py-8 text-sm">No comments yet</p>
+                  ) : (
+                    getCurrentPageItems(comments).map((comment) => (
+                      <UserCommentItem
+                        key={comment.id}
+                        comment={comment}
+                        currentUsername={profile.user.username}
+                        onUpdate={loadComments}
+                      />
+                    ))
+                  )}
+                </div>
+                <PaginationControls totalItems={comments.length} />
+              </>
             )}
 
             {activeTab === 'votes' && (
-              <div className="space-y-3 sm:space-y-4">
-                {votes.length === 0 ? (
-                  <p className="text-gray-500 dark:text-gray-400 text-center py-8 text-sm">No votes yet</p>
-                ) : (
-                  votes.map((vote, index) => (
-                    <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-3 sm:pb-4 last:border-b-0">
-                      <div className="flex items-start space-x-2">
-                        <div
-                          className={`text-xl sm:text-2xl flex-shrink-0 ${
-                            vote.vote_type === 1 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                          }`}
-                        >
-                          {vote.vote_type === 1 ? '↑' : '↓'}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base">
-                            <a
-                              href={vote.paper_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:text-orange-600 dark:hover:text-orange-400 break-words"
-                            >
-                              {vote.paper_title}
-                            </a>
-                          </h3>
-                          <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                            by {vote.submitter_username} - {formatRelativeTime(vote.created_at)}
+              <>
+                <div className="space-y-3 sm:space-y-4">
+                  {votes.length === 0 ? (
+                    <p className="text-gray-500 dark:text-gray-400 text-center py-8 text-sm">No votes yet</p>
+                  ) : (
+                    getCurrentPageItems(votes).map((vote, index) => (
+                      <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-3 sm:pb-4 last:border-b-0">
+                        <div className="flex items-start space-x-2">
+                          <div
+                            className={`text-xl sm:text-2xl flex-shrink-0 ${
+                              vote.vote_type === 1 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                            }`}
+                          >
+                            {vote.vote_type === 1 ? '↑' : '↓'}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base">
+                              <a
+                                href={vote.paper_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-orange-600 dark:hover:text-orange-400 break-words"
+                              >
+                                {vote.paper_title}
+                              </a>
+                            </h3>
+                            <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+                              by {vote.submitter_username} - {formatRelativeTime(vote.created_at)}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))
-                )}
-              </div>
+                    ))
+                  )}
+                </div>
+                <PaginationControls totalItems={votes.length} />
+              </>
             )}
           </div>
         </div>
