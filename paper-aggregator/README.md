@@ -8,7 +8,9 @@ A cryptography paper aggregation platform inspired by Hacker News and zksecurity
 
 ## Features
 
+### Core Features
 - **User Authentication**: Register and login with JWT-based authentication
+- **Cryptographic Key Authentication**: Optional secp256k1-based key pair authentication (no password needed!)
 - **Email Whitelist**: Optional email/domain whitelist for invitation-only registration
 - **Paper Submission**: Submit papers by URL (optimized for eprint.iacr.org, also supports arXiv and DOI)
 - **Automatic Metadata Extraction**: Automatically extracts title, abstract, authors, and BibTeX entries (10-30 seconds)
@@ -18,7 +20,11 @@ A cryptography paper aggregation platform inspired by Hacker News and zksecurity
 - **Smart Ranking**: Papers ranked using a Hacker News-style algorithm (score/age)
 - **Tag System**: Categorize papers with tags and filter by topic
 - **Multiple Sort Options**: Sort by hot, top, or new
+- **Comments System**: Nested comments with edit/delete functionality
+- **User Profiles**: View user submissions, comments, and votes
+- **Related Papers**: AI-powered paper recommendations and network visualization
 - **Admin API**: Database management and statistics endpoints
+- **Dark Mode**: Full dark mode support
 
 ## Tech Stack
 
@@ -28,6 +34,7 @@ A cryptography paper aggregation platform inspired by Hacker News and zksecurity
 - SQLite (better-sqlite3)
 - JWT for authentication
 - bcryptjs for password hashing
+- @noble/secp256k1 for cryptographic key authentication
 - Axios + Cheerio for metadata extraction
 
 ### Frontend
@@ -117,6 +124,9 @@ cp .env.example .env
 # Initialize the database
 npm run init-db
 
+# Run database migrations (for existing databases)
+npm run migrate
+
 # Start the backend server
 npm run dev
 ```
@@ -140,11 +150,40 @@ The frontend will run on `http://localhost:3000`
 1. **Open your browser** and navigate to `http://localhost:3000`
 
 2. **Register an account**:
+
+   **Option A: Traditional Password Registration**
    - Click "register" in the header
+   - Choose "Password" authentication method
    - Create a username, email, and password
    - You'll be automatically logged in
 
-3. **Submit a paper**:
+   **Option B: Cryptographic Key Registration** (Recommended for privacy!)
+   - Click "register" in the header
+   - Choose "Cryptographic Key" authentication method
+   - Enter a username
+   - Click "Generate Key Pair" to create a new key pair
+   - **IMPORTANT**: Save your private key securely! This is the only time it will be shown.
+   - Click "Copy Private Key" or "Download" to save it
+   - Complete registration
+
+   **Private Key Authentication Benefits**:
+   - No password to remember - your private key IS your password
+   - Login with just your private key (no username needed!)
+   - Based on secp256k1 elliptic curve (same as Bitcoin)
+   - More secure than traditional passwords
+   - Privacy-focused: no email required for key-based registration
+
+3. **Login**:
+
+   **Password Login**: Enter username and password
+
+   **Private Key Login**:
+   - Select "Private Key" method
+   - Paste your private key (automatically hidden with • characters)
+   - Click eye icon to toggle visibility
+   - No username needed - the system finds your account by your key!
+
+4. **Submit a paper**:
    - Click "submit" in the header
    - Paste a paper URL (best: `https://eprint.iacr.org/2025/2097`)
    - Add tags (e.g., "zero-knowledge, cryptography")
@@ -191,8 +230,12 @@ See [MATH_RENDERING.md](./MATH_RENDERING.md) for details.
 ## API Endpoints
 
 ### Authentication
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/login` - Login
+- `POST /api/auth/register` - Register a new user (supports both password and public key)
+  - Password: `{ username, email, password }`
+  - Cryptographic Key: `{ username, publicKey }`
+- `POST /api/auth/login` - Login (supports both methods)
+  - Password: `{ username, password }`
+  - Private Key: `{ privateKey }` (username optional, finds user by derived public key)
 
 ### Papers
 - `GET /api/papers?tag=<tag>&sort=<hot|top|new>` - Get papers
@@ -335,6 +378,15 @@ lsof -ti:3000 | xargs kill -9
 
 ### Database Errors
 
+If you encounter "no such column: public_key" errors:
+
+```bash
+cd backend
+npm run migrate
+```
+
+To completely reset the database:
+
 ```bash
 cd backend
 rm -rf data/
@@ -355,20 +407,53 @@ rm -rf node_modules package-lock.json
 npm install
 ```
 
+## Cryptographic Key Authentication
+
+Snark Express supports passwordless authentication using secp256k1 elliptic curve cryptography (the same cryptography used in Bitcoin).
+
+### How it Works
+
+1. **Registration**:
+   - User generates a key pair (private key + public key) in browser
+   - Only the public key is sent to the server and stored
+   - Private key stays with the user (never leaves the browser)
+   - Username is set once during registration
+
+2. **Login**:
+   - User only needs to provide their private key
+   - System derives the public key from the private key
+   - Finds the user account by matching public keys
+   - No username needed - the private key uniquely identifies you!
+
+3. **Security**:
+   - Private keys are 64-character hexadecimal strings (256-bit security)
+   - Never stored on the server
+   - Can be hidden with password-style masking (click eye icon to show/hide)
+   - Based on battle-tested secp256k1 cryptography
+
+### Key Management Tips
+
+- **Save your private key securely** - treat it like a master password
+- Use a password manager to store it
+- Download it as a file and keep it safe
+- If you lose it, you lose access to your account permanently (no password reset!)
+
 ## Features Roadmap
 
-- [x] User authentication
+- [x] User authentication (password + cryptographic keys)
 - [x] Paper submission and voting
 - [x] ePrint IACR optimization
 - [x] BibTeX extraction and copying
 - [x] Math formula rendering
 - [x] Admin API
-- [ ] Comment system
-- [ ] User profiles
+- [x] Comment system
+- [x] User profiles
+- [x] Paper recommendations
+- [x] Dark mode
 - [ ] Email notifications
 - [ ] RSS feeds
 - [ ] Advanced search
-- [ ] Paper recommendations
+- [ ] Nostr integration
 
 ## License
 
