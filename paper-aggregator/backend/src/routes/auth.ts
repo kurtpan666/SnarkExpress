@@ -45,90 +45,116 @@ function isEmailAllowed(email: string): boolean {
 // Register
 router.post('/register', async (req: Request, res: Response) => {
   try {
-    const { username, email, password, useKeyPair } = req.body;
+    const { username, email, password, publicKey } = req.body;
 
-    if (!username || !email) {
-      return res.status(400).json({ error: 'Username and email are required' });
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required' });
     }
 
     // Validate registration mode
-    if (useKeyPair && password) {
+    const isPasswordAuth = password && !publicKey;
+    const isKeyPairAuth = publicKey && !password;
+
+    if (password && publicKey) {
       return res.status(400).json({
         error: 'Cannot use both password and key pair authentication. Choose one method.'
       });
     }
 
-    if (!useKeyPair && !password) {
+    if (!password && !publicKey) {
       return res.status(400).json({
-        error: 'Either password or key pair authentication must be specified'
+        error: 'Either password or publicKey must be specified'
       });
     }
 
-    if (password && password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    // For password-based registration, email is required
+    if (isPasswordAuth) {
+      if (!email) {
+        return res.status(400).json({ error: 'Email is required for password-based registration' });
+      }
+
+      if (password.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters' });
+      }
+
+      // Check email whitelist for password-based registration
+      if (!isEmailAllowed(email)) {
+        return res.status(403).json({
+          error: 'This email is not authorized to register. Please contact the administrator for an invitation.'
+        });
+      }
     }
 
-    // Check email whitelist
-    if (!isEmailAllowed(email)) {
-      return res.status(403).json({
-        error: 'This email is not authorized to register. Please contact the administrator for an invitation.'
-      });
-    }
+    // For key pair registration, validate the public key
+    if (isKeyPairAuth) {
+      if (!isValidPublicKey(publicKey)) {
+        return res.status(400).json({ error: 'Invalid public key format' });
+      }
 
-    // Check if user already exists
-    const existingUser = db.prepare('SELECT id FROM users WHERE username = ? OR email = ?')
-      .get(username, email) as User | undefined;
-
-    if (existingUser) {
-      return res.status(400).json({ error: 'Username or email already exists' });
-    }
-
-    let passwordHash: string | null = null;
-    let publicKey: string | null = null;
-    let privateKey: string | undefined = undefined;
-
-    if (useKeyPair) {
-      // Generate key pair
-      const keyPair = generateKeyPair();
-      publicKey = keyPair.publicKey;
-      privateKey = keyPair.privateKey; // This will be sent to client once, never stored
-
-      // Check if public key already exists (extremely unlikely but good to check)
+      // Check if public key already exists
       const existingKey = db.prepare('SELECT id FROM users WHERE public_key = ?')
         .get(publicKey) as User | undefined;
 
       if (existingKey) {
-        return res.status(500).json({ error: 'Key collision detected. Please try again.' });
+        return res.status(400).json({ error: 'This public key is already registered' });
       }
+    }
 
-      // Insert user with public key
+    // Check if username already exists
+    const existingUsername = db.prepare('SELECT id FROM users WHERE username = ?')
+      .get(username) as User | undefined;
+
+    if (existingUsername) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+
+    // For password-based registration, check if email already exists
+    if (isPasswordAuth && email) {
+      const existingEmail = db.prepare('SELECT id FROM users WHERE email = ?')
+        .get(email) as User | undefined;
+
+      if (existingEmail) {
+        return res.status(400).json({ error: 'Email already exists' });
+      }
+    }
+
+    let passwordHash: string | null = null;
+    let userEmail: string | null = null;
+    let userPublicKey: string | null = null;
+
+    if (isKeyPairAuth) {
+      // Key pair registration (client-generated keys)
+      userPublicKey = publicKey;
+      // Generate a unique email for key-based users (database requires non-null email)
+      // Use provided email if available, otherwise generate one
+      userEmail = email || `${username}@keypair.local`;
+
+      // Insert user with public key only
       const result = db.prepare(
         'INSERT INTO users (username, email, public_key) VALUES (?, ?, ?)'
-      ).run(username, email, publicKey);
+      ).run(username, userEmail, userPublicKey);
 
       const userId = result.lastInsertRowid as number;
       const token = generateToken(userId);
 
-      // IMPORTANT: Return the private key to the client (only once!)
       res.status(201).json({
         user: {
           id: userId,
           username,
-          email,
-          publicKey
+          email: userEmail,
+          publicKey: userPublicKey
         },
-        token,
-        privateKey, // Client must save this securely
-        warning: 'IMPORTANT: Save your private key securely. It cannot be recovered if lost.'
+        token
       });
-    } else {
+    } else if (isPasswordAuth) {
       // Traditional password-based registration
       passwordHash = await bcrypt.hash(password, 10);
+      userEmail = email;
 
       // Insert user with password
       const result = db.prepare(
         'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)'
-      ).run(username, email, passwordHash);
+      ).run(username, userEmail, passwordHash);
 
       const userId = result.lastInsertRowid as number;
       const token = generateToken(userId);
@@ -137,7 +163,7 @@ router.post('/register', async (req: Request, res: Response) => {
         user: {
           id: userId,
           username,
-          email
+          email: userEmail
         },
         token
       });

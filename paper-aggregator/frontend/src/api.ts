@@ -20,8 +20,8 @@ export const auth = {
   register: (username: string, email: string, password: string) =>
     api.post<AuthResponse>('/auth/register', { username, email, password }),
 
-  registerWithKeyPair: (username: string, email: string) =>
-    api.post<AuthResponse>('/auth/register', { username, email, useKeyPair: true }),
+  registerWithKeyPair: (username: string, publicKey: string) =>
+    api.post<AuthResponse>('/auth/register', { username, publicKey }),
 
   login: (username: string, password: string) =>
     api.post<AuthResponse>('/auth/login', { username, password }),
