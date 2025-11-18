@@ -250,7 +250,7 @@ export function UserProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-32">
       <div className="max-w-6xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {/* Profile Header */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 mb-4 sm:mb-6">
