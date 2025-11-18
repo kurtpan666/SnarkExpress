@@ -6,6 +6,10 @@ import authRoutes from './routes/auth';
 import papersRoutes from './routes/papers';
 import adminRoutes from './routes/admin';
 import commentsRoutes from './routes/comments';
+import usersRoutes from './routes/users';
+import feedsRoutes from './routes/feeds';
+import searchRoutes from './routes/search';
+import recommendationsRoutes from './routes/recommendations';
 
 // Load .env from the backend directory
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -24,6 +28,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/papers', papersRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api', commentsRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/feeds', feedsRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/recommendations', recommendationsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

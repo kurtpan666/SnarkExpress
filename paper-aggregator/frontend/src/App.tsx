@@ -6,6 +6,8 @@ import { PaperList } from './components/PaperList';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Submit } from './pages/Submit';
+import { UserProfile } from './pages/UserProfile';
+import { Search } from './pages/Search';
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/submit" element={<Submit />} />
+            <Route path="/user/:username" element={<UserProfile />} />
+            <Route path="/search" element={<Search />} />
           </Routes>
           <Footer />
         </div>
