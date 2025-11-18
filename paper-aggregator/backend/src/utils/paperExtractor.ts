@@ -46,26 +46,11 @@ async function extractEprintMetadata(url: string): Promise<PaperMetadata> {
   const response = await axios.get(paperUrl, {
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-    }
+    },
+    timeout: 8000 // 8 seconds timeout
   });
 
   const $ = cheerio.load(response.data);
-
-  // Debug: log response and page structure
-  console.log('=== ePrint Page Debug ===');
-  console.log('Response status:', response.status);
-  console.log('Response data length:', response.data.length);
-  console.log('HTML snippet:', response.data.substring(0, 500));
-  console.log('B elements:', $('b').length);
-  console.log('All text elements with "abstract":', $('*:contains("Abstract")').length);
-
-  // Try to find any element containing "Abstract"
-  $('*').each((i, el) => {
-    const text = $(el).text();
-    if (text.includes('Abstract') && text.length < 500) {
-      console.log('Element with Abstract:', $(el).prop('tagName'), '-', text.substring(0, 100));
-    }
-  });
 
   // Extract title
   const title = $('meta[name="citation_title"]').attr('content') ||
@@ -84,22 +69,21 @@ async function extractEprintMetadata(url: string): Promise<PaperMetadata> {
 
   if (!abstract) {
     // ePrint IACR uses heading tags (h5, h4, h3) for "Abstract"
-    $('h5, h4, h3, h2').each((_, el) => {
-      const heading = $(el);
-      const headingText = heading.text().trim();
+    // Use more specific selectors to avoid unnecessary iterations
+    const headingSelectors = ['h5:contains("Abstract")', 'h4:contains("Abstract")', 'h3:contains("Abstract")', 'h2:contains("Abstract")'];
 
-      if (headingText === 'Abstract' || headingText === 'Abstract:') {
-        console.log('DEBUG: Found Abstract heading:', heading.prop('tagName'));
+    for (const selector of headingSelectors) {
+      if (abstract && abstract.length > 50) break;
 
+      const heading = $(selector).first();
+      if (heading.length && (heading.text().trim() === 'Abstract' || heading.text().trim() === 'Abstract:')) {
         // Get the next sibling element (usually a <p>)
         let nextElem = heading.next();
         if (nextElem.length) {
           const text = nextElem.text().trim();
-          console.log('DEBUG: Next element:', nextElem.prop('tagName'), 'length:', text.length);
-
           if (text && text.length > 50) {
             abstract = text;
-            console.log('DEBUG: Extracted from next sibling');
+            break;
           }
         }
 
@@ -110,12 +94,12 @@ async function extractEprintMetadata(url: string): Promise<PaperMetadata> {
             const text = parentNext.text().trim();
             if (text && text.length > 50) {
               abstract = text;
-              console.log('DEBUG: Extracted from parent next sibling');
+              break;
             }
           }
         }
       }
-    });
+    }
   }
 
   // Clean up abstract - remove extra whitespace
@@ -148,7 +132,6 @@ async function extractEprintMetadata(url: string): Promise<PaperMetadata> {
   // If BibTeX not found in page, generate it
   if (!bib_entry) {
     const year = eprintId.split('/')[0];
-    const firstAuthorLastName = authors ? authors.split(' and ')[0].split(' ').pop() : 'unknown';
     const bibKey = `cryptoeprint:${eprintId.replace('/', ':')}`;
 
     bib_entry = `@misc{${bibKey},
@@ -179,7 +162,7 @@ async function extractArxivMetadata(url: string): Promise<PaperMetadata> {
   const arxivId = arxivIdMatch[1];
   const apiUrl = `http://export.arxiv.org/api/query?id_list=${arxivId}`;
 
-  const response = await axios.get(apiUrl);
+  const response = await axios.get(apiUrl, { timeout: 8000 });
   const $ = cheerio.load(response.data, { xmlMode: true });
 
   const entry = $('entry').first();
@@ -220,7 +203,7 @@ async function extractDoiMetadata(url: string): Promise<PaperMetadata> {
 
   // Use CrossRef API
   const apiUrl = `https://api.crossref.org/works/${doi}`;
-  const response = await axios.get(apiUrl);
+  const response = await axios.get(apiUrl, { timeout: 8000 });
   const data = response.data.message;
 
   const title = data.title?.[0] || 'Unknown Title';
@@ -260,7 +243,8 @@ async function extractFromWebpage(url: string): Promise<PaperMetadata> {
   const response = await axios.get(url, {
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-    }
+    },
+    timeout: 8000
   });
 
   const $ = cheerio.load(response.data);
