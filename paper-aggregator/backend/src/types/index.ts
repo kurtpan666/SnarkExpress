@@ -2,7 +2,8 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  password_hash: string;
+  password_hash: string | null;
+  public_key: string | null;
   created_at: string;
 }
 

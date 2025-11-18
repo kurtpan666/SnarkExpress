@@ -20,8 +20,14 @@ export const auth = {
   register: (username: string, email: string, password: string) =>
     api.post<AuthResponse>('/auth/register', { username, email, password }),
 
+  registerWithKeyPair: (username: string, publicKey: string) =>
+    api.post<AuthResponse>('/auth/register', { username, publicKey }),
+
   login: (username: string, password: string) =>
     api.post<AuthResponse>('/auth/login', { username, password }),
+
+  loginWithPrivateKey: (username: string, privateKey: string) =>
+    api.post<AuthResponse>('/auth/login', { username, privateKey }),
 };
 
 export const papers = {

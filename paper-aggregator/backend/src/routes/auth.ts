@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import db from '../database/db';
 import { generateToken } from '../middleware/auth';
 import { User } from '../types';
+import { generateKeyPair, isValidPublicKey, getPublicKeyFromPrivate, isValidPrivateKey } from '../utils/keyPair';
 
 const router = express.Router();
 
@@ -44,50 +45,129 @@ function isEmailAllowed(email: string): boolean {
 // Register
 router.post('/register', async (req: Request, res: Response) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, publicKey } = req.body;
 
-    if (!username || !email || !password) {
-      return res.status(400).json({ error: 'Username, email, and password are required' });
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required' });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
-    }
+    // Validate registration mode
+    const isPasswordAuth = password && !publicKey;
+    const isKeyPairAuth = publicKey && !password;
 
-    // Check email whitelist
-    if (!isEmailAllowed(email)) {
-      return res.status(403).json({
-        error: 'This email is not authorized to register. Please contact the administrator for an invitation.'
+    if (password && publicKey) {
+      return res.status(400).json({
+        error: 'Cannot use both password and key pair authentication. Choose one method.'
       });
     }
 
-    // Check if user already exists
-    const existingUser = db.prepare('SELECT id FROM users WHERE username = ? OR email = ?')
-      .get(username, email) as User | undefined;
-
-    if (existingUser) {
-      return res.status(400).json({ error: 'Username or email already exists' });
+    if (!password && !publicKey) {
+      return res.status(400).json({
+        error: 'Either password or publicKey must be specified'
+      });
     }
 
-    // Hash password
-    const passwordHash = await bcrypt.hash(password, 10);
+    // For password-based registration, email is required
+    if (isPasswordAuth) {
+      if (!email) {
+        return res.status(400).json({ error: 'Email is required for password-based registration' });
+      }
 
-    // Insert user
-    const result = db.prepare(
-      'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)'
-    ).run(username, email, passwordHash);
+      if (password.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters' });
+      }
 
-    const userId = result.lastInsertRowid as number;
-    const token = generateToken(userId);
+      // Check email whitelist for password-based registration
+      if (!isEmailAllowed(email)) {
+        return res.status(403).json({
+          error: 'This email is not authorized to register. Please contact the administrator for an invitation.'
+        });
+      }
+    }
 
-    res.status(201).json({
-      user: {
-        id: userId,
-        username,
-        email
-      },
-      token
-    });
+    // For key pair registration, validate the public key
+    if (isKeyPairAuth) {
+      if (!isValidPublicKey(publicKey)) {
+        return res.status(400).json({ error: 'Invalid public key format' });
+      }
+
+      // Check if public key already exists
+      const existingKey = db.prepare('SELECT id FROM users WHERE public_key = ?')
+        .get(publicKey) as User | undefined;
+
+      if (existingKey) {
+        return res.status(400).json({ error: 'This public key is already registered' });
+      }
+    }
+
+    // Check if username already exists
+    const existingUsername = db.prepare('SELECT id FROM users WHERE username = ?')
+      .get(username) as User | undefined;
+
+    if (existingUsername) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+
+    // For password-based registration, check if email already exists
+    if (isPasswordAuth && email) {
+      const existingEmail = db.prepare('SELECT id FROM users WHERE email = ?')
+        .get(email) as User | undefined;
+
+      if (existingEmail) {
+        return res.status(400).json({ error: 'Email already exists' });
+      }
+    }
+
+    let passwordHash: string | null = null;
+    let userEmail: string | null = null;
+    let userPublicKey: string | null = null;
+
+    if (isKeyPairAuth) {
+      // Key pair registration (client-generated keys)
+      userPublicKey = publicKey;
+      // Generate a unique email for key-based users (database requires non-null email)
+      // Use provided email if available, otherwise generate one
+      userEmail = email || `${username}@keypair.local`;
+
+      // Insert user with public key only
+      const result = db.prepare(
+        'INSERT INTO users (username, email, public_key) VALUES (?, ?, ?)'
+      ).run(username, userEmail, userPublicKey);
+
+      const userId = result.lastInsertRowid as number;
+      const token = generateToken(userId);
+
+      res.status(201).json({
+        user: {
+          id: userId,
+          username,
+          email: userEmail,
+          publicKey: userPublicKey
+        },
+        token
+      });
+    } else if (isPasswordAuth) {
+      // Traditional password-based registration
+      passwordHash = await bcrypt.hash(password, 10);
+      userEmail = email;
+
+      // Insert user with password
+      const result = db.prepare(
+        'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)'
+      ).run(username, userEmail, passwordHash);
+
+      const userId = result.lastInsertRowid as number;
+      const token = generateToken(userId);
+
+      res.status(201).json({
+        user: {
+          id: userId,
+          username,
+          email: userEmail
+        },
+        token
+      });
+    }
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -97,10 +177,23 @@ router.post('/register', async (req: Request, res: Response) => {
 // Login
 router.post('/login', async (req: Request, res: Response) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, privateKey } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required' });
+    }
+
+    // Validate that either password or privateKey is provided, but not both
+    if (password && privateKey) {
+      return res.status(400).json({
+        error: 'Provide either password or private key, not both'
+      });
+    }
+
+    if (!password && !privateKey) {
+      return res.status(400).json({
+        error: 'Either password or private key is required'
+      });
     }
 
     // Find user
@@ -111,20 +204,57 @@ router.post('/login', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Check password
-    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+    // Authentication: Password-based
+    if (password) {
+      if (!user.password_hash) {
+        return res.status(401).json({
+          error: 'This account uses key pair authentication. Please log in with your private key.'
+        });
+      }
 
-    if (!isValidPassword) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      const isValidPassword = await bcrypt.compare(password, user.password_hash);
+
+      if (!isValidPassword) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
     }
 
+    // Authentication: Private key-based
+    if (privateKey) {
+      if (!user.public_key) {
+        return res.status(401).json({
+          error: 'This account uses password authentication. Please log in with your password.'
+        });
+      }
+
+      // Validate private key format
+      if (!isValidPrivateKey(privateKey)) {
+        return res.status(401).json({ error: 'Invalid private key format' });
+      }
+
+      // Derive public key from private key
+      let derivedPublicKey: string;
+      try {
+        derivedPublicKey = getPublicKeyFromPrivate(privateKey);
+      } catch (error) {
+        return res.status(401).json({ error: 'Invalid private key' });
+      }
+
+      // Verify that derived public key matches stored public key
+      if (derivedPublicKey !== user.public_key) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+    }
+
+    // Generate token
     const token = generateToken(user.id);
 
     res.json({
       user: {
         id: user.id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        publicKey: user.public_key || undefined
       },
       token
     });
