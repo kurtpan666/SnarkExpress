@@ -79,9 +79,9 @@ export function Register() {
   if (showPrivateKey && privateKey) {
     return (
       <div className="max-w-2xl mx-auto mt-8 px-4">
-        <div className="bg-white rounded border border-gray-300 p-6">
-          <h2 className="text-2xl font-bold mb-4 text-red-600">⚠️ IMPORTANT: Save Your Private Key</h2>
-          <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-600 p-6">
+          <h2 className="text-2xl font-bold mb-4 text-red-600 dark:text-red-400">⚠️ IMPORTANT: Save Your Private Key</h2>
+          <div className="bg-yellow-100 dark:bg-yellow-900 border border-yellow-400 dark:border-yellow-700 text-yellow-800 dark:text-yellow-200 px-4 py-3 rounded mb-4">
             <p className="font-semibold mb-2">This is the ONLY time your private key will be shown!</p>
             <p className="text-sm">
               Your private key is like a master password. Save it securely. If you lose it, you will lose access to your account permanently.
@@ -89,8 +89,8 @@ export function Register() {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Your Private Key:</label>
-            <div className="bg-gray-100 p-4 rounded border border-gray-300 break-all font-mono text-sm">
+            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Your Private Key:</label>
+            <div className="bg-gray-100 dark:bg-gray-900 p-4 rounded border border-gray-300 dark:border-gray-600 break-all font-mono text-sm text-gray-900 dark:text-gray-100">
               {privateKey}
             </div>
           </div>
@@ -119,7 +119,7 @@ export function Register() {
           </div>
 
           <div className="mb-4">
-            <label className="flex items-center">
+            <label className="flex items-center text-gray-700 dark:text-gray-300">
               <input
                 type="checkbox"
                 checked={privateKeySaved}
@@ -144,18 +144,18 @@ export function Register() {
 
   return (
     <div className="max-w-md mx-auto mt-8 px-4">
-      <div className="bg-white rounded border border-gray-300 p-6">
-        <h2 className="text-2xl font-bold mb-4">Register</h2>
+      <div className="bg-white dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-600 p-6">
+        <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Register</h2>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
 
         {/* Authentication Method Selector */}
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">Authentication Method</label>
+          <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Authentication Method</label>
           <div className="flex gap-2">
             <button
               type="button"
@@ -163,7 +163,7 @@ export function Register() {
               className={`flex-1 py-2 px-4 rounded border ${
                 !useKeyPair
                   ? 'bg-orange-500 text-white border-orange-500'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
               }`}
             >
               Password
@@ -174,14 +174,14 @@ export function Register() {
               className={`flex-1 py-2 px-4 rounded border ${
                 useKeyPair
                   ? 'bg-orange-500 text-white border-orange-500'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
               }`}
             >
               Cryptographic Key
             </button>
           </div>
           {useKeyPair && (
-            <p className="text-xs text-gray-600 mt-2">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
               A secure key pair will be generated for you. You'll need to save your private key.
             </p>
           )}
@@ -189,24 +189,24 @@ export function Register() {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Username</label>
+            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Username</label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               required
             />
           </div>
 
           {!useKeyPair && (
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Email</label>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 required={!useKeyPair}
               />
             </div>
@@ -214,22 +214,22 @@ export function Register() {
 
           {!useKeyPair && (
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Password</label>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 required={!useKeyPair}
                 minLength={6}
               />
-              <p className="text-xs text-gray-500 mt-1">At least 6 characters</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">At least 6 characters</p>
             </div>
           )}
 
           {useKeyPair && (
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Key Pair Generation</label>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Key Pair Generation</label>
               {!keysGenerated ? (
                 <button
                   type="button"
@@ -240,7 +240,7 @@ export function Register() {
                 </button>
               ) : (
                 <div className="space-y-3">
-                  <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded">
+                  <div className="bg-yellow-100 dark:bg-yellow-900 border border-yellow-400 dark:border-yellow-700 text-yellow-800 dark:text-yellow-200 px-4 py-3 rounded">
                     <p className="font-semibold text-sm mb-1">⚠️ Important: Save Your Private Key!</p>
                     <p className="text-xs">
                       Your private key will be needed to log in. Save it securely before registering.
@@ -248,15 +248,15 @@ export function Register() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium mb-1">Public Key:</label>
-                    <div className="bg-gray-100 p-2 rounded border border-gray-300 break-all font-mono text-xs">
+                    <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">Public Key:</label>
+                    <div className="bg-gray-100 dark:bg-gray-900 p-2 rounded border border-gray-300 dark:border-gray-600 break-all font-mono text-xs text-gray-900 dark:text-gray-100">
                       {publicKey}
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium mb-1">Private Key (Save This!):</label>
-                    <div className="bg-red-50 p-2 rounded border border-red-300 break-all font-mono text-xs">
+                    <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">Private Key (Save This!):</label>
+                    <div className="bg-red-50 dark:bg-red-950 p-2 rounded border border-red-300 dark:border-red-700 break-all font-mono text-xs text-gray-900 dark:text-gray-100">
                       {privateKey}
                     </div>
                   </div>
@@ -312,9 +312,9 @@ export function Register() {
           </button>
         </form>
 
-        <p className="mt-4 text-sm text-center">
+        <p className="mt-4 text-sm text-center text-gray-700 dark:text-gray-300">
           Already have an account?{' '}
-          <Link to="/login" className="text-orange-500 hover:underline">
+          <Link to="/login" className="text-orange-500 dark:text-orange-400 hover:underline">
             Login
           </Link>
         </p>

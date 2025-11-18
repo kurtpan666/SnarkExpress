@@ -115,18 +115,18 @@ function CommentItem({
 
   return (
     <div className="mt-2">
-      <div className="text-xs text-gray-600">
+      <div className="text-xs text-gray-600 dark:text-gray-400">
         <span className="font-semibold">{comment.username}</span>
         <span className="ml-2">{formatDate(comment.created_at)}</span>
         {comment.updated_at && !isDeleted && (
-          <span className="ml-1 text-gray-500 italic">(edited)</span>
+          <span className="ml-1 text-gray-500 dark:text-gray-500 italic">(edited)</span>
         )}
         {isAuthenticated && !isDeleted && (
           <>
             <span className="mx-1">|</span>
             <button
               onClick={() => onReply(comment.id)}
-              className="text-blue-600 hover:underline"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
             >
               reply
             </button>
@@ -137,7 +137,7 @@ function CommentItem({
             <span className="mx-1">|</span>
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="text-blue-600 hover:underline"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
             >
               edit
             </button>
@@ -145,7 +145,7 @@ function CommentItem({
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className="text-red-600 hover:underline disabled:text-gray-400"
+              className="text-red-600 dark:text-red-400 hover:underline disabled:text-gray-400"
             >
               {isDeleting ? 'deleting...' : 'delete'}
             </button>
@@ -158,7 +158,7 @@ function CommentItem({
           <textarea
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded text-sm"
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             rows={3}
             disabled={isSubmitting}
           />
@@ -176,14 +176,14 @@ function CommentItem({
                 setIsEditing(false);
                 setEditContent(comment.content);
               }}
-              className="px-3 py-1 bg-gray-300 text-gray-700 text-xs rounded hover:bg-gray-400 transition-colors"
+              className="px-3 py-1 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"
             >
               Cancel
             </button>
           </div>
         </form>
       ) : (
-        <div className={`mt-1 text-sm ${isDeleted ? 'text-gray-500 italic' : 'text-gray-800'}`}>
+        <div className={`mt-1 text-sm ${isDeleted ? 'text-gray-500 dark:text-gray-500 italic' : 'text-gray-800 dark:text-gray-200'}`}>
           <MathText text={comment.content} className="leading-relaxed" />
         </div>
       )}
@@ -194,7 +194,7 @@ function CommentItem({
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
             placeholder="Write your reply... (supports KaTeX: use $ for inline math, $$ for display math)"
-            className="w-full p-2 border border-gray-300 rounded text-sm"
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             rows={3}
             disabled={isSubmitting}
           />
@@ -209,7 +209,7 @@ function CommentItem({
             <button
               type="button"
               onClick={onCancelReply}
-              className="px-3 py-1 bg-gray-300 text-gray-700 text-xs rounded hover:bg-gray-400 transition-colors"
+              className="px-3 py-1 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"
             >
               Cancel
             </button>
@@ -218,7 +218,7 @@ function CommentItem({
       )}
 
       {comment.replies && comment.replies.length > 0 && (
-        <div className="ml-4 mt-2 border-l-2 border-gray-200 pl-3">
+        <div className="ml-4 mt-2 border-l-2 border-gray-200 dark:border-gray-700 pl-3">
           {comment.replies.map((reply) => (
             <CommentItem
               key={reply.id}
@@ -278,12 +278,12 @@ export function Comments({ paperId }: CommentsProps) {
   };
 
   if (isLoading) {
-    return <div className="text-sm text-gray-600 mt-3">Loading comments...</div>;
+    return <div className="text-sm text-gray-600 dark:text-gray-400 mt-3">Loading comments...</div>;
   }
 
   return (
-    <div className="mt-4 border-t border-gray-300 pt-3">
-      <h4 className="font-semibold mb-2 text-sm">Comments</h4>
+    <div className="mt-4 border-t border-gray-300 dark:border-gray-600 pt-3">
+      <h4 className="font-semibold mb-2 text-sm text-gray-900 dark:text-white">Comments</h4>
 
       {isAuthenticated ? (
         <form onSubmit={handleSubmit} className="mb-4">
@@ -291,7 +291,7 @@ export function Comments({ paperId }: CommentsProps) {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Add a comment... (supports KaTeX: use $ for inline math, $$ for display math)"
-            className="w-full p-2 border border-gray-300 rounded text-sm"
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             rows={3}
             disabled={isSubmitting}
           />
@@ -304,13 +304,13 @@ export function Comments({ paperId }: CommentsProps) {
           </button>
         </form>
       ) : (
-        <div className="mb-4 text-sm text-gray-600">
-          Please <a href="/login" className="text-blue-600 hover:underline">log in</a> to comment.
+        <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+          Please <a href="/login" className="text-blue-600 dark:text-blue-400 hover:underline">log in</a> to comment.
         </div>
       )}
 
       {comments.length === 0 ? (
-        <div className="text-sm text-gray-600">No comments yet. Be the first to comment!</div>
+        <div className="text-sm text-gray-600 dark:text-gray-400">No comments yet. Be the first to comment!</div>
       ) : (
         <div className="space-y-3">
           {comments.map((comment) => (
