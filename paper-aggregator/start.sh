@@ -266,6 +266,9 @@ fi
 echo "Initializing database..."
 npm run init-db
 
+echo "Running database migrations..."
+npm run migrate
+
 echo "Starting backend server..."
 npm run dev &
 BACKEND_PID=$!

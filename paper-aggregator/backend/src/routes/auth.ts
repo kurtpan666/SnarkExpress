@@ -179,10 +179,6 @@ router.post('/login', async (req: Request, res: Response) => {
   try {
     const { username, password, privateKey } = req.body;
 
-    if (!username) {
-      return res.status(400).json({ error: 'Username is required' });
-    }
-
     // Validate that either password or privateKey is provided, but not both
     if (password && privateKey) {
       return res.status(400).json({
@@ -196,16 +192,22 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
-    // Find user
-    const user = db.prepare('SELECT * FROM users WHERE username = ?')
-      .get(username) as User | undefined;
+    let user: User | undefined;
 
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    // Authentication: Password-based
+    // Authentication: Password-based (requires username)
     if (password) {
+      if (!username) {
+        return res.status(400).json({ error: 'Username is required for password login' });
+      }
+
+      // Find user by username
+      user = db.prepare('SELECT * FROM users WHERE username = ?')
+        .get(username) as User | undefined;
+
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
       if (!user.password_hash) {
         return res.status(401).json({
           error: 'This account uses key pair authentication. Please log in with your private key.'
@@ -219,14 +221,8 @@ router.post('/login', async (req: Request, res: Response) => {
       }
     }
 
-    // Authentication: Private key-based
+    // Authentication: Private key-based (username is optional)
     if (privateKey) {
-      if (!user.public_key) {
-        return res.status(401).json({
-          error: 'This account uses password authentication. Please log in with your password.'
-        });
-      }
-
       // Validate private key format
       if (!isValidPrivateKey(privateKey)) {
         return res.status(401).json({ error: 'Invalid private key format' });
@@ -240,10 +236,22 @@ router.post('/login', async (req: Request, res: Response) => {
         return res.status(401).json({ error: 'Invalid private key' });
       }
 
-      // Verify that derived public key matches stored public key
-      if (derivedPublicKey !== user.public_key) {
+      // Find user by public key
+      user = db.prepare('SELECT * FROM users WHERE public_key = ?')
+        .get(derivedPublicKey) as User | undefined;
+
+      if (!user) {
+        return res.status(401).json({ error: 'No account found with this private key' });
+      }
+
+      // If username was provided, verify it matches
+      if (username && user.username !== username) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
+    }
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     // Generate token

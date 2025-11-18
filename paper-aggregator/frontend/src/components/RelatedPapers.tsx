@@ -62,7 +62,7 @@ export function RelatedPapers({ paperId }: RelatedPapersProps) {
 
       {/* Network Graph */}
       {showGraph && network && (
-        <div className="mb-4 bg-gray-50 dark:bg-gray-900 rounded-lg p-4 overflow-auto">
+        <div className="mb-4 bg-gray-50 dark:bg-gray-900 rounded-lg p-4 overflow-x-auto overflow-y-hidden">
           <PaperNetworkGraph network={network} />
         </div>
       )}
@@ -129,7 +129,7 @@ function PaperNetworkGraph({ network }: { network: PaperNetwork }) {
   });
 
   return (
-    <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} className="dark:opacity-90">
+    <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} className="dark:opacity-90 min-w-[400px]">
       {/* Edges */}
       {network.edges.map((edge, index) => {
         const from = nodePositions.get(edge.from);

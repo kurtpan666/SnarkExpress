@@ -8,6 +8,7 @@
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
     "init-db": "ts-node src/database/init.ts",
+    "migrate": "ts-node src/database/migrate.ts",
     "admin": "ts-node src/utils/adminCLI.ts",
     "generate-data": "ts-node src/utils/generateTestData.ts"
   },

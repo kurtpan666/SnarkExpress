@@ -301,26 +301,26 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
             )}
           </div>
           {showDetails && (
-            <div className="mt-3 space-y-3">
+            <div className="mt-3 space-y-3 max-w-full overflow-hidden">
               <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded text-sm">
                 {paper.abstract && (
-                  <div className="mb-3">
+                  <div className="mb-3 overflow-hidden">
                     <h4 className="font-semibold mb-1 text-gray-900 dark:text-white">Abstract:</h4>
-                    <MathText text={paper.abstract} className="text-gray-700 dark:text-gray-300 leading-relaxed" />
+                    <MathText text={paper.abstract} className="text-gray-700 dark:text-gray-300 leading-relaxed break-words" />
                   </div>
                 )}
                 {paper.bib_entry && (
-                  <div className="mb-3">
-                    <div className="flex items-center justify-between mb-1">
+                  <div className="mb-3 overflow-hidden">
+                    <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
                       <h4 className="font-semibold text-gray-900 dark:text-white">BibTeX:</h4>
                       <button
                         onClick={copyBibTeX}
-                        className="px-3 py-1 bg-orange-500 text-white text-xs rounded hover:bg-orange-600 transition-colors"
+                        className="px-3 py-1 bg-orange-500 text-white text-xs rounded hover:bg-orange-600 transition-colors flex-shrink-0"
                       >
                         {copied ? '✓ Copied!' : 'Copy BibTeX'}
                       </button>
                     </div>
-                    <pre className="bg-white dark:bg-gray-900 p-2 rounded border border-gray-300 dark:border-gray-600 overflow-x-auto text-xs text-gray-900 dark:text-gray-100">
+                    <pre className="bg-white dark:bg-gray-900 p-2 rounded border border-gray-300 dark:border-gray-600 overflow-x-auto text-xs text-gray-900 dark:text-gray-100 whitespace-pre-wrap break-words max-w-full">
                       {paper.bib_entry}
                     </pre>
                   </div>

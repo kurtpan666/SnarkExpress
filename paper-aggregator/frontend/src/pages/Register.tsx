@@ -288,11 +288,7 @@ export function Register() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => {
-                        setKeysGenerated(false);
-                        setPrivateKey(null);
-                        setPublicKey(null);
-                      }}
+                      onClick={handleGenerateKeyPair}
                       className="flex-1 bg-gray-500 text-white py-1 px-2 text-sm rounded hover:bg-gray-600"
                     >
                       Regenerate
