@@ -1,10 +1,149 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { users } from '../api';
+import { users, comments as commentsApi } from '../api';
 import { UserProfile as UserProfileType, Paper, Comment, Vote } from '../types';
 import { MathText } from '../components/MathText';
 
 type TabType = 'submissions' | 'comments' | 'votes';
+
+interface UserCommentItemProps {
+  comment: Comment;
+  currentUsername: string;
+  onUpdate: () => void;
+}
+
+function UserCommentItem({ comment, currentUsername, onUpdate }: UserCommentItemProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(comment.content);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const isDeleted = comment.deleted === 1;
+
+  const formatRelativeTime = (date: string) => {
+    const now = new Date();
+    const created = new Date(date);
+    const diffInMs = now.getTime() - created.getTime();
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+
+    if (diffInHours < 1) {
+      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+      if (diffInMinutes < 1) return 'just now';
+      return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'} ago`;
+    }
+    if (diffInHours < 24) return `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
+    if (diffInDays < 30) {
+      const weeks = Math.floor(diffInDays / 7);
+      return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+    }
+    return created.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editContent.trim() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      await commentsApi.edit(comment.paper_id, comment.id, editContent);
+      setIsEditing(false);
+      onUpdate();
+    } catch (error: any) {
+      console.error('Error editing comment:', error);
+      alert(error.response?.data?.error || 'Failed to edit comment');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+
+    setIsDeleting(true);
+    try {
+      await commentsApi.delete(comment.paper_id, comment.id);
+      onUpdate();
+    } catch (error: any) {
+      console.error('Error deleting comment:', error);
+      alert(error.response?.data?.error || 'Failed to delete comment');
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <div className="border-b border-gray-200 pb-3 sm:pb-4 last:border-b-0">
+      <div className="text-xs sm:text-sm text-gray-600 mb-2">
+        On:{' '}
+        <Link to={`/?paper=${comment.paper_id}`} className="text-orange-600 hover:underline break-words">
+          {comment.paper_title}
+        </Link>{' '}
+        - {formatRelativeTime(comment.created_at)}
+        {comment.updated_at && !isDeleted && (
+          <span className="ml-1 text-gray-500 italic">(edited)</span>
+        )}
+        {!isDeleted && (
+          <>
+            <span className="mx-1">|</span>
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="text-blue-600 hover:underline"
+            >
+              edit
+            </button>
+            <span className="mx-1">|</span>
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="text-red-600 hover:underline disabled:text-gray-400"
+            >
+              {isDeleting ? 'deleting...' : 'delete'}
+            </button>
+          </>
+        )}
+      </div>
+      {isEditing ? (
+        <form onSubmit={handleEdit} className="space-y-2">
+          <textarea
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            rows={3}
+            disabled={isSubmitting}
+          />
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={isSubmitting || !editContent.trim()}
+              className="px-3 py-1 bg-orange-500 text-white text-xs rounded hover:bg-orange-600 disabled:bg-gray-400"
+            >
+              {isSubmitting ? 'Saving...' : 'Save'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditing(false);
+                setEditContent(comment.content);
+              }}
+              className="px-3 py-1 bg-gray-300 text-gray-700 text-xs rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className={`text-sm sm:text-base ${isDeleted ? 'text-gray-500 italic' : 'text-gray-900'} bg-gray-50 p-2 sm:p-3 rounded break-words`}>
+          <MathText text={comment.content} className="leading-relaxed" />
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function UserProfile() {
   const { username } = useParams<{ username: string }>();
@@ -35,6 +174,16 @@ export function UserProfile() {
     fetchProfile();
   }, [username]);
 
+  const loadComments = async () => {
+    if (!username) return;
+    try {
+      const commentsResponse = await users.getComments(username);
+      setComments(commentsResponse.data);
+    } catch (err) {
+      console.error('Failed to load comments:', err);
+    }
+  };
+
   useEffect(() => {
     if (!username) return;
 
@@ -46,8 +195,7 @@ export function UserProfile() {
             setSubmissions(subsResponse.data);
             break;
           case 'comments':
-            const commentsResponse = await users.getComments(username);
-            setComments(commentsResponse.data);
+            loadComments();
             break;
           case 'votes':
             const votesResponse = await users.getVotes(username);
@@ -261,18 +409,12 @@ export function UserProfile() {
                   <p className="text-gray-500 text-center py-8 text-sm">No comments yet</p>
                 ) : (
                   comments.map((comment) => (
-                    <div key={comment.id} className="border-b border-gray-200 pb-3 sm:pb-4 last:border-b-0">
-                      <div className="text-xs sm:text-sm text-gray-600 mb-2">
-                        On:{' '}
-                        <Link to={`/?paper=${comment.paper_id}`} className="text-orange-600 hover:underline break-words">
-                          {comment.paper_title}
-                        </Link>{' '}
-                        - {formatRelativeTime(comment.created_at)}
-                      </div>
-                      <div className="text-sm sm:text-base text-gray-900 bg-gray-50 p-2 sm:p-3 rounded break-words">
-                        <MathText text={comment.content} className="leading-relaxed" />
-                      </div>
-                    </div>
+                    <UserCommentItem
+                      key={comment.id}
+                      comment={comment}
+                      currentUsername={profile.user.username}
+                      onUpdate={loadComments}
+                    />
                   ))
                 )}
               </div>

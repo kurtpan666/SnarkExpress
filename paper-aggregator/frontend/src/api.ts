@@ -40,7 +40,7 @@ export const papers = {
   delete: (id: number) =>
     api.delete(`/papers/${id}`),
 
-  edit: (id: number, data: { title?: string; tags?: string[]; authors?: string; abstract?: string }) =>
+  edit: (id: number, data: { title?: string; tags?: string[]; authors?: string; abstract?: string; bib_entry?: string }) =>
     api.patch<Paper>(`/papers/${id}`, data),
 };
 

@@ -320,7 +320,7 @@ router.patch('/:id', authenticateToken, async (req: AuthRequest, res: Response) 
   try {
     const paperId = parseInt(req.params.id);
     const userId = req.userId!;
-    const { title, tags, authors, abstract } = req.body;
+    const { title, tags, authors, abstract, bib_entry } = req.body;
 
     // Check if paper exists and user is the submitter
     const paper = db.prepare('SELECT id, submitter_id FROM papers WHERE id = ?').get(paperId) as any;
@@ -347,6 +347,10 @@ router.patch('/:id', authenticateToken, async (req: AuthRequest, res: Response) 
     if (abstract !== undefined) {
       updates.push('abstract = ?');
       params.push(abstract);
+    }
+    if (bib_entry !== undefined) {
+      updates.push('bib_entry = ?');
+      params.push(bib_entry);
     }
 
     if (updates.length > 0) {

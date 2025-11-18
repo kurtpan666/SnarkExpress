@@ -21,6 +21,7 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
   const [editTags, setEditTags] = useState(paper.tags.join(', '));
   const [editAuthors, setEditAuthors] = useState(paper.authors || '');
   const [editAbstract, setEditAbstract] = useState(paper.abstract || '');
+  const [editBibTeX, setEditBibTeX] = useState(paper.bib_entry || '');
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -120,7 +121,8 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
         title: editTitle,
         tags: tagArray,
         authors: editAuthors || undefined,
-        abstract: editAbstract || undefined
+        abstract: editAbstract || undefined,
+        bib_entry: editBibTeX || undefined
       });
       window.location.reload(); // Reload to show updated data
     } catch (error: any) {
@@ -172,8 +174,18 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
                 <textarea
                   value={editAbstract}
                   onChange={(e) => setEditAbstract(e.target.value)}
-                  rows={6}
+                  rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">BibTeX</label>
+                <textarea
+                  value={editBibTeX}
+                  onChange={(e) => setEditBibTeX(e.target.value)}
+                  rows={6}
+                  placeholder="@article{...}"
+                  className="w-full px-3 py-2 border border-gray-300 rounded font-mono text-xs"
                 />
               </div>
               <div className="flex gap-3">
@@ -191,6 +203,7 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
                     setEditTags(paper.tags.join(', '));
                     setEditAuthors(paper.authors || '');
                     setEditAbstract(paper.abstract || '');
+                    setEditBibTeX(paper.bib_entry || '');
                   }}
                   disabled={isSaving}
                   className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
