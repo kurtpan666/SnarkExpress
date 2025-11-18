@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Paper } from '../types';
-import { papers as papersApi } from '../api';
+import { papers as papersApi, recommendations } from '../api';
 import { PaperItem } from './PaperItem';
+import { useAuth } from '../AuthContext';
 
 export function PaperList() {
   const [papers, setPapers] = useState<Paper[]>([]);
   const [tags, setTags] = useState<{ name: string; count: number }[]>([]);
+  const [recommendedPapers, setRecommendedPapers] = useState<Paper[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
+  const { isAuthenticated } = useAuth();
 
   const selectedTag = searchParams.get('tag') || undefined;
   const sortBy = searchParams.get('sort') || 'new';
@@ -16,7 +19,8 @@ export function PaperList() {
   useEffect(() => {
     loadPapers();
     loadTags();
-  }, [selectedTag, sortBy]);
+    loadRecommendations();
+  }, [selectedTag, sortBy, isAuthenticated]);
 
   const loadPapers = async () => {
     try {
@@ -36,6 +40,15 @@ export function PaperList() {
       setTags(response.data);
     } catch (error) {
       console.error('Error loading tags:', error);
+    }
+  };
+
+  const loadRecommendations = async () => {
+    try {
+      const response = await recommendations.getPersonalized(5);
+      setRecommendedPapers(response.data);
+    } catch (error) {
+      console.error('Error loading recommendations:', error);
     }
   };
 
@@ -62,7 +75,8 @@ export function PaperList() {
     <div className="max-w-7xl mx-auto px-4 py-6">
       <div className="flex gap-6">
         {/* Sidebar */}
-        <div className="w-48 flex-shrink-0">
+        <div className="w-64 flex-shrink-0 space-y-4">
+          {/* Tag Filter */}
           <div className="bg-white rounded border border-gray-300 p-3">
             <h3 className="font-bold text-sm mb-2">Filter by tag:</h3>
             <div className="space-y-1 text-sm">
@@ -87,6 +101,42 @@ export function PaperList() {
               ))}
             </div>
           </div>
+
+          {/* Recommended Papers */}
+          {recommendedPapers.length > 0 && (
+            <div className="bg-white rounded border border-gray-300 p-3">
+              <h3 className="font-bold text-sm mb-2">
+                {isAuthenticated ? 'Recommended for you' : 'Popular papers'}
+              </h3>
+              <div className="space-y-3 text-sm">
+                {recommendedPapers.map((paper) => (
+                  <div key={paper.id} className="border-b border-gray-100 pb-2 last:border-b-0">
+                    <a
+                      href={paper.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-900 hover:text-orange-600 line-clamp-2 block"
+                      title={paper.title}
+                    >
+                      {paper.title}
+                    </a>
+                    <div className="flex items-center gap-1 mt-1 text-xs text-gray-600">
+                      <span className="text-orange-600 font-semibold">
+                        {paper.vote_count} points
+                      </span>
+                      <span>•</span>
+                      <Link
+                        to={`/user/${paper.submitter_username}`}
+                        className="hover:underline"
+                      >
+                        {paper.submitter_username}
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Main content */}

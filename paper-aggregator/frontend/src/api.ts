@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AuthResponse, Paper, Comment } from './types';
+import { AuthResponse, Paper, Comment, UserProfile, Vote, PaperNetwork } from './types';
 
 const API_URL = '/api';
 
@@ -44,6 +44,49 @@ export const comments = {
 
   create: (paperId: number, content: string, parentId?: number) =>
     api.post<Comment>(`/papers/${paperId}/comments`, { content, parent_id: parentId }),
+};
+
+export const users = {
+  getProfile: (username: string) =>
+    api.get<UserProfile>(`/users/${username}`),
+
+  getSubmissions: (username: string, limit = 30, offset = 0) =>
+    api.get<Paper[]>(`/users/${username}/submissions`, { params: { limit, offset } }),
+
+  getComments: (username: string, limit = 30, offset = 0) =>
+    api.get<Comment[]>(`/users/${username}/comments`, { params: { limit, offset } }),
+
+  getVotes: (username: string, limit = 30, offset = 0) =>
+    api.get<Vote[]>(`/users/${username}/votes`, { params: { limit, offset } }),
+};
+
+export const search = {
+  search: (params: {
+    q?: string;
+    title?: string;
+    author?: string;
+    abstract?: string;
+    tag?: string;
+    sort?: string;
+    limit?: number;
+    offset?: number;
+  }) => api.get<Paper[]>('/search', { params }),
+
+  suggestions: (q: string) =>
+    api.get<{ titles: string[]; authors: string[]; tags: string[] }>('/search/suggestions', {
+      params: { q },
+    }),
+};
+
+export const recommendations = {
+  getRelated: (paperId: number, limit = 10) =>
+    api.get<Paper[]>(`/recommendations/related/${paperId}`, { params: { limit } }),
+
+  getNetwork: (paperId: number, depth = 1) =>
+    api.get<PaperNetwork>(`/recommendations/network/${paperId}`, { params: { depth } }),
+
+  getPersonalized: (limit = 10) =>
+    api.get<Paper[]>('/recommendations/personalized', { params: { limit } }),
 };
 
 export default api;

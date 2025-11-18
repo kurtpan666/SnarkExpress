@@ -14,6 +14,7 @@ export function Header() {
           <nav className="flex space-x-4 text-sm">
             <Link to="/" className="hover:underline">new</Link>
             <Link to="/?sort=hot" className="hover:underline">hot</Link>
+            <Link to="/search" className="hover:underline">search</Link>
             {isAuthenticated && (
               <Link to="/submit" className="hover:underline">submit</Link>
             )}
@@ -22,7 +23,9 @@ export function Header() {
         <div className="flex items-center space-x-4 text-sm">
           {isAuthenticated ? (
             <>
-              <span>{user?.username}</span>
+              <Link to={`/user/${user?.username}`} className="hover:underline">
+                {user?.username}
+              </Link>
               <button
                 onClick={logout}
                 className="hover:underline"

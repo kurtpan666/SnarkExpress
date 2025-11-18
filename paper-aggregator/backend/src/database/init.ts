@@ -77,6 +77,17 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_paper_tags_tag_id ON paper_tags(tag_id);
   CREATE INDEX IF NOT EXISTS idx_comments_paper_id ON comments(paper_id);
   CREATE INDEX IF NOT EXISTS idx_comments_parent_id ON comments(parent_id);
+
+  -- User badges table for achievements
+  CREATE TABLE IF NOT EXISTS user_badges (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    badge_type TEXT NOT NULL,
+    earned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_user_badges_user_id ON user_badges(user_id);
 `);
 
 console.log('Database initialized successfully!');

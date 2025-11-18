@@ -34,4 +34,59 @@ export interface Comment {
   created_at: string;
   username: string;
   replies?: Comment[];
+  paper_title?: string;
+}
+
+export interface Badge {
+  badge_type: string;
+  earned_at: string;
+  name: string;
+  description: string;
+  icon: string;
+}
+
+export interface UserStats {
+  submission_count: number;
+  comment_count: number;
+  vote_count: number;
+  total_votes_received: number;
+}
+
+export interface UserProfile {
+  user: {
+    username: string;
+    created_at: string;
+  };
+  stats: UserStats;
+  badges: Badge[];
+}
+
+export interface Vote {
+  vote_type: number;
+  created_at: string;
+  paper_id: number;
+  paper_title: string;
+  paper_url: string;
+  submitter_username: string;
+  tags: string[];
+}
+
+export interface NetworkNode {
+  id: string;
+  label: string;
+  url: string;
+  tags: string[];
+  isTarget: boolean;
+}
+
+export interface NetworkEdge {
+  from: string;
+  to: string;
+  label: string;
+  weight: number;
+}
+
+export interface PaperNetwork {
+  nodes: NetworkNode[];
+  edges: NetworkEdge[];
 }
