@@ -184,7 +184,7 @@ function CommentItem({
         </form>
       ) : (
         <div className={`mt-1 text-sm ${isDeleted ? 'text-gray-500 dark:text-gray-500 italic' : 'text-gray-800 dark:text-gray-200'}`}>
-          <MathText text={comment.content} className="leading-relaxed" />
+          <MathText text={comment.content} className="leading-relaxed break-words overflow-wrap-anywhere" />
         </div>
       )}
 
