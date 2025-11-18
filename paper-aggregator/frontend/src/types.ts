@@ -14,6 +14,7 @@ export interface Paper {
   published_date: string | null;
   submitter_id: number;
   created_at: string;
+  updated_at?: string | null;
   submitter_username: string;
   vote_count: number;
   user_vote: number | null;
@@ -31,7 +32,9 @@ export interface Comment {
   user_id: number;
   parent_id: number | null;
   content: string;
+  deleted?: number;
   created_at: string;
+  updated_at?: string | null;
   username: string;
   replies?: Comment[];
   paper_title?: string;

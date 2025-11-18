@@ -289,4 +289,112 @@ router.get('/tags', async (req: AuthRequest, res: Response) => {
   }
 });
 
+// Delete a paper (only by submitter)
+router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const paperId = parseInt(req.params.id);
+    const userId = req.userId!;
+
+    // Check if paper exists and user is the submitter
+    const paper = db.prepare('SELECT id, submitter_id FROM papers WHERE id = ?').get(paperId) as any;
+    if (!paper) {
+      return res.status(404).json({ error: 'Paper not found' });
+    }
+
+    if (paper.submitter_id !== userId) {
+      return res.status(403).json({ error: 'You can only delete your own submissions' });
+    }
+
+    // Delete paper (CASCADE will delete related comments, votes, and tags)
+    db.prepare('DELETE FROM papers WHERE id = ?').run(paperId);
+
+    res.json({ message: 'Paper deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting paper:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Edit a paper (only by submitter)
+router.patch('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const paperId = parseInt(req.params.id);
+    const userId = req.userId!;
+    const { title, tags, authors, abstract } = req.body;
+
+    // Check if paper exists and user is the submitter
+    const paper = db.prepare('SELECT id, submitter_id FROM papers WHERE id = ?').get(paperId) as any;
+    if (!paper) {
+      return res.status(404).json({ error: 'Paper not found' });
+    }
+
+    if (paper.submitter_id !== userId) {
+      return res.status(403).json({ error: 'You can only edit your own submissions' });
+    }
+
+    // Build update query dynamically
+    const updates: string[] = [];
+    const params: any[] = [];
+
+    if (title) {
+      updates.push('title = ?');
+      params.push(title);
+    }
+    if (authors !== undefined) {
+      updates.push('authors = ?');
+      params.push(authors);
+    }
+    if (abstract !== undefined) {
+      updates.push('abstract = ?');
+      params.push(abstract);
+    }
+
+    if (updates.length > 0) {
+      updates.push('updated_at = CURRENT_TIMESTAMP');
+      params.push(paperId);
+
+      db.prepare(`UPDATE papers SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+    }
+
+    // Update tags if provided
+    if (tags && Array.isArray(tags)) {
+      // Remove old tags
+      db.prepare('DELETE FROM paper_tags WHERE paper_id = ?').run(paperId);
+
+      // Add new tags
+      for (const tagName of tags) {
+        const normalizedTag = tagName.toLowerCase().trim();
+        db.prepare('INSERT OR IGNORE INTO tags (name) VALUES (?)').run(normalizedTag);
+        const tag = db.prepare('SELECT id FROM tags WHERE name = ?').get(normalizedTag) as { id: number };
+        db.prepare('INSERT INTO paper_tags (paper_id, tag_id) VALUES (?, ?)').run(paperId, tag.id);
+      }
+    }
+
+    // Get updated paper
+    const updatedPaper = db.prepare(`
+      SELECT
+        p.*,
+        STRFTIME('%Y-%m-%dT%H:%M:%SZ', p.created_at) as created_at,
+        STRFTIME('%Y-%m-%dT%H:%M:%SZ', p.updated_at) as updated_at,
+        u.username as submitter_username,
+        (SELECT COALESCE(SUM(CASE WHEN vote_type = 1 THEN 1 WHEN vote_type = -1 THEN -1 ELSE 0 END), 0)
+         FROM votes WHERE paper_id = p.id) as vote_count,
+        GROUP_CONCAT(t.name) as tags
+      FROM papers p
+      LEFT JOIN users u ON p.submitter_id = u.id
+      LEFT JOIN paper_tags pt ON p.id = pt.paper_id
+      LEFT JOIN tags t ON pt.tag_id = t.id
+      WHERE p.id = ?
+      GROUP BY p.id
+    `).get(paperId) as any;
+
+    updatedPaper.tags = updatedPaper.tags ? updatedPaper.tags.split(',') : [];
+
+    res.json(updatedPaper);
+  } catch (error) {
+    console.error('Error editing paper:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

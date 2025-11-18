@@ -36,6 +36,12 @@ export const papers = {
 
   getTags: () =>
     api.get<{ name: string; count: number }[]>('/papers/tags'),
+
+  delete: (id: number) =>
+    api.delete(`/papers/${id}`),
+
+  edit: (id: number, data: { title?: string; tags?: string[]; authors?: string; abstract?: string }) =>
+    api.patch<Paper>(`/papers/${id}`, data),
 };
 
 export const comments = {
@@ -44,6 +50,12 @@ export const comments = {
 
   create: (paperId: number, content: string, parentId?: number) =>
     api.post<Comment>(`/papers/${paperId}/comments`, { content, parent_id: parentId }),
+
+  delete: (paperId: number, commentId: number) =>
+    api.delete(`/papers/${paperId}/comments/${commentId}`),
+
+  edit: (paperId: number, commentId: number, content: string) =>
+    api.patch<Comment>(`/papers/${paperId}/comments/${commentId}`, { content }),
 };
 
 export const users = {
