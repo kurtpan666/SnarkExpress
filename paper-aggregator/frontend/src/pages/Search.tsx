@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { search as searchApi } from '../api';
-import { Paper } from '../types';
+import { Paper, PaginationInfo } from '../types';
+import { Pagination } from '../components/Pagination';
 
 export function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -12,8 +13,11 @@ export function Search() {
   const [tag, setTag] = useState('');
   const [sort, setSort] = useState<string>('relevance');
   const [results, setResults] = useState<Paper[]>([]);
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const [loading, setLoading] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  const itemsPerPage = 30;
 
   useEffect(() => {
     const initialQuery = searchParams.get('q');
@@ -23,9 +27,10 @@ export function Search() {
     }
   }, []);
 
-  const performSearch = async (params?: any) => {
+  const performSearch = async (params?: any, page: number = currentPage) => {
     try {
       setLoading(true);
+      const offset = (page - 1) * itemsPerPage;
       const searchParams = params || {
         q: query || undefined,
         title: title || undefined,
@@ -35,8 +40,13 @@ export function Search() {
         sort,
       };
 
-      const response = await searchApi.search(searchParams);
-      setResults(response.data);
+      const response = await searchApi.search({
+        ...searchParams,
+        limit: itemsPerPage,
+        offset
+      });
+      setResults(response.data.papers);
+      setPagination(response.data.pagination);
     } catch (err) {
       console.error('Search failed:', err);
     } finally {
@@ -46,13 +56,26 @@ export function Search() {
 
   const handleQuickSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearchParams({ q: query });
-    performSearch({ q: query, sort });
+    setSearchParams({ q: query, page: '1' });
+    performSearch({ q: query, sort }, 1);
   };
 
   const handleAdvancedSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    performSearch();
+    setSearchParams(params => {
+      params.set('page', '1');
+      return params;
+    });
+    performSearch(undefined, 1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setSearchParams(params => {
+      params.set('page', page.toString());
+      return params;
+    });
+    performSearch(undefined, page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const formatRelativeTime = (dateString: string) => {
@@ -202,7 +225,7 @@ export function Search() {
           ) : (
             <div>
               <p className="text-gray-600 mb-3 sm:mb-4 text-xs sm:text-sm">
-                Found {results.length} result{results.length !== 1 ? 's' : ''}
+                Found {pagination?.total || results.length} result{(pagination?.total || results.length) !== 1 ? 's' : ''}
               </p>
               <div className="space-y-3 sm:space-y-4">
                 {results.map((paper) => (
@@ -261,6 +284,15 @@ export function Search() {
                   </div>
                 ))}
               </div>
+              {pagination && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={Math.ceil(pagination.total / pagination.limit)}
+                  onPageChange={handlePageChange}
+                  totalItems={pagination.total}
+                  itemsPerPage={pagination.limit}
+                />
+              )}
             </div>
           )}
         </div>

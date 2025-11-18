@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Paper } from '../types';
+import { Paper, PaginationInfo } from '../types';
 import { papers as papersApi, recommendations } from '../api';
 import { PaperItem } from './PaperItem';
+import { Pagination } from './Pagination';
 import { useAuth } from '../AuthContext';
 
 export function PaperList() {
   const [papers, setPapers] = useState<Paper[]>([]);
   const [tags, setTags] = useState<{ name: string; count: number }[]>([]);
   const [recommendedPapers, setRecommendedPapers] = useState<Paper[]>([]);
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const { isAuthenticated } = useAuth();
@@ -20,18 +22,27 @@ export function PaperList() {
 
   const selectedTag = searchParams.get('tag') || undefined;
   const sortBy = searchParams.get('sort') || 'new';
+  const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  const itemsPerPage = 30;
 
   useEffect(() => {
     loadPapers();
     loadTags();
     loadRecommendations();
-  }, [selectedTag, sortBy, isAuthenticated]);
+  }, [selectedTag, sortBy, isAuthenticated, currentPage]);
 
   const loadPapers = async () => {
     try {
       setLoading(true);
-      const response = await papersApi.getAll(selectedTag, sortBy);
-      setPapers(response.data);
+      const offset = (currentPage - 1) * itemsPerPage;
+      const response = await papersApi.getAll({
+        tag: selectedTag,
+        sort: sortBy,
+        limit: itemsPerPage,
+        offset
+      });
+      setPapers(response.data.papers);
+      setPagination(response.data.pagination);
     } catch (error) {
       console.error('Error loading papers:', error);
     } finally {
@@ -72,10 +83,20 @@ export function PaperList() {
       } else {
         params.delete('tag');
       }
+      params.delete('page'); // Reset to page 1
       return params;
     });
     // Close sidebar on mobile after selecting a tag
     setIsSidebarOpen(false);
+  };
+
+  const handlePageChange = (page: number) => {
+    setSearchParams(params => {
+      params.set('page', page.toString());
+      return params;
+    });
+    // Scroll to top when changing pages
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -256,13 +277,26 @@ export function PaperList() {
                 No papers found. Be the first to submit one!
               </div>
             ) : (
-              <div className="divide-y divide-gray-200">
-                {papers.map((paper) => (
-                  <div key={paper.id} className="px-2 sm:px-4">
-                    <PaperItem paper={paper} onVoteChange={handleVoteChange} />
+              <>
+                <div className="divide-y divide-gray-200">
+                  {papers.map((paper) => (
+                    <div key={paper.id} className="px-2 sm:px-4">
+                      <PaperItem paper={paper} onVoteChange={handleVoteChange} />
+                    </div>
+                  ))}
+                </div>
+                {pagination && (
+                  <div className="px-2 sm:px-4">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={Math.ceil(pagination.total / pagination.limit)}
+                      onPageChange={handlePageChange}
+                      totalItems={pagination.total}
+                      itemsPerPage={pagination.limit}
+                    />
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </div>
         </div>
