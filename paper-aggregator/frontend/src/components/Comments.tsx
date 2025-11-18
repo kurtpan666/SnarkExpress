@@ -15,6 +15,7 @@ interface CommentItemProps {
   replyingTo: number | null;
   onCancelReply: () => void;
   onCommentAdded: () => void;
+  currentUsername?: string;
 }
 
 function CommentItem({
@@ -23,11 +24,18 @@ function CommentItem({
   onReply,
   replyingTo,
   onCancelReply,
-  onCommentAdded
+  onCommentAdded,
+  currentUsername
 }: CommentItemProps) {
   const { isAuthenticated } = useAuth();
   const [replyContent, setReplyContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(comment.content);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const isAuthor = currentUsername === comment.username;
+  const isDeleted = comment.deleted === 1;
 
   const formatDate = (date: string) => {
     const now = new Date();
@@ -73,12 +81,47 @@ function CommentItem({
     }
   };
 
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editContent.trim() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      await commentsApi.edit(paperId, comment.id, editContent);
+      setIsEditing(false);
+      onCommentAdded();
+    } catch (error: any) {
+      console.error('Error editing comment:', error);
+      alert(error.response?.data?.error || 'Failed to edit comment');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+
+    setIsDeleting(true);
+    try {
+      await commentsApi.delete(paperId, comment.id);
+      onCommentAdded();
+    } catch (error: any) {
+      console.error('Error deleting comment:', error);
+      alert(error.response?.data?.error || 'Failed to delete comment');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="mt-2">
       <div className="text-xs text-gray-600">
         <span className="font-semibold">{comment.username}</span>
         <span className="ml-2">{formatDate(comment.created_at)}</span>
-        {isAuthenticated && (
+        {comment.updated_at && !isDeleted && (
+          <span className="ml-1 text-gray-500 italic">(edited)</span>
+        )}
+        {isAuthenticated && !isDeleted && (
           <>
             <span className="mx-1">|</span>
             <button
@@ -89,10 +132,61 @@ function CommentItem({
             </button>
           </>
         )}
+        {isAuthenticated && isAuthor && !isDeleted && (
+          <>
+            <span className="mx-1">|</span>
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="text-blue-600 hover:underline"
+            >
+              edit
+            </button>
+            <span className="mx-1">|</span>
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="text-red-600 hover:underline disabled:text-gray-400"
+            >
+              {isDeleting ? 'deleting...' : 'delete'}
+            </button>
+          </>
+        )}
       </div>
-      <div className="mt-1 text-sm text-gray-800">
-        <MathText text={comment.content} className="leading-relaxed" />
-      </div>
+
+      {isEditing ? (
+        <form onSubmit={handleEdit} className="mt-1">
+          <textarea
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded text-sm"
+            rows={3}
+            disabled={isSubmitting}
+          />
+          <div className="flex gap-2 mt-1">
+            <button
+              type="submit"
+              disabled={isSubmitting || !editContent.trim()}
+              className="px-3 py-1 bg-orange-500 text-white text-xs rounded hover:bg-orange-600 transition-colors disabled:bg-gray-400"
+            >
+              {isSubmitting ? 'Saving...' : 'Save'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditing(false);
+                setEditContent(comment.content);
+              }}
+              className="px-3 py-1 bg-gray-300 text-gray-700 text-xs rounded hover:bg-gray-400 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className={`mt-1 text-sm ${isDeleted ? 'text-gray-500 italic' : 'text-gray-800'}`}>
+          <MathText text={comment.content} className="leading-relaxed" />
+        </div>
+      )}
 
       {replyingTo === comment.id && (
         <form onSubmit={handleSubmitReply} className="mt-2 ml-4">
@@ -134,6 +228,7 @@ function CommentItem({
               replyingTo={replyingTo}
               onCancelReply={onCancelReply}
               onCommentAdded={onCommentAdded}
+              currentUsername={currentUsername}
             />
           ))}
         </div>
@@ -143,7 +238,7 @@ function CommentItem({
 }
 
 export function Comments({ paperId }: CommentsProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -227,6 +322,7 @@ export function Comments({ paperId }: CommentsProps) {
               replyingTo={replyingTo}
               onCancelReply={() => setReplyingTo(null)}
               onCommentAdded={loadComments}
+              currentUsername={user?.username}
             />
           ))}
         </div>
