@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import db from '../database/db';
 import { generateToken } from '../middleware/auth';
 import { User } from '../types';
+import { generateKeyPair, isValidPublicKey, getPublicKeyFromPrivate, isValidPrivateKey } from '../utils/keyPair';
 
 const router = express.Router();
 
@@ -44,13 +45,26 @@ function isEmailAllowed(email: string): boolean {
 // Register
 router.post('/register', async (req: Request, res: Response) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, useKeyPair } = req.body;
 
-    if (!username || !email || !password) {
-      return res.status(400).json({ error: 'Username, email, and password are required' });
+    if (!username || !email) {
+      return res.status(400).json({ error: 'Username and email are required' });
     }
 
-    if (password.length < 6) {
+    // Validate registration mode
+    if (useKeyPair && password) {
+      return res.status(400).json({
+        error: 'Cannot use both password and key pair authentication. Choose one method.'
+      });
+    }
+
+    if (!useKeyPair && !password) {
+      return res.status(400).json({
+        error: 'Either password or key pair authentication must be specified'
+      });
+    }
+
+    if (password && password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
@@ -69,25 +83,65 @@ router.post('/register', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Username or email already exists' });
     }
 
-    // Hash password
-    const passwordHash = await bcrypt.hash(password, 10);
+    let passwordHash: string | null = null;
+    let publicKey: string | null = null;
+    let privateKey: string | undefined = undefined;
 
-    // Insert user
-    const result = db.prepare(
-      'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)'
-    ).run(username, email, passwordHash);
+    if (useKeyPair) {
+      // Generate key pair
+      const keyPair = generateKeyPair();
+      publicKey = keyPair.publicKey;
+      privateKey = keyPair.privateKey; // This will be sent to client once, never stored
 
-    const userId = result.lastInsertRowid as number;
-    const token = generateToken(userId);
+      // Check if public key already exists (extremely unlikely but good to check)
+      const existingKey = db.prepare('SELECT id FROM users WHERE public_key = ?')
+        .get(publicKey) as User | undefined;
 
-    res.status(201).json({
-      user: {
-        id: userId,
-        username,
-        email
-      },
-      token
-    });
+      if (existingKey) {
+        return res.status(500).json({ error: 'Key collision detected. Please try again.' });
+      }
+
+      // Insert user with public key
+      const result = db.prepare(
+        'INSERT INTO users (username, email, public_key) VALUES (?, ?, ?)'
+      ).run(username, email, publicKey);
+
+      const userId = result.lastInsertRowid as number;
+      const token = generateToken(userId);
+
+      // IMPORTANT: Return the private key to the client (only once!)
+      res.status(201).json({
+        user: {
+          id: userId,
+          username,
+          email,
+          publicKey
+        },
+        token,
+        privateKey, // Client must save this securely
+        warning: 'IMPORTANT: Save your private key securely. It cannot be recovered if lost.'
+      });
+    } else {
+      // Traditional password-based registration
+      passwordHash = await bcrypt.hash(password, 10);
+
+      // Insert user with password
+      const result = db.prepare(
+        'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)'
+      ).run(username, email, passwordHash);
+
+      const userId = result.lastInsertRowid as number;
+      const token = generateToken(userId);
+
+      res.status(201).json({
+        user: {
+          id: userId,
+          username,
+          email
+        },
+        token
+      });
+    }
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -97,10 +151,23 @@ router.post('/register', async (req: Request, res: Response) => {
 // Login
 router.post('/login', async (req: Request, res: Response) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, privateKey } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required' });
+    }
+
+    // Validate that either password or privateKey is provided, but not both
+    if (password && privateKey) {
+      return res.status(400).json({
+        error: 'Provide either password or private key, not both'
+      });
+    }
+
+    if (!password && !privateKey) {
+      return res.status(400).json({
+        error: 'Either password or private key is required'
+      });
     }
 
     // Find user
@@ -111,20 +178,57 @@ router.post('/login', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Check password
-    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+    // Authentication: Password-based
+    if (password) {
+      if (!user.password_hash) {
+        return res.status(401).json({
+          error: 'This account uses key pair authentication. Please log in with your private key.'
+        });
+      }
 
-    if (!isValidPassword) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      const isValidPassword = await bcrypt.compare(password, user.password_hash);
+
+      if (!isValidPassword) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
     }
 
+    // Authentication: Private key-based
+    if (privateKey) {
+      if (!user.public_key) {
+        return res.status(401).json({
+          error: 'This account uses password authentication. Please log in with your password.'
+        });
+      }
+
+      // Validate private key format
+      if (!isValidPrivateKey(privateKey)) {
+        return res.status(401).json({ error: 'Invalid private key format' });
+      }
+
+      // Derive public key from private key
+      let derivedPublicKey: string;
+      try {
+        derivedPublicKey = getPublicKeyFromPrivate(privateKey);
+      } catch (error) {
+        return res.status(401).json({ error: 'Invalid private key' });
+      }
+
+      // Verify that derived public key matches stored public key
+      if (derivedPublicKey !== user.public_key) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+    }
+
+    // Generate token
     const token = generateToken(user.id);
 
     res.json({
       user: {
         id: user.id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        publicKey: user.public_key || undefined
       },
       token
     });

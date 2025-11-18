@@ -2,6 +2,7 @@ export interface User {
   id: number;
   username: string;
   email: string;
+  publicKey?: string;
 }
 
 export interface Paper {
@@ -24,6 +25,8 @@ export interface Paper {
 export interface AuthResponse {
   user: User;
   token: string;
+  privateKey?: string;
+  warning?: string;
 }
 
 export interface Comment {

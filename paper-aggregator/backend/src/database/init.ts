@@ -17,8 +17,10 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    password_hash TEXT,
+    public_key TEXT UNIQUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CHECK (password_hash IS NOT NULL OR public_key IS NOT NULL)
   );
 
   CREATE TABLE IF NOT EXISTS papers (
