@@ -5,6 +5,7 @@ import { papers as papersApi } from '../api';
 import { useAuth } from '../AuthContext';
 import { MathText } from './MathText';
 import { Comments } from './Comments';
+import { RelatedPapers } from './RelatedPapers';
 
 interface PaperItemProps {
   paper: Paper;
@@ -142,30 +143,33 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
             )}
           </div>
           {showDetails && (
-            <div className="mt-3 p-3 bg-gray-50 rounded text-sm">
-              {paper.abstract && (
-                <div className="mb-3">
-                  <h4 className="font-semibold mb-1">Abstract:</h4>
-                  <MathText text={paper.abstract} className="text-gray-700 leading-relaxed" />
-                </div>
-              )}
-              {paper.bib_entry && (
-                <div className="mb-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <h4 className="font-semibold">BibTeX:</h4>
-                    <button
-                      onClick={copyBibTeX}
-                      className="px-3 py-1 bg-orange-500 text-white text-xs rounded hover:bg-orange-600 transition-colors"
-                    >
-                      {copied ? '✓ Copied!' : 'Copy BibTeX'}
-                    </button>
+            <div className="mt-3 space-y-3">
+              <div className="p-3 bg-gray-50 rounded text-sm">
+                {paper.abstract && (
+                  <div className="mb-3">
+                    <h4 className="font-semibold mb-1">Abstract:</h4>
+                    <MathText text={paper.abstract} className="text-gray-700 leading-relaxed" />
                   </div>
-                  <pre className="bg-white p-2 rounded border border-gray-300 overflow-x-auto text-xs">
-                    {paper.bib_entry}
-                  </pre>
-                </div>
-              )}
-              <Comments paperId={paper.id} />
+                )}
+                {paper.bib_entry && (
+                  <div className="mb-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-semibold">BibTeX:</h4>
+                      <button
+                        onClick={copyBibTeX}
+                        className="px-3 py-1 bg-orange-500 text-white text-xs rounded hover:bg-orange-600 transition-colors"
+                      >
+                        {copied ? '✓ Copied!' : 'Copy BibTeX'}
+                      </button>
+                    </div>
+                    <pre className="bg-white p-2 rounded border border-gray-300 overflow-x-auto text-xs">
+                      {paper.bib_entry}
+                    </pre>
+                  </div>
+                )}
+                <Comments paperId={paper.id} />
+              </div>
+              <RelatedPapers paperId={paper.id} />
             </div>
           )}
         </div>

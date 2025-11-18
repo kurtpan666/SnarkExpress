@@ -71,11 +71,15 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
 // Submit a new paper
 router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    const { url, tags, title: manualTitle } = req.body;
+    const { url, tags, title: manualTitle, authors: manualAuthors } = req.body;
     const userId = req.userId!;
 
     if (!url) {
       return res.status(400).json({ error: 'URL is required' });
+    }
+
+    if (!tags || !Array.isArray(tags) || tags.length === 0) {
+      return res.status(400).json({ error: 'At least one tag is required' });
     }
 
     // Normalize URL for duplicate checking
@@ -118,11 +122,14 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
     if (manualTitle) {
       // User provided manual title, skip extraction
       console.log('Using manual title:', manualTitle);
+      if (!manualAuthors) {
+        return res.status(400).json({ error: 'Authors are required when entering title manually' });
+      }
       metadata = {
         title: manualTitle,
         abstract: undefined,
         bib_entry: undefined,
-        authors: undefined,
+        authors: manualAuthors,
         published_date: undefined
       };
     } else {
@@ -144,6 +151,17 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
           message: 'We could not automatically extract the paper information from this URL. This may happen if the site is slow, unavailable, or uses an unsupported format.',
           url: url,
           canRetry: true
+        });
+      }
+
+      // Check if authors extraction failed
+      if (!metadata.authors) {
+        return res.status(422).json({
+          error: 'Unable to extract authors',
+          message: 'We could extract the paper title but not the authors. Please enter them manually.',
+          url: url,
+          canRetry: false,
+          needsAuthors: true
         });
       }
     }

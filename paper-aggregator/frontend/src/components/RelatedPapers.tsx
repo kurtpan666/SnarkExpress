@@ -18,7 +18,7 @@ export function RelatedPapers({ paperId }: RelatedPapersProps) {
       try {
         setLoading(true);
         const [relatedResponse, networkResponse] = await Promise.all([
-          recommendations.getRelated(paperId, 5),
+          recommendations.getRelated(paperId, 3),
           recommendations.getNetwork(paperId),
         ]);
         setRelatedPapers(relatedResponse.data);

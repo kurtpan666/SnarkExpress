@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { users } from '../api';
 import { UserProfile as UserProfileType, Paper, Comment, Vote } from '../types';
+import { MathText } from '../components/MathText';
 
 type TabType = 'submissions' | 'comments' | 'votes';
 
@@ -269,7 +270,7 @@ export function UserProfile() {
                         - {formatRelativeTime(comment.created_at)}
                       </div>
                       <div className="text-sm sm:text-base text-gray-900 bg-gray-50 p-2 sm:p-3 rounded break-words">
-                        {comment.content}
+                        <MathText text={comment.content} className="leading-relaxed" />
                       </div>
                     </div>
                   ))
