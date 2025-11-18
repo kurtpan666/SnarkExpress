@@ -69,24 +69,24 @@ export function Search() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h1 className="text-2xl font-bold mb-4">Search Papers</h1>
+    <div className="min-h-screen bg-gray-50 pb-20">
+      <div className="max-w-5xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        <div className="bg-white rounded-lg shadow p-3 sm:p-6 mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Search Papers</h1>
 
           {/* Quick Search */}
-          <form onSubmit={handleQuickSearch} className="mb-4">
+          <form onSubmit={handleQuickSearch} className="mb-3 sm:mb-4">
             <div className="flex gap-2">
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search papers, authors, abstracts..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="Search papers, authors..."
+                className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
               <button
                 type="submit"
-                className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="px-4 sm:px-6 py-2 text-sm sm:text-base bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 whitespace-nowrap"
               >
                 Search
               </button>
@@ -96,16 +96,24 @@ export function Search() {
           {/* Advanced Search Toggle */}
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="text-orange-600 hover:underline text-sm mb-4"
+            className="text-orange-600 hover:underline text-xs sm:text-sm mb-3 sm:mb-4 flex items-center gap-1"
           >
+            <svg
+              className={`w-4 h-4 transition-transform ${showAdvanced ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
             {showAdvanced ? 'Hide' : 'Show'} Advanced Search
           </button>
 
           {/* Advanced Search Form */}
           {showAdvanced && (
-            <form onSubmit={handleAdvancedSearch} className="bg-gray-50 p-4 rounded-lg space-y-3">
+            <form onSubmit={handleAdvancedSearch} className="bg-gray-50 p-3 sm:p-4 rounded-lg space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Title
                 </label>
                 <input
@@ -113,12 +121,12 @@ export function Search() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Search in paper titles"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Author
                 </label>
                 <input
@@ -126,12 +134,12 @@ export function Search() {
                   value={author}
                   onChange={(e) => setAuthor(e.target.value)}
                   placeholder="Search by author name"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Abstract
                 </label>
                 <input
@@ -139,12 +147,12 @@ export function Search() {
                   value={abstractQuery}
                   onChange={(e) => setAbstractQuery(e.target.value)}
                   placeholder="Search in abstracts"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Tag
                 </label>
                 <input
@@ -152,18 +160,18 @@ export function Search() {
                   value={tag}
                   onChange={(e) => setTag(e.target.value)}
                   placeholder="Filter by tag"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Sort By
                 </label>
                 <select
                   value={sort}
                   onChange={(e) => setSort(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
                 >
                   <option value="relevance">Relevance</option>
                   <option value="date">Date</option>
@@ -173,7 +181,7 @@ export function Search() {
 
               <button
                 type="submit"
-                className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-4 py-2 text-sm sm:text-base bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
               >
                 Search with Filters
               </button>
@@ -182,61 +190,61 @@ export function Search() {
         </div>
 
         {/* Results */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-3 sm:p-6">
           {loading ? (
-            <p className="text-gray-600 text-center py-8">Searching...</p>
+            <p className="text-gray-600 text-center py-8 text-sm">Searching...</p>
           ) : results.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
+            <p className="text-gray-500 text-center py-8 text-sm">
               {query || title || author || abstractQuery || tag
                 ? 'No results found'
                 : 'Enter a search query to get started'}
             </p>
           ) : (
             <div>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 mb-3 sm:mb-4 text-xs sm:text-sm">
                 Found {results.length} result{results.length !== 1 ? 's' : ''}
               </p>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {results.map((paper) => (
-                  <div key={paper.id} className="border-b border-gray-200 pb-4 last:border-b-0">
-                    <div className="flex items-start space-x-3">
-                      <div className="text-gray-600 font-semibold min-w-[3rem] text-center">
-                        <div className="text-orange-600">{paper.vote_count}</div>
-                        <div className="text-xs">points</div>
+                  <div key={paper.id} className="border-b border-gray-200 pb-3 sm:pb-4 last:border-b-0">
+                    <div className="flex items-start space-x-2 sm:space-x-3">
+                      <div className="text-gray-600 font-semibold min-w-[2.5rem] sm:min-w-[3rem] text-center flex-shrink-0">
+                        <div className="text-orange-600 text-sm sm:text-base">{paper.vote_count}</div>
+                        <div className="text-[10px] sm:text-xs">points</div>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-medium text-lg text-gray-900">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-sm sm:text-lg text-gray-900">
                           <a
                             href={paper.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hover:text-orange-600"
+                            className="hover:text-orange-600 break-words"
                           >
                             {paper.title}
                           </a>
                         </h3>
                         {paper.authors && (
-                          <p className="text-sm text-gray-600 mt-1">
+                          <p className="text-xs sm:text-sm text-gray-600 mt-1 break-words">
                             <span className="font-medium">Authors:</span> {paper.authors}
                           </p>
                         )}
                         {paper.abstract && (
-                          <p className="text-sm text-gray-700 mt-2 line-clamp-2">
+                          <p className="text-xs sm:text-sm text-gray-700 mt-2 line-clamp-2">
                             {paper.abstract}
                           </p>
                         )}
-                        <div className="text-sm text-gray-600 mt-2 flex items-center gap-2 flex-wrap">
+                        <div className="text-xs sm:text-sm text-gray-600 mt-2 flex items-center gap-1 sm:gap-2 flex-wrap">
                           {paper.tags.map((tag) => (
                             <Link
                               key={tag}
                               to={`/?tag=${tag}`}
-                              className="inline-block bg-gray-100 px-2 py-0.5 rounded hover:bg-gray-200"
+                              className="inline-block bg-gray-100 px-1.5 sm:px-2 py-0.5 rounded hover:bg-gray-200"
                             >
                               {tag}
                             </Link>
                           ))}
                           <span className="text-gray-400">•</span>
-                          <span>
+                          <span className="truncate max-w-[150px] sm:max-w-none">
                             by{' '}
                             <Link
                               to={`/user/${paper.submitter_username}`}
@@ -246,7 +254,7 @@ export function Search() {
                             </Link>
                           </span>
                           <span className="text-gray-400">•</span>
-                          <span>{formatRelativeTime(paper.created_at)}</span>
+                          <span className="whitespace-nowrap">{formatRelativeTime(paper.created_at)}</span>
                         </div>
                       </div>
                     </div>
