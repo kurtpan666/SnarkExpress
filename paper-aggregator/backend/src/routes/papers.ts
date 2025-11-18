@@ -92,14 +92,25 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
     `).get(normalizedUrl, normalizedUrl, normalizedUrl) as { id: number; title: string; url: string } | undefined;
 
     if (existingPaper) {
-      return res.status(409).json({
-        error: 'This paper has already been submitted',
-        existingPaper: {
-          id: existingPaper.id,
-          title: existingPaper.title,
-          url: existingPaper.url
-        }
-      });
+      // If the existing paper has failed extraction, allow overwriting it
+      if (existingPaper.title === 'Unable to extract title') {
+        console.log('Removing old failed extraction paper:', existingPaper.id);
+        // Delete the old paper and its associations
+        db.prepare('DELETE FROM paper_tags WHERE paper_id = ?').run(existingPaper.id);
+        db.prepare('DELETE FROM votes WHERE paper_id = ?').run(existingPaper.id);
+        db.prepare('DELETE FROM papers WHERE id = ?').run(existingPaper.id);
+        // Continue with submission
+      } else {
+        // Valid existing paper, return conflict error
+        return res.status(409).json({
+          error: 'This paper has already been submitted',
+          existingPaper: {
+            id: existingPaper.id,
+            title: existingPaper.title,
+            url: existingPaper.url
+          }
+        });
+      }
     }
 
     // Extract or use manual metadata
