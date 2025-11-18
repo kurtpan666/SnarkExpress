@@ -77,8 +77,8 @@ function UserCommentItem({ comment, currentUsername, onUpdate }: UserCommentItem
   };
 
   return (
-    <div className="border-b border-gray-200 dark:border-gray-700 pb-3 sm:pb-4 last:border-b-0">
-      <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">
+    <div className="border-b border-gray-200 dark:border-gray-700 pb-2 sm:pb-3 last:border-b-0">
+      <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1.5">
         On:{' '}
         <Link to={`/?paper=${comment.paper_id}`} className="text-orange-600 dark:text-orange-400 hover:underline break-words">
           {comment.paper_title}
@@ -157,7 +157,7 @@ export function UserProfile() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
 
   useEffect(() => {
     if (!username) return;
@@ -249,7 +249,7 @@ export function UserProfile() {
     if (totalPages <= 1) return null;
 
     return (
-      <div className="flex justify-center items-center gap-2 mt-6 pb-2">
+      <div className="flex justify-center items-center gap-2 mt-4 pb-1">
         <button
           onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
           disabled={currentPage === 1}
@@ -296,8 +296,8 @@ export function UserProfile() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-32">
       <div className="max-w-6xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {/* Profile Header */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 mb-4 sm:mb-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-4 mb-3 sm:mb-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-3">
             {/* User Info */}
             <div className="flex-shrink-0">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white break-words">
@@ -330,26 +330,26 @@ export function UserProfile() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 sm:p-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-2 sm:p-3">
               <div className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
                 {profile.stats.submission_count}
               </div>
               <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Submissions</div>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 sm:p-4">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-2 sm:p-3">
               <div className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
                 {profile.stats.comment_count}
               </div>
               <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Comments</div>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 sm:p-4">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-2 sm:p-3">
               <div className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
                 {profile.stats.vote_count}
               </div>
               <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Votes Cast</div>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 sm:p-4">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-2 sm:p-3">
               <div className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
                 {profile.stats.total_votes_received}
               </div>
@@ -364,7 +364,7 @@ export function UserProfile() {
             <nav className="flex -mb-px min-w-max">
               <button
                 onClick={() => setActiveTab('submissions')}
-                className={`px-3 sm:px-6 py-2 sm:py-3 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
+                className={`px-3 sm:px-4 py-2 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                   activeTab === 'submissions'
                     ? 'border-orange-500 text-orange-600 dark:text-orange-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
@@ -375,7 +375,7 @@ export function UserProfile() {
               </button>
               <button
                 onClick={() => setActiveTab('comments')}
-                className={`px-3 sm:px-6 py-2 sm:py-3 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
+                className={`px-3 sm:px-4 py-2 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                   activeTab === 'comments'
                     ? 'border-orange-500 text-orange-600 dark:text-orange-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
@@ -386,7 +386,7 @@ export function UserProfile() {
               </button>
               <button
                 onClick={() => setActiveTab('votes')}
-                className={`px-3 sm:px-6 py-2 sm:py-3 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
+                className={`px-3 sm:px-4 py-2 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                   activeTab === 'votes'
                     ? 'border-orange-500 text-orange-600 dark:text-orange-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
@@ -398,15 +398,15 @@ export function UserProfile() {
           </div>
 
           {/* Tab Content */}
-          <div className="p-3 sm:p-6">
+          <div className="p-3 sm:p-4">
             {activeTab === 'submissions' && (
               <>
-                <div className="space-y-3 sm:space-y-4">
+                <div className="space-y-2 sm:space-y-3">
                   {submissions.length === 0 ? (
-                    <p className="text-gray-500 dark:text-gray-400 text-center py-8 text-sm">No submissions yet</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-center py-6 text-sm">No submissions yet</p>
                   ) : (
                     getCurrentPageItems(submissions).map((paper) => (
-                      <div key={paper.id} className="border-b border-gray-200 dark:border-gray-700 pb-3 sm:pb-4 last:border-b-0">
+                      <div key={paper.id} className="border-b border-gray-200 dark:border-gray-700 pb-2 sm:pb-3 last:border-b-0">
                         <div className="flex items-start space-x-2">
                           <div className="text-gray-600 dark:text-gray-400 font-semibold min-w-[2.5rem] sm:min-w-[3rem] text-center flex-shrink-0">
                             <div className="text-orange-600 dark:text-orange-400 text-sm sm:text-base">{paper.vote_count}</div>
@@ -448,9 +448,9 @@ export function UserProfile() {
 
             {activeTab === 'comments' && (
               <>
-                <div className="space-y-3 sm:space-y-4">
+                <div className="space-y-2 sm:space-y-3">
                   {comments.length === 0 ? (
-                    <p className="text-gray-500 dark:text-gray-400 text-center py-8 text-sm">No comments yet</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-center py-6 text-sm">No comments yet</p>
                   ) : (
                     getCurrentPageItems(comments).map((comment) => (
                       <UserCommentItem
@@ -468,12 +468,12 @@ export function UserProfile() {
 
             {activeTab === 'votes' && (
               <>
-                <div className="space-y-3 sm:space-y-4">
+                <div className="space-y-2 sm:space-y-3">
                   {votes.length === 0 ? (
-                    <p className="text-gray-500 dark:text-gray-400 text-center py-8 text-sm">No votes yet</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-center py-6 text-sm">No votes yet</p>
                   ) : (
                     getCurrentPageItems(votes).map((vote, index) => (
-                      <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-3 sm:pb-4 last:border-b-0">
+                      <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-2 sm:pb-3 last:border-b-0">
                         <div className="flex items-start space-x-2">
                           <div
                             className={`text-xl sm:text-2xl flex-shrink-0 ${
