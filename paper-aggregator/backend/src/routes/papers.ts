@@ -15,13 +15,14 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
     let query = `
       SELECT
         p.*,
+        STRFTIME('%Y-%m-%dT%H:%M:%SZ', p.created_at) as created_at,
         u.username as submitter_username,
-        COALESCE(SUM(CASE WHEN v.vote_type = 1 THEN 1 WHEN v.vote_type = -1 THEN -1 ELSE 0 END), 0) as vote_count,
+        (SELECT COALESCE(SUM(CASE WHEN vote_type = 1 THEN 1 WHEN vote_type = -1 THEN -1 ELSE 0 END), 0)
+         FROM votes WHERE paper_id = p.id) as vote_count,
         ${userId ? `(SELECT vote_type FROM votes WHERE user_id = ? AND paper_id = p.id) as user_vote,` : ''}
         GROUP_CONCAT(DISTINCT t.name) as tags
       FROM papers p
       LEFT JOIN users u ON p.submitter_id = u.id
-      LEFT JOIN votes v ON p.id = v.paper_id
       LEFT JOIN paper_tags pt ON p.id = pt.paper_id
       LEFT JOIN tags t ON pt.tag_id = t.id
     `;
@@ -38,7 +39,7 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
     // Sorting algorithm
     if (sort === 'hot') {
       // Hacker News ranking: score / (age + 2)^gravity
-      query += ` ORDER BY (COALESCE(SUM(CASE WHEN v.vote_type = 1 THEN 1 WHEN v.vote_type = -1 THEN -1 ELSE 0 END), 0) + 1) /
+      query += ` ORDER BY (vote_count + 1) /
                 POWER((JULIANDAY('now') - JULIANDAY(p.created_at)) * 24 + 2, 1.8) DESC`;
     } else if (sort === 'top') {
       // Sort by votes first, then by submission time for papers with same votes
@@ -148,6 +149,7 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
     const paper = db.prepare(`
       SELECT
         p.*,
+        STRFTIME('%Y-%m-%dT%H:%M:%SZ', p.created_at) as created_at,
         u.username as submitter_username,
         0 as vote_count,
         NULL as user_vote,
