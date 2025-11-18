@@ -53,7 +53,7 @@ router.post('/papers/:paperId/comments', authenticateToken, (req: Request, res: 
   try {
     const paperId = parseInt(req.params.paperId);
     const { content, parent_id } = req.body;
-    const userId = (req as any).user.userId;
+    const userId = (req as any).userId;
 
     if (!content || content.trim().length === 0) {
       return res.status(400).json({ error: 'Comment content is required' });
