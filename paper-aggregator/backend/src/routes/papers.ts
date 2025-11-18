@@ -15,13 +15,14 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
     let query = `
       SELECT
         p.*,
+        STRFTIME('%Y-%m-%dT%H:%M:%SZ', p.created_at) as created_at,
         u.username as submitter_username,
-        COALESCE(SUM(CASE WHEN v.vote_type = 1 THEN 1 WHEN v.vote_type = -1 THEN -1 ELSE 0 END), 0) as vote_count,
+        (SELECT COALESCE(SUM(CASE WHEN vote_type = 1 THEN 1 WHEN vote_type = -1 THEN -1 ELSE 0 END), 0)
+         FROM votes WHERE paper_id = p.id) as vote_count,
         ${userId ? `(SELECT vote_type FROM votes WHERE user_id = ? AND paper_id = p.id) as user_vote,` : ''}
         GROUP_CONCAT(DISTINCT t.name) as tags
       FROM papers p
       LEFT JOIN users u ON p.submitter_id = u.id
-      LEFT JOIN votes v ON p.id = v.paper_id
       LEFT JOIN paper_tags pt ON p.id = pt.paper_id
       LEFT JOIN tags t ON pt.tag_id = t.id
     `;
@@ -38,7 +39,7 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
     // Sorting algorithm
     if (sort === 'hot') {
       // Hacker News ranking: score / (age + 2)^gravity
-      query += ` ORDER BY (COALESCE(SUM(CASE WHEN v.vote_type = 1 THEN 1 WHEN v.vote_type = -1 THEN -1 ELSE 0 END), 0) + 1) /
+      query += ` ORDER BY (vote_count + 1) /
                 POWER((JULIANDAY('now') - JULIANDAY(p.created_at)) * 24 + 2, 1.8) DESC`;
     } else if (sort === 'top') {
       // Sort by votes first, then by submission time for papers with same votes
@@ -70,7 +71,7 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
 // Submit a new paper
 router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    const { url, tags } = req.body;
+    const { url, tags, title: manualTitle } = req.body;
     const userId = req.userId!;
 
     if (!url) {
@@ -91,26 +92,61 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
     `).get(normalizedUrl, normalizedUrl, normalizedUrl) as { id: number; title: string; url: string } | undefined;
 
     if (existingPaper) {
-      return res.status(409).json({
-        error: 'This paper has already been submitted',
-        existingPaper: {
-          id: existingPaper.id,
-          title: existingPaper.title,
-          url: existingPaper.url
-        }
-      });
+      // If the existing paper has failed extraction, allow overwriting it
+      if (existingPaper.title === 'Unable to extract title') {
+        console.log('Removing old failed extraction paper:', existingPaper.id);
+        // Delete the old paper and its associations
+        db.prepare('DELETE FROM paper_tags WHERE paper_id = ?').run(existingPaper.id);
+        db.prepare('DELETE FROM votes WHERE paper_id = ?').run(existingPaper.id);
+        db.prepare('DELETE FROM papers WHERE id = ?').run(existingPaper.id);
+        // Continue with submission
+      } else {
+        // Valid existing paper, return conflict error
+        return res.status(409).json({
+          error: 'This paper has already been submitted',
+          existingPaper: {
+            id: existingPaper.id,
+            title: existingPaper.title,
+            url: existingPaper.url
+          }
+        });
+      }
     }
 
-    // Extract metadata
-    console.log('Extracting metadata from:', url);
-    const metadata = await extractPaperMetadata(url);
-    console.log('Extracted metadata:', {
-      title: metadata.title,
-      hasAbstract: !!metadata.abstract,
-      abstractLength: metadata.abstract?.length || 0,
-      hasBibEntry: !!metadata.bib_entry,
-      authors: metadata.authors
-    });
+    // Extract or use manual metadata
+    let metadata;
+    if (manualTitle) {
+      // User provided manual title, skip extraction
+      console.log('Using manual title:', manualTitle);
+      metadata = {
+        title: manualTitle,
+        abstract: undefined,
+        bib_entry: undefined,
+        authors: undefined,
+        published_date: undefined
+      };
+    } else {
+      // Extract metadata automatically
+      console.log('Extracting metadata from:', url);
+      metadata = await extractPaperMetadata(url);
+      console.log('Extracted metadata:', {
+        title: metadata.title,
+        hasAbstract: !!metadata.abstract,
+        abstractLength: metadata.abstract?.length || 0,
+        hasBibEntry: !!metadata.bib_entry,
+        authors: metadata.authors
+      });
+
+      // Check if extraction failed
+      if (metadata.title === 'Unable to extract title') {
+        return res.status(422).json({
+          error: 'Unable to extract paper metadata',
+          message: 'We could not automatically extract the paper information from this URL. This may happen if the site is slow, unavailable, or uses an unsupported format.',
+          url: url,
+          canRetry: true
+        });
+      }
+    }
 
     // Insert paper
     const result = db.prepare(`
@@ -148,6 +184,7 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
     const paper = db.prepare(`
       SELECT
         p.*,
+        STRFTIME('%Y-%m-%dT%H:%M:%SZ', p.created_at) as created_at,
         u.username as submitter_username,
         0 as vote_count,
         NULL as user_vote,

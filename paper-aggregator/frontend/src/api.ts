@@ -28,8 +28,8 @@ export const papers = {
   getAll: (tag?: string, sort?: string) =>
     api.get<Paper[]>('/papers', { params: { tag, sort } }),
 
-  submit: (url: string, tags: string[]) =>
-    api.post<Paper>('/papers', { url, tags }),
+  submit: (url: string, tags: string[], title?: string) =>
+    api.post<Paper>('/papers', { url, tags, title }),
 
   vote: (id: number, vote: number) =>
     api.post(`/papers/${id}/vote`, { vote }),
