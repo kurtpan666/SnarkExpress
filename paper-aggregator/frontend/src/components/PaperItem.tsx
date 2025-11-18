@@ -13,9 +13,18 @@ interface PaperItemProps {
 }
 
 export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [showDetails, setShowDetails] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(paper.title);
+  const [editTags, setEditTags] = useState(paper.tags.join(', '));
+  const [editAuthors, setEditAuthors] = useState(paper.authors || '');
+  const [editAbstract, setEditAbstract] = useState(paper.abstract || '');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const isOwner = user && paper.submitter_username === user.username;
 
   const handleVote = async (vote: number) => {
     if (!isAuthenticated) {
@@ -79,9 +88,123 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
     }
   };
 
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this paper? This will also delete all associated comments.')) return;
+
+    setIsDeleting(true);
+    try {
+      await papersApi.delete(paper.id);
+      window.location.reload(); // Reload to update the list
+    } catch (error: any) {
+      console.error('Error deleting paper:', error);
+      alert(error.response?.data?.error || 'Failed to delete paper');
+      setIsDeleting(false);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editTitle.trim()) {
+      alert('Title is required');
+      return;
+    }
+
+    const tagArray = editTags.split(',').map(t => t.trim()).filter(t => t);
+    if (tagArray.length === 0) {
+      alert('At least one tag is required');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await papersApi.edit(paper.id, {
+        title: editTitle,
+        tags: tagArray,
+        authors: editAuthors || undefined,
+        abstract: editAbstract || undefined
+      });
+      window.location.reload(); // Reload to show updated data
+    } catch (error: any) {
+      console.error('Error editing paper:', error);
+      alert(error.response?.data?.error || 'Failed to edit paper');
+      setIsSaving(false);
+    }
+  };
+
   return (
-    <div className="py-2 border-b border-gray-200">
-      <div className="flex items-start space-x-2">
+    <>
+      {/* Edit Modal */}
+      {isEditing && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold mb-4">Edit Paper</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Title <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Authors</label>
+                <input
+                  type="text"
+                  value={editAuthors}
+                  onChange={(e) => setEditAuthors(e.target.value)}
+                  placeholder="e.g., John Doe, Jane Smith"
+                  className="w-full px-3 py-2 border border-gray-300 rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Tags (comma-separated) <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  value={editTags}
+                  onChange={(e) => setEditTags(e.target.value)}
+                  placeholder="e.g., cryptography, zero-knowledge"
+                  className="w-full px-3 py-2 border border-gray-300 rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Abstract</label>
+                <textarea
+                  value={editAbstract}
+                  onChange={(e) => setEditAbstract(e.target.value)}
+                  rows={6}
+                  className="w-full px-3 py-2 border border-gray-300 rounded"
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleSaveEdit}
+                  disabled={isSaving}
+                  className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 disabled:bg-gray-400"
+                >
+                  {isSaving ? 'Saving...' : 'Save Changes'}
+                </button>
+                <button
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditTitle(paper.title);
+                    setEditTags(paper.tags.join(', '));
+                    setEditAuthors(paper.authors || '');
+                    setEditAbstract(paper.abstract || '');
+                  }}
+                  disabled={isSaving}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="py-2 border-b border-gray-200">
+        <div className="flex items-start space-x-2">
         <div className="flex flex-col items-center text-gray-600 min-w-[40px]">
           <button
             onClick={() => handleVote(paper.user_vote === 1 ? 0 : 1)}
@@ -111,6 +234,9 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
               <span>by {paper.submitter_username}</span>
               <span>|</span>
               <span>{formatDate(paper.created_at)}</span>
+              {paper.updated_at && (
+                <span className="text-gray-500 italic">(edited)</span>
+              )}
               {(paper.abstract || paper.bib_entry) && (
                 <>
                   <span>|</span>
@@ -119,6 +245,25 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
                     className="text-blue-600 hover:underline"
                   >
                     {showDetails ? 'hide' : 'show'} details
+                  </button>
+                </>
+              )}
+              {isAuthenticated && isOwner && (
+                <>
+                  <span>|</span>
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="text-blue-600 hover:underline"
+                  >
+                    edit
+                  </button>
+                  <span>|</span>
+                  <button
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="text-red-600 hover:underline disabled:text-gray-400"
+                  >
+                    {isDeleting ? 'deleting...' : 'delete'}
                   </button>
                 </>
               )}
@@ -174,6 +319,7 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
