@@ -76,6 +76,19 @@ router.get('/', (req, res) => {
 
     query += ' GROUP BY p.id';
 
+    // Get total count first (before adding ORDER BY params)
+    let countQuery = `SELECT COUNT(DISTINCT p.id) as total FROM papers p`;
+    if (tag) {
+      countQuery += ` LEFT JOIN paper_tags pt ON p.id = pt.paper_id
+                      LEFT JOIN tags t ON pt.tag_id = t.id`;
+    }
+    if (conditions.length > 0) {
+      countQuery += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    const countParams = [...params];
+    const { total } = db.prepare(countQuery).get(...countParams) as { total: number };
+
     // Sorting
     switch (sort) {
       case 'date':
@@ -115,7 +128,18 @@ router.get('/', (req, res) => {
       tags: p.tags ? p.tags.split(',') : []
     }));
 
-    res.json(processedPapers);
+    const limitNum = parseInt(limit as string);
+    const offsetNum = parseInt(offset as string);
+
+    res.json({
+      papers: processedPapers,
+      pagination: {
+        total,
+        limit: limitNum,
+        offset: offsetNum,
+        hasMore: offsetNum + limitNum < total
+      }
+    });
   } catch (error) {
     console.error('Error searching papers:', error);
     res.status(500).json({ error: 'Internal server error' });

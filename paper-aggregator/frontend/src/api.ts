@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AuthResponse, Paper, Comment, UserProfile, Vote, PaperNetwork } from './types';
+import { AuthResponse, Paper, Comment, UserProfile, Vote, PaperNetwork, PaginatedResponse } from './types';
 
 const API_URL = '/api';
 
@@ -25,17 +25,23 @@ export const auth = {
 };
 
 export const papers = {
-  getAll: (tag?: string, sort?: string) =>
-    api.get<Paper[]>('/papers', { params: { tag, sort } }),
+  getAll: (params?: { tag?: string; sort?: string; limit?: number; offset?: number }) =>
+    api.get<PaginatedResponse<Paper>>('/papers', { params }),
 
-  submit: (url: string, tags: string[], title?: string) =>
-    api.post<Paper>('/papers', { url, tags, title }),
+  submit: (url: string, tags: string[], title?: string, authors?: string) =>
+    api.post<Paper>('/papers', { url, tags, title, authors }),
 
   vote: (id: number, vote: number) =>
     api.post(`/papers/${id}/vote`, { vote }),
 
   getTags: () =>
     api.get<{ name: string; count: number }[]>('/papers/tags'),
+
+  delete: (id: number) =>
+    api.delete(`/papers/${id}`),
+
+  edit: (id: number, data: { title?: string; tags?: string[]; authors?: string; abstract?: string; bib_entry?: string }) =>
+    api.patch<Paper>(`/papers/${id}`, data),
 };
 
 export const comments = {
@@ -44,6 +50,12 @@ export const comments = {
 
   create: (paperId: number, content: string, parentId?: number) =>
     api.post<Comment>(`/papers/${paperId}/comments`, { content, parent_id: parentId }),
+
+  delete: (paperId: number, commentId: number) =>
+    api.delete(`/papers/${paperId}/comments/${commentId}`),
+
+  edit: (paperId: number, commentId: number, content: string) =>
+    api.patch<Comment>(`/papers/${paperId}/comments/${commentId}`, { content }),
 };
 
 export const users = {
@@ -70,7 +82,7 @@ export const search = {
     sort?: string;
     limit?: number;
     offset?: number;
-  }) => api.get<Paper[]>('/search', { params }),
+  }) => api.get<PaginatedResponse<Paper>>('/search', { params }),
 
   suggestions: (q: string) =>
     api.get<{ titles: string[]; authors: string[]; tags: string[] }>('/search/suggestions', {

@@ -13,6 +13,7 @@ export function Submit() {
   const [url, setUrl] = useState('');
   const [tags, setTags] = useState('');
   const [manualTitle, setManualTitle] = useState('');
+  const [manualAuthors, setManualAuthors] = useState('');
   const [showManualInput, setShowManualInput] = useState(false);
   const [extractionError, setExtractionError] = useState('');
   const [error, setError] = useState('');
@@ -116,19 +117,36 @@ export function Submit() {
         .map(tag => tag.trim())
         .filter(tag => tag.length > 0);
 
-      // If manual title is provided, send it
+      if (tagArray.length === 0) {
+        setError('At least one tag is required');
+        setLoading(false);
+        return;
+      }
+
+      // If manual title is provided, send it with authors
       const submitData: any = { url, tags: tagArray };
       if (showManualInput && manualTitle.trim()) {
         submitData.title = manualTitle.trim();
+        if (manualAuthors.trim()) {
+          submitData.authors = manualAuthors.trim();
+        }
       }
 
-      await papers.submit(submitData.url, submitData.tags, submitData.title);
+      await papers.submit(submitData.url, submitData.tags, submitData.title, submitData.authors);
       navigate('/');
     } catch (error: any) {
       // Check if it's extraction failure (422 Unprocessable Entity)
-      if (error.response?.status === 422 && error.response?.data?.canRetry) {
-        setExtractionError(error.response.data.message);
-        setShowManualInput(true);
+      if (error.response?.status === 422) {
+        if (error.response?.data?.canRetry) {
+          setExtractionError(error.response.data.message);
+          setShowManualInput(true);
+        } else if (error.response?.data?.needsAuthors) {
+          // Authors extraction failed, show manual input for authors only
+          setExtractionError(error.response.data.message);
+          setShowManualInput(true);
+        } else {
+          setError(error.response.data.error || error.response.data.message);
+        }
       }
       // Check if it's a duplicate paper error (409 Conflict)
       else if (error.response?.status === 409 && error.response?.data?.existingPaper) {
@@ -226,27 +244,46 @@ export function Submit() {
             </p>
           </div>
           {showManualInput && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">
-                Paper Title (Manual)
-              </label>
-              <input
-                type="text"
-                value={manualTitle}
-                onChange={(e) => setManualTitle(e.target.value)}
-                placeholder="Enter paper title manually"
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
-                required={showManualInput}
-                disabled={loading}
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Automatic extraction failed, so please enter the title manually.
-              </p>
-            </div>
+            <>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">
+                  Paper Title (Manual) <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={manualTitle}
+                  onChange={(e) => setManualTitle(e.target.value)}
+                  placeholder="Enter paper title manually"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  required={showManualInput}
+                  disabled={loading}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Automatic extraction failed, so please enter the title manually.
+                </p>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">
+                  Authors <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={manualAuthors}
+                  onChange={(e) => setManualAuthors(e.target.value)}
+                  placeholder="Enter authors (e.g., John Doe, Jane Smith)"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  required={showManualInput}
+                  disabled={loading}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Enter the paper authors separated by commas.
+                </p>
+              </div>
+            </>
           )}
           <div className="mb-4 relative">
             <label className="block text-sm font-medium mb-2">
-              Tags (comma-separated)
+              Tags (comma-separated) <span className="text-red-500">*</span>
             </label>
             <input
               ref={tagInputRef}
@@ -257,6 +294,7 @@ export function Submit() {
               onKeyUp={handleTagKeyUp}
               placeholder="cryptography, zero-knowledge, blockchain"
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+              required
               disabled={loading}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
             />
@@ -275,7 +313,7 @@ export function Submit() {
               </div>
             )}
             <p className="text-xs text-gray-500 mt-1">
-              Optional. Separate multiple tags with commas. Start typing to see suggestions.
+              Required. Separate multiple tags with commas. Start typing to see suggestions.
             </p>
           </div>
           <div className="flex space-x-3">

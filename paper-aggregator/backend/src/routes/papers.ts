@@ -9,8 +9,10 @@ const router = express.Router();
 // Get papers with ranking algorithm (Hacker News style)
 router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const { tag, sort = 'hot' } = req.query;
+    const { tag, sort = 'hot', limit = '30', offset = '0' } = req.query;
     const userId = req.userId;
+    const limitNum = parseInt(limit as string, 10);
+    const offsetNum = parseInt(offset as string, 10);
 
     let query = `
       SELECT
@@ -49,9 +51,23 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
       query += ` ORDER BY p.created_at DESC, vote_count DESC`;
     }
 
-    query += ` LIMIT 50`;
+    query += ` LIMIT ? OFFSET ?`;
+    params.push(limitNum, offsetNum);
 
     const papers = db.prepare(query).all(...params) as any[];
+
+    // Get total count for pagination
+    let countQuery = `SELECT COUNT(DISTINCT p.id) as total FROM papers p`;
+    const countParams: any[] = [];
+
+    if (tag) {
+      countQuery += ` LEFT JOIN paper_tags pt ON p.id = pt.paper_id
+                      LEFT JOIN tags t ON pt.tag_id = t.id
+                      WHERE t.name = ?`;
+      countParams.push(tag);
+    }
+
+    const { total } = db.prepare(countQuery).get(...countParams) as { total: number };
 
     // Process tags
     const processedPapers = papers.map(paper => ({
@@ -61,7 +77,15 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
       user_vote: paper.user_vote || null
     }));
 
-    res.json(processedPapers);
+    res.json({
+      papers: processedPapers,
+      pagination: {
+        total,
+        limit: limitNum,
+        offset: offsetNum,
+        hasMore: offsetNum + limitNum < total
+      }
+    });
   } catch (error) {
     console.error('Error fetching papers:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -71,11 +95,15 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
 // Submit a new paper
 router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    const { url, tags, title: manualTitle } = req.body;
+    const { url, tags, title: manualTitle, authors: manualAuthors } = req.body;
     const userId = req.userId!;
 
     if (!url) {
       return res.status(400).json({ error: 'URL is required' });
+    }
+
+    if (!tags || !Array.isArray(tags) || tags.length === 0) {
+      return res.status(400).json({ error: 'At least one tag is required' });
     }
 
     // Normalize URL for duplicate checking
@@ -118,11 +146,14 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
     if (manualTitle) {
       // User provided manual title, skip extraction
       console.log('Using manual title:', manualTitle);
+      if (!manualAuthors) {
+        return res.status(400).json({ error: 'Authors are required when entering title manually' });
+      }
       metadata = {
         title: manualTitle,
         abstract: undefined,
         bib_entry: undefined,
-        authors: undefined,
+        authors: manualAuthors,
         published_date: undefined
       };
     } else {
@@ -144,6 +175,17 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
           message: 'We could not automatically extract the paper information from this URL. This may happen if the site is slow, unavailable, or uses an unsupported format.',
           url: url,
           canRetry: true
+        });
+      }
+
+      // Check if authors extraction failed
+      if (!metadata.authors) {
+        return res.status(422).json({
+          error: 'Unable to extract authors',
+          message: 'We could extract the paper title but not the authors. Please enter them manually.',
+          url: url,
+          canRetry: false,
+          needsAuthors: true
         });
       }
     }
@@ -267,6 +309,118 @@ router.get('/tags', async (req: AuthRequest, res: Response) => {
     res.json(tags);
   } catch (error) {
     console.error('Error fetching tags:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete a paper (only by submitter)
+router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const paperId = parseInt(req.params.id);
+    const userId = req.userId!;
+
+    // Check if paper exists and user is the submitter
+    const paper = db.prepare('SELECT id, submitter_id FROM papers WHERE id = ?').get(paperId) as any;
+    if (!paper) {
+      return res.status(404).json({ error: 'Paper not found' });
+    }
+
+    if (paper.submitter_id !== userId) {
+      return res.status(403).json({ error: 'You can only delete your own submissions' });
+    }
+
+    // Delete paper (CASCADE will delete related comments, votes, and tags)
+    db.prepare('DELETE FROM papers WHERE id = ?').run(paperId);
+
+    res.json({ message: 'Paper deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting paper:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Edit a paper (only by submitter)
+router.patch('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const paperId = parseInt(req.params.id);
+    const userId = req.userId!;
+    const { title, tags, authors, abstract, bib_entry } = req.body;
+
+    // Check if paper exists and user is the submitter
+    const paper = db.prepare('SELECT id, submitter_id FROM papers WHERE id = ?').get(paperId) as any;
+    if (!paper) {
+      return res.status(404).json({ error: 'Paper not found' });
+    }
+
+    if (paper.submitter_id !== userId) {
+      return res.status(403).json({ error: 'You can only edit your own submissions' });
+    }
+
+    // Build update query dynamically
+    const updates: string[] = [];
+    const params: any[] = [];
+
+    if (title) {
+      updates.push('title = ?');
+      params.push(title);
+    }
+    if (authors !== undefined) {
+      updates.push('authors = ?');
+      params.push(authors);
+    }
+    if (abstract !== undefined) {
+      updates.push('abstract = ?');
+      params.push(abstract);
+    }
+    if (bib_entry !== undefined) {
+      updates.push('bib_entry = ?');
+      params.push(bib_entry);
+    }
+
+    if (updates.length > 0) {
+      updates.push('updated_at = CURRENT_TIMESTAMP');
+      params.push(paperId);
+
+      db.prepare(`UPDATE papers SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+    }
+
+    // Update tags if provided
+    if (tags && Array.isArray(tags)) {
+      // Remove old tags
+      db.prepare('DELETE FROM paper_tags WHERE paper_id = ?').run(paperId);
+
+      // Add new tags
+      for (const tagName of tags) {
+        const normalizedTag = tagName.toLowerCase().trim();
+        db.prepare('INSERT OR IGNORE INTO tags (name) VALUES (?)').run(normalizedTag);
+        const tag = db.prepare('SELECT id FROM tags WHERE name = ?').get(normalizedTag) as { id: number };
+        db.prepare('INSERT INTO paper_tags (paper_id, tag_id) VALUES (?, ?)').run(paperId, tag.id);
+      }
+    }
+
+    // Get updated paper
+    const updatedPaper = db.prepare(`
+      SELECT
+        p.*,
+        STRFTIME('%Y-%m-%dT%H:%M:%SZ', p.created_at) as created_at,
+        STRFTIME('%Y-%m-%dT%H:%M:%SZ', p.updated_at) as updated_at,
+        u.username as submitter_username,
+        (SELECT COALESCE(SUM(CASE WHEN vote_type = 1 THEN 1 WHEN vote_type = -1 THEN -1 ELSE 0 END), 0)
+         FROM votes WHERE paper_id = p.id) as vote_count,
+        GROUP_CONCAT(t.name) as tags
+      FROM papers p
+      LEFT JOIN users u ON p.submitter_id = u.id
+      LEFT JOIN paper_tags pt ON p.id = pt.paper_id
+      LEFT JOIN tags t ON pt.tag_id = t.id
+      WHERE p.id = ?
+      GROUP BY p.id
+    `).get(paperId) as any;
+
+    updatedPaper.tags = updatedPaper.tags ? updatedPaper.tags.split(',') : [];
+
+    res.json(updatedPaper);
+  } catch (error) {
+    console.error('Error editing paper:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
