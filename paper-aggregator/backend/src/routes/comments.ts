@@ -12,7 +12,14 @@ router.get('/papers/:paperId/comments', (req: Request, res: Response) => {
 
     // Get all comments for the paper with user information
     const comments = db.prepare(`
-      SELECT c.*, u.username
+      SELECT
+        c.id,
+        c.paper_id,
+        c.user_id,
+        c.parent_id,
+        c.content,
+        STRFTIME('%Y-%m-%dT%H:%M:%SZ', c.created_at) as created_at,
+        u.username
       FROM comments c
       JOIN users u ON c.user_id = u.id
       WHERE c.paper_id = ?
@@ -88,7 +95,14 @@ router.post('/papers/:paperId/comments', authenticateToken, (req: Request, res: 
 
     // Fetch the created comment with user information
     const comment = db.prepare(`
-      SELECT c.*, u.username
+      SELECT
+        c.id,
+        c.paper_id,
+        c.user_id,
+        c.parent_id,
+        c.content,
+        STRFTIME('%Y-%m-%dT%H:%M:%SZ', c.created_at) as created_at,
+        u.username
       FROM comments c
       JOIN users u ON c.user_id = u.id
       WHERE c.id = ?

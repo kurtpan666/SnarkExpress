@@ -87,7 +87,7 @@ router.get('/:username', (req, res) => {
 
     // Get user basic info
     const user = db.prepare(`
-      SELECT id, username, email, created_at
+      SELECT id, username, email, STRFTIME('%Y-%m-%dT%H:%M:%SZ', created_at) as created_at
       FROM users
       WHERE username = ?
     `).get(username) as any;
@@ -161,7 +161,15 @@ router.get('/:username/submissions', (req, res) => {
     // Get user's submissions with vote counts and tags
     const submissions = db.prepare(`
       SELECT
-        p.*,
+        p.id,
+        p.title,
+        p.url,
+        p.abstract,
+        p.bib_entry,
+        p.authors,
+        p.published_date,
+        p.submitter_id,
+        STRFTIME('%Y-%m-%dT%H:%M:%SZ', p.created_at) as created_at,
         u.username as submitter_username,
         COALESCE(SUM(CASE
           WHEN v.vote_type = 1 THEN 1
@@ -208,7 +216,12 @@ router.get('/:username/comments', (req, res) => {
     // Get user's comments with paper info
     const comments = db.prepare(`
       SELECT
-        c.*,
+        c.id,
+        c.paper_id,
+        c.user_id,
+        c.parent_id,
+        c.content,
+        STRFTIME('%Y-%m-%dT%H:%M:%SZ', c.created_at) as created_at,
         p.title as paper_title,
         p.id as paper_id
       FROM comments c
@@ -242,7 +255,7 @@ router.get('/:username/votes', (req, res) => {
     const votes = db.prepare(`
       SELECT
         v.vote_type,
-        v.created_at,
+        STRFTIME('%Y-%m-%dT%H:%M:%SZ', v.created_at) as created_at,
         p.id as paper_id,
         p.title as paper_title,
         p.url as paper_url,
