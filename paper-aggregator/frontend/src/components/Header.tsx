@@ -9,20 +9,22 @@ export function Header() {
   return (
     <header className="bg-orange-500 text-white px-2 sm:px-4 py-2">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="text-lg sm:text-xl font-bold hover:underline flex-shrink-0">
-          Snark Express
-        </Link>
+        {/* Logo and Navigation */}
+        <div className="flex items-center gap-4 sm:gap-6">
+          <Link to="/" className="text-lg sm:text-xl font-bold hover:underline flex-shrink-0">
+            Snark Express
+          </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex space-x-4 text-sm">
-          <Link to="/" className="hover:underline">new</Link>
-          <Link to="/?sort=hot" className="hover:underline">hot</Link>
-          <Link to="/search" className="hover:underline">search</Link>
-          {isAuthenticated && (
-            <Link to="/submit" className="hover:underline">submit</Link>
-          )}
-        </nav>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex space-x-4 text-sm">
+            <Link to="/" className="hover:underline">new</Link>
+            <Link to="/?sort=hot" className="hover:underline">hot</Link>
+            <Link to="/search" className="hover:underline">search</Link>
+            {isAuthenticated && (
+              <Link to="/submit" className="hover:underline">submit</Link>
+            )}
+          </nav>
+        </div>
 
         {/* Desktop User Menu */}
         <div className="hidden md:flex items-center space-x-4 text-sm flex-shrink-0">

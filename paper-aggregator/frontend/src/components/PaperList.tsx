@@ -112,35 +112,39 @@ export function PaperList() {
         </button>
 
         {/* Sidebar - responsive */}
-        <div
-          className={`
-            fixed lg:static inset-0 z-30 lg:z-auto
-            lg:w-64 lg:flex-shrink-0
-            transition-transform duration-300 ease-in-out
-            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          `}
-        >
-          {/* Backdrop for mobile */}
-          {isSidebarOpen && (
-            <div
-              className="lg:hidden absolute inset-0 bg-black bg-opacity-50"
-              onClick={() => setIsSidebarOpen(false)}
-            />
-          )}
+        {/* Mobile backdrop */}
+        {isSidebarOpen && (
+          <div
+            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
 
-          {/* Sidebar content */}
-          <div className="relative lg:static h-full lg:h-auto overflow-y-auto lg:overflow-visible">
-            <div className="absolute lg:static left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-gray-50 lg:bg-transparent p-4 lg:p-0 space-y-4">
-              {/* Close button for mobile */}
-              <button
-                onClick={() => setIsSidebarOpen(false)}
-                className="lg:hidden absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                aria-label="Close sidebar"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+        {/* Sidebar container */}
+        <div className="lg:w-56 lg:flex-shrink-0">
+          <div
+            className={`
+              fixed lg:static top-0 left-0 bottom-0 z-40 lg:z-auto
+              w-80 max-w-[85vw] lg:w-full
+              bg-gray-50 lg:bg-transparent
+              p-4 lg:p-0
+              transition-transform duration-300 ease-in-out lg:transition-none
+              ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+              overflow-y-auto lg:overflow-visible
+            `}
+          >
+            {/* Close button for mobile */}
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="lg:hidden absolute top-2 right-2 text-gray-500 hover:text-gray-700 z-10"
+              aria-label="Close sidebar"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className="space-y-4">
 
               {/* Tag Filter */}
               <div className="bg-white rounded border border-gray-300 shadow-sm">
