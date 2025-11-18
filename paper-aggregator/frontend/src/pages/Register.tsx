@@ -25,7 +25,7 @@ export function Register() {
       if (useKeyPair) {
         // Register with key pair
         const response = await auth.registerWithKeyPair(username, email);
-        const { user, token, privateKey: generatedPrivateKey, warning } = response.data;
+        const { user, token, privateKey: generatedPrivateKey } = response.data;
 
         // Store the private key temporarily to show to user
         if (generatedPrivateKey) {
