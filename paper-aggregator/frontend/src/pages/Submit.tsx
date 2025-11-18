@@ -169,10 +169,10 @@ export function Submit() {
 
   return (
     <div className="max-w-2xl mx-auto mt-8 px-4">
-      <div className="bg-white rounded border border-gray-300 p-6">
-        <h2 className="text-2xl font-bold mb-4">Submit a Paper</h2>
+      <div className="bg-white dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-600 p-6">
+        <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Submit a Paper</h2>
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-4">
             <div className="font-semibold">{error}</div>
             {existingPaper && (
               <div className="mt-2 text-sm">
@@ -182,7 +182,7 @@ export function Submit() {
                 </div>
                 <button
                   onClick={() => navigate('/')}
-                  className="text-red-900 underline hover:text-red-800"
+                  className="text-red-900 dark:text-red-300 underline hover:text-red-800 dark:hover:text-red-200"
                 >
                   View the existing submission on the homepage
                 </button>
@@ -191,7 +191,7 @@ export function Submit() {
           </div>
         )}
         {extractionError && (
-          <div className="bg-yellow-50 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4">
+          <div className="bg-yellow-50 dark:bg-yellow-900 border border-yellow-400 dark:border-yellow-700 text-yellow-800 dark:text-yellow-200 px-4 py-3 rounded mb-4">
             <div className="font-semibold">Automatic extraction failed</div>
             <div className="text-sm mt-1">{extractionError}</div>
             <div className="mt-3 flex space-x-3">
@@ -227,7 +227,7 @@ export function Submit() {
         )}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
               Paper URL
             </label>
             <input
@@ -235,18 +235,18 @@ export function Submit() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://eprint.iacr.org/2025/2097"
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               required
               disabled={loading}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Best optimized for <strong>eprint.iacr.org</strong> papers. Also supports arXiv and DOI links. We'll automatically extract the title, abstract, and BibTeX entry.
             </p>
           </div>
           {showManualInput && (
             <>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                   Paper Title (Manual) <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -254,16 +254,16 @@ export function Submit() {
                   value={manualTitle}
                   onChange={(e) => setManualTitle(e.target.value)}
                   placeholder="Enter paper title manually"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   required={showManualInput}
                   disabled={loading}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Automatic extraction failed, so please enter the title manually.
                 </p>
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                   Authors <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -271,18 +271,18 @@ export function Submit() {
                   value={manualAuthors}
                   onChange={(e) => setManualAuthors(e.target.value)}
                   placeholder="Enter authors (e.g., John Doe, Jane Smith)"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   required={showManualInput}
                   disabled={loading}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Enter the paper authors separated by commas.
                 </p>
               </div>
             </>
           )}
           <div className="mb-4 relative">
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
               Tags (comma-separated) <span className="text-red-500">*</span>
             </label>
             <input
@@ -293,26 +293,26 @@ export function Submit() {
               onClick={handleTagClick}
               onKeyUp={handleTagKeyUp}
               placeholder="cryptography, zero-knowledge, blockchain"
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               required
               disabled={loading}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
             />
             {showSuggestions && tagSuggestions.length > 0 && (
-              <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-b shadow-lg max-h-40 overflow-y-auto">
+              <div className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-b shadow-lg max-h-40 overflow-y-auto">
                 {tagSuggestions.map((suggestion, index) => (
                   <button
                     key={index}
                     type="button"
                     onClick={() => selectSuggestion(suggestion)}
-                    className="w-full text-left px-3 py-2 hover:bg-orange-100 text-sm"
+                    className="w-full text-left px-3 py-2 hover:bg-orange-100 dark:hover:bg-orange-900 text-sm text-gray-900 dark:text-gray-100"
                   >
                     {suggestion}
                   </button>
                 ))}
               </div>
             )}
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Required. Separate multiple tags with commas. Start typing to see suggestions.
             </p>
           </div>
