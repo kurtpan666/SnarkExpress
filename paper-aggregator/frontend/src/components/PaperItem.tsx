@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Paper } from '../types';
 import { papers as papersApi } from '../api';
 import { useAuth } from '../AuthContext';
 import { MathText } from './MathText';
+import { Comments } from './Comments';
 
 interface PaperItemProps {
   paper: Paper;
@@ -128,9 +130,13 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
             {paper.tags.length > 0 && (
               <div className="mt-1 flex flex-wrap gap-1">
                 {paper.tags.map((tag, index) => (
-                  <span key={index} className="bg-gray-200 px-2 py-0.5 rounded">
+                  <Link
+                    key={index}
+                    to={`/?tag=${encodeURIComponent(tag)}`}
+                    className="bg-gray-200 px-2 py-0.5 rounded hover:bg-gray-300 transition-colors"
+                  >
                     {tag}
-                  </span>
+                  </Link>
                 ))}
               </div>
             )}
@@ -144,7 +150,7 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
                 </div>
               )}
               {paper.bib_entry && (
-                <div>
+                <div className="mb-3">
                   <div className="flex items-center justify-between mb-1">
                     <h4 className="font-semibold">BibTeX:</h4>
                     <button
@@ -159,6 +165,7 @@ export function PaperItem({ paper, onVoteChange }: PaperItemProps) {
                   </pre>
                 </div>
               )}
+              <Comments paperId={paper.id} />
             </div>
           )}
         </div>

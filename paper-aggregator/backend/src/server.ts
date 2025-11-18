@@ -5,6 +5,7 @@ import path from 'path';
 import authRoutes from './routes/auth';
 import papersRoutes from './routes/papers';
 import adminRoutes from './routes/admin';
+import commentsRoutes from './routes/comments';
 
 // Load .env from the backend directory
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/papers', papersRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api', commentsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
