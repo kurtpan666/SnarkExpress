@@ -20,8 +20,8 @@ export function Login() {
 
     try {
       if (usePrivateKey) {
-        // Login with private key
-        const response = await auth.loginWithPrivateKey(username, privateKey);
+        // Login with private key only (no username needed)
+        const response = await auth.loginWithPrivateKey('', privateKey);
         login(response.data.user, response.data.token);
         navigate('/');
       } else {
@@ -78,16 +78,18 @@ export function Login() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              required
-            />
-          </div>
+          {!usePrivateKey && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Username</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                required={!usePrivateKey}
+              />
+            </div>
+          )}
 
           {!usePrivateKey ? (
             <div className="mb-4">
@@ -112,7 +114,7 @@ export function Login() {
                 placeholder="Enter your private key (64 hex characters)"
               />
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Your private key is never stored on our servers
+                Your private key is your password. No username needed.
               </p>
             </div>
           )}
