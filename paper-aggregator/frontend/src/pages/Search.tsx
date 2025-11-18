@@ -17,7 +17,7 @@ export function Search() {
   const [loading, setLoading] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
-  const itemsPerPage = 8;
+  const itemsPerPage = 4;
 
   useEffect(() => {
     const initialQuery = searchParams.get('q');
