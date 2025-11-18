@@ -71,7 +71,7 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
 // Submit a new paper
 router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    const { url, tags } = req.body;
+    const { url, tags, title: manualTitle } = req.body;
     const userId = req.userId!;
 
     if (!url) {
@@ -102,16 +102,40 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
       });
     }
 
-    // Extract metadata
-    console.log('Extracting metadata from:', url);
-    const metadata = await extractPaperMetadata(url);
-    console.log('Extracted metadata:', {
-      title: metadata.title,
-      hasAbstract: !!metadata.abstract,
-      abstractLength: metadata.abstract?.length || 0,
-      hasBibEntry: !!metadata.bib_entry,
-      authors: metadata.authors
-    });
+    // Extract or use manual metadata
+    let metadata;
+    if (manualTitle) {
+      // User provided manual title, skip extraction
+      console.log('Using manual title:', manualTitle);
+      metadata = {
+        title: manualTitle,
+        abstract: undefined,
+        bib_entry: undefined,
+        authors: undefined,
+        published_date: undefined
+      };
+    } else {
+      // Extract metadata automatically
+      console.log('Extracting metadata from:', url);
+      metadata = await extractPaperMetadata(url);
+      console.log('Extracted metadata:', {
+        title: metadata.title,
+        hasAbstract: !!metadata.abstract,
+        abstractLength: metadata.abstract?.length || 0,
+        hasBibEntry: !!metadata.bib_entry,
+        authors: metadata.authors
+      });
+
+      // Check if extraction failed
+      if (metadata.title === 'Unable to extract title') {
+        return res.status(422).json({
+          error: 'Unable to extract paper metadata',
+          message: 'We could not automatically extract the paper information from this URL. This may happen if the site is slow, unavailable, or uses an unsupported format.',
+          url: url,
+          canRetry: true
+        });
+      }
+    }
 
     // Insert paper
     const result = db.prepare(`

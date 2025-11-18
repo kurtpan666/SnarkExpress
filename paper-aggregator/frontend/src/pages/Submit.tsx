@@ -12,6 +12,9 @@ interface ExistingPaper {
 export function Submit() {
   const [url, setUrl] = useState('');
   const [tags, setTags] = useState('');
+  const [manualTitle, setManualTitle] = useState('');
+  const [showManualInput, setShowManualInput] = useState(false);
+  const [extractionError, setExtractionError] = useState('');
   const [error, setError] = useState('');
   const [existingPaper, setExistingPaper] = useState<ExistingPaper | null>(null);
   const [loading, setLoading] = useState(false);
@@ -101,6 +104,7 @@ export function Submit() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setExtractionError('');
     setExistingPaper(null);
     setLoading(true);
 
@@ -110,11 +114,22 @@ export function Submit() {
         .map(tag => tag.trim())
         .filter(tag => tag.length > 0);
 
-      await papers.submit(url, tagArray);
+      // If manual title is provided, send it
+      const submitData: any = { url, tags: tagArray };
+      if (showManualInput && manualTitle.trim()) {
+        submitData.title = manualTitle.trim();
+      }
+
+      await papers.submit(submitData.url, submitData.tags, submitData.title);
       navigate('/');
     } catch (error: any) {
+      // Check if it's extraction failure (422 Unprocessable Entity)
+      if (error.response?.status === 422 && error.response?.data?.canRetry) {
+        setExtractionError(error.response.data.message);
+        setShowManualInput(true);
+      }
       // Check if it's a duplicate paper error (409 Conflict)
-      if (error.response?.status === 409 && error.response?.data?.existingPaper) {
+      else if (error.response?.status === 409 && error.response?.data?.existingPaper) {
         setError(error.response.data.error);
         setExistingPaper(error.response.data.existingPaper);
       } else {
@@ -123,6 +138,13 @@ export function Submit() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    setExtractionError('');
+    setShowManualInput(false);
+    setManualTitle('');
+    handleSubmit({ preventDefault: () => {} } as React.FormEvent);
   };
 
   return (
@@ -146,6 +168,29 @@ export function Submit() {
                 </button>
               </div>
             )}
+          </div>
+        )}
+        {extractionError && (
+          <div className="bg-yellow-50 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4">
+            <div className="font-semibold">Automatic extraction failed</div>
+            <div className="text-sm mt-1">{extractionError}</div>
+            <div className="mt-3 flex space-x-3">
+              <button
+                type="button"
+                onClick={handleRetry}
+                disabled={loading}
+                className="bg-yellow-600 text-white px-4 py-2 rounded text-sm hover:bg-yellow-700 disabled:bg-gray-400"
+              >
+                Retry Extraction
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowManualInput(true)}
+                className="bg-orange-500 text-white px-4 py-2 rounded text-sm hover:bg-orange-600"
+              >
+                Enter Title Manually
+              </button>
+            </div>
           </div>
         )}
         {loading && (
@@ -178,6 +223,25 @@ export function Submit() {
               Best optimized for <strong>eprint.iacr.org</strong> papers. Also supports arXiv and DOI links. We'll automatically extract the title, abstract, and BibTeX entry.
             </p>
           </div>
+          {showManualInput && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">
+                Paper Title (Manual)
+              </label>
+              <input
+                type="text"
+                value={manualTitle}
+                onChange={(e) => setManualTitle(e.target.value)}
+                placeholder="Enter paper title manually"
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                required={showManualInput}
+                disabled={loading}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Automatic extraction failed, so please enter the title manually.
+              </p>
+            </div>
+          )}
           <div className="mb-4 relative">
             <label className="block text-sm font-medium mb-2">
               Tags (comma-separated)
