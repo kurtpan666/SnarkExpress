@@ -46,9 +46,9 @@ export function Pagination({
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 py-4 border-t border-gray-200">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 py-4 border-t border-gray-200 dark:border-gray-700">
       {totalItems !== undefined && itemsPerPage !== undefined && (
-        <div className="text-xs sm:text-sm text-gray-600">
+        <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
           Showing {Math.min((currentPage - 1) * itemsPerPage + 1, totalItems)} - {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} items
         </div>
       )}
@@ -57,7 +57,7 @@ export function Pagination({
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+          className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-transparent text-gray-900 dark:text-gray-100"
           aria-label="Previous page"
         >
           ← Previous
@@ -66,7 +66,7 @@ export function Pagination({
         <div className="flex gap-1">
           {pages.map((page, index) => (
             page === '...' ? (
-              <span key={`ellipsis-${index}`} className="px-2 py-1 text-xs sm:text-sm text-gray-500">
+              <span key={`ellipsis-${index}`} className="px-2 py-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                 ...
               </span>
             ) : (
@@ -76,7 +76,7 @@ export function Pagination({
                 className={`px-2 sm:px-3 py-1 text-xs sm:text-sm border rounded ${
                   currentPage === page
                     ? 'bg-orange-500 text-white border-orange-500'
-                    : 'border-gray-300 hover:bg-gray-100'
+                    : 'border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100'
                 }`}
                 aria-label={`Go to page ${page}`}
                 aria-current={currentPage === page ? 'page' : undefined}
@@ -90,7 +90,7 @@ export function Pagination({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+          className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-transparent text-gray-900 dark:text-gray-100"
           aria-label="Next page"
         >
           Next →

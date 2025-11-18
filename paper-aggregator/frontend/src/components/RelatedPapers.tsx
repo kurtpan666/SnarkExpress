@@ -35,9 +35,9 @@ export function RelatedPapers({ paperId }: RelatedPapersProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="font-semibold text-gray-900 mb-3">Related Papers</h3>
-        <p className="text-sm text-gray-500">Loading...</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Related Papers</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
       </div>
     );
   }
@@ -47,13 +47,13 @@ export function RelatedPapers({ paperId }: RelatedPapersProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-4">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-gray-900">Related Papers</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-white">Related Papers</h3>
         {network && network.edges.length > 0 && (
           <button
             onClick={() => setShowGraph(!showGraph)}
-            className="text-sm text-orange-600 hover:underline"
+            className="text-sm text-orange-600 dark:text-orange-400 hover:underline"
           >
             {showGraph ? 'Hide' : 'Show'} Graph
           </button>
@@ -62,7 +62,7 @@ export function RelatedPapers({ paperId }: RelatedPapersProps) {
 
       {/* Network Graph */}
       {showGraph && network && (
-        <div className="mb-4 bg-gray-50 rounded-lg p-4 overflow-auto">
+        <div className="mb-4 bg-gray-50 dark:bg-gray-900 rounded-lg p-4 overflow-auto">
           <PaperNetworkGraph network={network} />
         </div>
       )}
@@ -70,17 +70,17 @@ export function RelatedPapers({ paperId }: RelatedPapersProps) {
       {/* List View */}
       <div className="space-y-3">
         {relatedPapers.map((paper) => (
-          <div key={paper.id} className="border-b border-gray-100 pb-3 last:border-b-0">
+          <div key={paper.id} className="border-b border-gray-100 dark:border-gray-700 pb-3 last:border-b-0">
             <a
               href={paper.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium text-gray-900 hover:text-orange-600 line-clamp-2"
+              className="text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-orange-600 dark:hover:text-orange-400 line-clamp-2"
             >
               {paper.title}
             </a>
-            <div className="flex items-center gap-2 mt-1 text-xs text-gray-600">
-              <span className="text-orange-600 font-semibold">
+            <div className="flex items-center gap-2 mt-1 text-xs text-gray-600 dark:text-gray-400">
+              <span className="text-orange-600 dark:text-orange-400 font-semibold">
                 {paper.vote_count} points
               </span>
               <span>•</span>
@@ -88,7 +88,7 @@ export function RelatedPapers({ paperId }: RelatedPapersProps) {
                 {paper.tags.slice(0, 3).map((tag) => (
                   <span
                     key={tag}
-                    className="bg-gray-100 px-1.5 py-0.5 rounded text-xs"
+                    className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs"
                   >
                     {tag}
                   </span>
@@ -129,7 +129,7 @@ function PaperNetworkGraph({ network }: { network: PaperNetwork }) {
   });
 
   return (
-    <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
+    <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} className="dark:opacity-90">
       {/* Edges */}
       {network.edges.map((edge, index) => {
         const from = nodePositions.get(edge.from);
@@ -143,7 +143,7 @@ function PaperNetworkGraph({ network }: { network: PaperNetwork }) {
               y1={from.y}
               x2={to.x}
               y2={to.y}
-              stroke="#D1D5DB"
+              className="stroke-gray-300 dark:stroke-gray-600"
               strokeWidth={Math.min(edge.weight, 4)}
               opacity={0.6}
             />
@@ -166,6 +166,7 @@ function PaperNetworkGraph({ network }: { network: PaperNetwork }) {
               cy={pos.y}
               r={nodeRadius}
               fill={color}
+              className="dark:opacity-90"
               stroke="white"
               strokeWidth={2}
             />
@@ -192,8 +193,7 @@ function PaperNetworkGraph({ network }: { network: PaperNetwork }) {
             y={pos.y + (node.isTarget ? 25 : 20)}
             textAnchor="middle"
             fontSize="10"
-            fill="#374151"
-            className="pointer-events-none"
+            className="pointer-events-none fill-gray-700 dark:fill-gray-300"
           >
             {label}
           </text>
