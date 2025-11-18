@@ -36,6 +36,17 @@ export interface Vote {
   created_at: string;
 }
 
+export interface Comment {
+  id: number;
+  paper_id: number;
+  user_id: number;
+  parent_id: number | null;
+  content: string;
+  created_at: string;
+  username?: string;
+  replies?: Comment[];
+}
+
 export interface PaperMetadata {
   title: string;
   abstract?: string;

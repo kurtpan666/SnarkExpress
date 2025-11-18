@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AuthResponse, Paper } from './types';
+import { AuthResponse, Paper, Comment } from './types';
 
 const API_URL = '/api';
 
@@ -36,6 +36,14 @@ export const papers = {
 
   getTags: () =>
     api.get<{ name: string; count: number }[]>('/papers/tags'),
+};
+
+export const comments = {
+  getAll: (paperId: number) =>
+    api.get<Comment[]>(`/papers/${paperId}/comments`),
+
+  create: (paperId: number, content: string, parentId?: number) =>
+    api.post<Comment>(`/papers/${paperId}/comments`, { content, parent_id: parentId }),
 };
 
 export default api;

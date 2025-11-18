@@ -42,9 +42,7 @@ export function Submit() {
   useEffect(() => {
     // Get current word being typed
     const beforeCursor = tags.slice(0, cursorPosition);
-    const afterCursor = tags.slice(cursorPosition);
     const lastComma = beforeCursor.lastIndexOf(',');
-    const nextComma = afterCursor.indexOf(',');
 
     const currentTag = (lastComma === -1
       ? beforeCursor
@@ -75,6 +73,10 @@ export function Submit() {
   };
 
   const handleTagClick = (e: React.MouseEvent<HTMLInputElement>) => {
+    setCursorPosition((e.target as HTMLInputElement).selectionStart || 0);
+  };
+
+  const handleTagKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     setCursorPosition((e.target as HTMLInputElement).selectionStart || 0);
   };
 
@@ -252,7 +254,7 @@ export function Submit() {
               value={tags}
               onChange={handleTagChange}
               onClick={handleTagClick}
-              onKeyUp={handleTagClick}
+              onKeyUp={handleTagKeyUp}
               placeholder="cryptography, zero-knowledge, blockchain"
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
               disabled={loading}
