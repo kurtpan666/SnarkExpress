@@ -42,6 +42,7 @@
             color: #e4e4e7;
             min-height: 100vh;
             padding: 2rem;
+            padding-top: 5rem;
             line-height: 1.6;
         }
 
@@ -96,6 +97,89 @@
 
         .github-link:hover svg {
             transform: rotate(360deg);
+        }
+
+        /* Alpha Banner */
+        .alpha-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: linear-gradient(135deg, rgba(93, 118, 229, 0.95) 0%, rgba(171, 93, 187, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .alpha-banner-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .alpha-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .alpha-banner-text {
+            font-size: 0.95rem;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .alpha-banner-link {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            padding: 0.5rem 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alpha-banner-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .alpha-banner-link::after {
+            content: '→';
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .alpha-banner-link:hover::after {
+            transform: translateX(4px);
         }
 
         h1 {
@@ -424,6 +508,25 @@
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
+                padding-top: 6rem;
+            }
+
+            .alpha-banner {
+                padding: 0.75rem 1rem;
+            }
+
+            .alpha-banner-content {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .alpha-banner-text {
+                font-size: 0.85rem;
+            }
+
+            .alpha-banner-link {
+                padding: 0.4rem 1rem;
+                font-size: 0.85rem;
             }
 
             header {
@@ -478,6 +581,17 @@
     </style>
 </head>
 <body>
+    <!-- Alpha Banner -->
+    <div class="alpha-banner">
+        <div class="alpha-banner-content">
+            <span class="alpha-badge">Alpha Testing</span>
+            <span class="alpha-banner-text">Try the next-gen SnarkExpress experience:</span>
+            <a href="https://news.snark.express" class="alpha-banner-link" target="_blank" rel="noopener noreferrer">
+                Visit news.snark.express
+            </a>
+        </div>
+    </div>
+
     <a href="https://github.com/kurtpan666/SnarkExpress" class="github-link" target="_blank" rel="noopener noreferrer">
         <svg viewBox="0 0 16 16" version="1.1" aria-hidden="true">
             <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
